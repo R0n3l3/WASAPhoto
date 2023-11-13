@@ -1,0 +1,420 @@
+openapi: 3.0.3
+info: 
+  title: WASAPhoto
+  description: |-
+    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you.
+    
+    ### Functional design specifications
+    Each user will be presented with a stream of photos (images) in reverse chronological order, with information about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed by photos from “following” (other users that the user follows). 
+    
+    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image (even those uploaded by themself). Only authors can remove their comments. 
+    
+    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. Alice can decIde to remove the ban at any moment. 
+    
+    Users will have their profiles. The personal profile page for the user shows: the user's photos (in reverse chronological order), how many photos have been uploaded, and the user's followers and following. 
+    
+    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. Removal of an image will also remove likes and comments. 
+    
+    A user can search other user profiles via username. 
+    
+    A user can log in just by specifying the username. See the "Simplified login" section for details.
+
+    ### Simplified login
+    In real-world scenarios, new developments avoId implementing registration, login, and password-lost flows as they are a security nightmare, cumbersome, error-prone, and outsIde the project scope. So, why lose money and time on implementing those? The best practice is now to delegate those tasks to a separate service (“Identity provIder”), either in-house (owned by the same company) or a third party (like “Login with Apple/Facebook/Google” buttons). 
+    
+    In this project, we do not have an external service like this. Instead, we decIded to provIde you with a specification for a login API so that you won't spend time dealing with the design of the endpoint. The provIded OpenAPI document is at the end of this PDF. 
+    
+    The login endpoint accepts a username - like “Maria” - without any password. If the username already exists, the user is logged in. If the username is new, the user is registered and logged in. The API will return the user Identifier you need to pass into the Authorization header in any other API. 
+    
+    This authentication method is named "Bearer Authentication" (however, in this project, you should use the user Identifier in place of the token):
+      - https://swagger.io/docs/specification/authentication/bearer-authentication/
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
+    
+    There is no need either for HTTP sessions or session cookies.
+
+    ## OpenAPI
+    You will need to define different APIs from the requirements above. For each API, you must define the operationId key. We expect to find at least these operation Ids:
+      - *doLogin (see simplified login)*
+      - *setMyUserName*
+      - *uploadPhoto*
+      - *followUser*
+      - *unfollowUser*
+      - *banUser*
+      - *unbanUser*
+      - *getUserProfile*
+      - *getMyStream*
+      - *likePhoto*
+      - *unlikePhoto*
+      - *commentPhoto*
+      - *uncommentPhoto*
+      - *deletePhoto*
+    
+    ## CORS
+    The backend must reply to CORS pre-flight requests with the appropriate setting.
+    
+    To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
+  version: 0.0.5
+components:
+  parameters:
+    UserID:
+      schema:
+        type: string
+        example: "Eleonora"
+        readOnly: false
+      name: username
+      in: path
+      required: true
+      description: User ID
+    PhotoID:
+      schema:
+        type: integer
+        example: 2
+        readOnly: true
+      name: idPhoto
+      in: path
+      required: true
+      description: photo ID
+
+  schemas:
+    User:
+      title: User
+      description: "This object represents a single user."
+      type: object
+      properties:
+        username:
+          description: Unique user identifier
+          type: string
+          examples: ["Eleonora"]
+          readOnly: false
+        banned:
+          description: A list of Users banned by the user
+          type: array
+          items: {$ref: "#/components/schemas/User"}
+          examples: [["Gino", "Giovanni", "Matteo"]]
+          readOnly: false
+        profile: {$ref: "#/components/schemas/Profile"}
+    Profile:
+      title: Profile
+      description: "This object represents the profile of a user"
+      type: object
+      properties:
+        user: {$ref: "#/components/schemas/User"}
+        photoN:
+          description: How many photos the user uploaded
+          type: integer
+          examples: [2]
+          readOnly: false
+        following:
+          description: A list of Users following the user
+          type: array
+          items: {$ref: "#/components/schemas/User"}
+          examples: [["Eleonora", "Andrea", "Giada"]]
+          readOnly: false
+        followers:
+          description: A list of Users that the user follows
+          type: array
+          items: {$ref: "#/components/schemas/User"}
+          examples: [["Paolo", "Pippo", "Paperino"]]
+          readOnly: false
+        stream:
+          description: A collection of user's photos
+          type: array
+          items: {$ref: "#/components/schemas/Photo"}
+          examples: [["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]]
+          readOnly: false
+    Photo:
+      title: Photo
+      description: "This object represents a single photo"
+      type: object
+      properties:
+        idPhoto:
+          description: Unique photo identifier
+          type: integer
+          examples: [1]
+          readOnly: true
+        uploadTime: 
+          description: Time of photo uploading
+          type: string
+          format: date-time
+          examples: [2020-11-10T17:05:50Z]
+          readOnly: true
+        likes:
+          description: How many likes the photo has
+          type: integer
+          examples: [1000]
+          readOnly: false
+        comments:
+          description: How many comments the photo has
+          type: integer
+          examples: [10]
+          readOnly: false
+        poster: {$ref: "#/components/schemas/User"}
+        image:
+          title: Image
+          description: "This is the image contained in the photo"
+          type: object
+          properties:
+            link:
+              description: A link to the image
+              type: string
+              format: uri
+              examples: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]
+              readOnly: true
+    Comment:
+      title: Comment
+      description: "This object represents a single comment"
+      type: object
+      properties:
+        idComment:
+          description: Unique comment identifier
+          type: integer
+          examples: [1]
+          readOnly: true
+        content:
+          description: The content of the comment
+          type: string
+          examples: ["Nice photo!"]
+          readOnly: true
+        commentTime:
+          description: When a comment was made
+          type: string
+          format: date-time
+          examples: [2020-11-10T17:05:50Z]
+          readOnly: true
+        author: {$ref: "#/components/schemas/User"}
+    Like:
+      title: Like
+      description: "This object represents a like"
+      type: object
+      properties:
+        idLike:
+          description: Unique like identifier
+          type: integer
+          examples: [1]
+          readOnly: true
+        liker: {$ref: "#/components/schemas/User"}
+paths:
+  /session:
+    post:
+      tags: ["login"]
+      summary: Logs in the user
+      description: |-
+       If the user does not exist, it will be created, and an identifier is returned. If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: true
+      responses:
+        '201':
+          description: User log-in action successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    examples: ["abcdef012345"]
+
+  /users/{username}:
+    parameters: 
+      - $ref: "#/components/parameters/UserID"
+    put:
+      operationId: setMyUserName
+      summary: Update username
+      description: |-
+        This method sets a new username for the specified user. The new username is in the body of the request. Returns the user with the username changed.
+      requestBody:
+        content:
+          UserID:
+            schema:
+              type: string
+      responses:
+        "201":
+          description: Username updated successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+  /users/{username}/banned/:
+    post:
+      operationId: banUser
+      summary: ban a user
+      description: |-
+        this method adds an existing user to the 'banned' collection. Returns the banned user.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/User"}
+      responses:
+        "200":
+          description: user banned successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+    delete:
+      operationId: unbanUser
+      summary: unban a user
+      description: |-
+        removes a user from the ban list
+      responses:
+        "204":
+          description: user unbanned successfully
+  /profiles/:
+    get:
+      operationId: getUserProfile
+      summary: Get a profile
+      description: |-
+        Get a user profile. The client must specify the username of the profile they want to see.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          description: Username of the profile
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile shown
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Profile"}
+  /profiles/{user}/stream/:
+    get:
+      operationId: getMyStream
+      summary: get a stream
+      description: |-
+        returns the stream of a specified user.
+      responses:
+        "200":
+          description: User stream shown
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Profile/properties/stream"}
+    post:
+      operationId: uploadPhoto
+      summary: add a new photo
+      description: |
+        this method uploads a new photo to the user stream. Return the full object with the id.
+      requestBody:
+        content:
+          multipath/form-data:
+            schema: 
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                description:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      description: The description of the photo
+                      maxLength: 2200
+      responses:
+        "201":
+          description: photo successfully uploaded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo"}
+  /profiles/{user}/following/:
+    post:
+      operationId: followUser
+      summary: follow a user
+      description: |-
+        this method is used to add an existing user to the 'following' collection. Return the user added.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User"}
+      responses:
+        "200":
+          description: User added successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User"}
+    delete:
+      operationId: unfollowUser
+      summary: unfollow a user
+      description: |-
+        removes a user from the 'following' collection
+      responses:
+        "204":
+          description: user unfollowed successfully
+  /photos/{idPhoto}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoID"
+    delete:
+      operationId: deletePhoto
+      summary: Removes a photo
+      description: |-
+        removes a photo from the system
+      responses:
+        "204":
+          description: photo removed successfully
+  /photos/{idPhoto}/likes:
+    parameters:
+      - $ref: "#/components/parameters/PhotoID"
+    post:
+      operationId: likePhoto
+      summary: Likes/unlikes a photo
+      description: |-
+        This method adds a like to the specified photo
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Like"}
+      responses:
+        "201":
+          description: Likes updated successfully
+          content:
+            application/json:
+              schema: 
+                schema: {$ref: "#/components/schemas/Like"}
+    delete:
+      operationId: unlikePhoto
+      summary: removes a like from a photo
+      description: |-
+        This method removes a like from a specific photo
+      responses:
+        "204":
+          description: like removed successfully
+  /photos/{idPhoto}/comments/:
+    parameters:
+      - $ref: "#/components/parameters/PhotoID"
+    post:
+      operationId: commentPhoto
+      summary: create a new comment
+      description: |-
+        This method creates a new comment on the specified photo using the properties in the request body. The server will create a new unique ID.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Comment"}
+      responses:
+        "201":
+          description: Comment created successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Comment"}
+    delete:
+      operationId: uncommentPhoto
+      summary: remove a comment
+      description: |-
+        This method removes a comment from the specified photo
+      responses:
+        "204":
+          description: Comment deleted successfully
+    
