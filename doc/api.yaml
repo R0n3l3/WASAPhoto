@@ -54,7 +54,7 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.0.6
+  version: 0.1.0
 components:
   securitySchemes:
     bearerAuth:
@@ -79,7 +79,25 @@ components:
       name: idPhoto
       in: path
       required: true
-      description: photo ID
+      description: Photo ID
+    LikeID:
+      schema:
+        type: integer
+        example: 1
+        readOnly: true
+      name: idLike
+      in: path
+      required: true
+      description: Like ID
+    CommentID:
+      schema:
+        type: integer
+        example: 2
+        readOnly: true
+      name: idComment
+      in: path
+      required: true
+      description: Comment ID
 
   schemas:
     User:
@@ -113,14 +131,14 @@ components:
           readOnly: false
           minimum: 0
         following:
-          description: A list of Users following the user
+          description: A list of Users that the user follows
           type: array
           minItems: 0
           items: {$ref: "#/components/schemas/User"}
           examples: [["Eleonora", "Andrea", "Giada"]]
           readOnly: false
         followers:
-          description: A list of Users that the user follows
+          description: A list of Users following the user
           type: array
           minItems: 0
           items: {$ref: "#/components/schemas/User"}
@@ -197,7 +215,7 @@ components:
         author: {$ref: "#/components/schemas/User"}
     Like:
       title: Like
-      description: "This object represents a like"
+      description: "This object represents a single like"
       type: object
       properties:
         idLike:
@@ -273,16 +291,16 @@ paths:
     post:
       operationId: banUser
       tags: ["profileInteractions"]
-      summary: ban a user
+      summary: Ban a user
       description: |-
-        this method adds an existing user to the 'banned' collection. Returns the banned user.
+        This method adds an existing user to the 'banned' collection. Returns the banned user.
       requestBody:
         content:
           application/json:
             schema: {$ref: "#/components/schemas/User"}
       responses:
         "200":
-          description: user banned successfully
+          description: User banned successfully
           content:
             application/json:
               schema: {$ref: "#/components/schemas/User"}
@@ -293,9 +311,9 @@ paths:
     delete:
       operationId: unbanUser
       tags: ["profileInteractions"]
-      summary: unban a user
+      summary: Unban a user
       description: |-
-        removes a user from the ban list
+        This method removes a user from the ban list.
       responses:
         "204":
           description: user unbanned successfully
@@ -309,7 +327,7 @@ paths:
       tags: ["viewProfile"]
       summary: Get a profile
       description: |-
-        Get a user profile. The client must specify the username of the profile they want to see.
+        This method returns a user profile. The client must specify the username of the profile they want to see.
       parameters:
         - name: username
           in: query
@@ -333,9 +351,9 @@ paths:
     get:
       operationId: getMyStream
       tags: ["viewProfile"]
-      summary: get a stream
+      summary: Get a stream
       description: |-
-        returns the stream of a specified user.
+        This method returns the stream of a specified user.
       responses:
         "200":
           description: User stream shown
@@ -349,9 +367,9 @@ paths:
     post:
       operationId: uploadPhoto
       tags: ["modifyProfile"]
-      summary: add a new photo
+      summary: Add a new photo
       description: |
-        this method uploads a new photo to the user stream. Return the full object with the id.
+        This method uploads a new photo to the user stream. Return the full object with the id.
       requestBody:
         content:
           multipath/form-data:
@@ -370,7 +388,7 @@ paths:
                       maxLength: 2200
       responses:
         "201":
-          description: photo successfully uploaded
+          description: Photo successfully uploaded
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Photo"}
@@ -386,10 +404,10 @@ paths:
       tags: ["modifyProfile"]
       summary: Removes a photo
       description: |-
-        removes a photo from the system
+        This method removes a photo from the stream of the user.
       responses:
         "204":
-          description: photo removed successfully
+          description: Photo removed successfully
         "400":
           description: Bad Request
         "500":
@@ -400,9 +418,9 @@ paths:
     post:
       operationId: followUser
       tags: ["profileInteractions"]
-      summary: follow a user
+      summary: Follow a user
       description: |-
-        this method is used to add an existing user to the 'following' collection. Return the user added.
+        This method is used to add an existing user to the 'following' collection. Return the user added.
       requestBody:
         content:
           application/json:
@@ -420,12 +438,12 @@ paths:
     delete:
       operationId: unfollowUser
       tags: ["profileInteractions"]
-      summary: unfollow a user
+      summary: Unfollow a user
       description: |-
-        removes a user from the 'following' collection
+        This method removes a user from the 'following' collection.
       responses:
         "204":
-          description: user unfollowed successfully
+          description: User unfollowed successfully
         "400":
           description: Bad Request
         "500":
@@ -438,7 +456,7 @@ paths:
       tags: ["photoInteraction"]
       summary: Likes a photo
       description: |-
-        This method adds a like to the specified photo
+        This method adds a like object to the specified photo. Returns the like with the id.
       requestBody:
         content:
           application/json:
@@ -454,12 +472,16 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
+  /photos/{idPhoto}/likes/{idLike}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoID"
+      - $ref: "#/components/parameters/LikeID"
     delete:
       operationId: unlikePhoto
       tags: ["photoInteraction"]
-      summary: removes a like from a photo
+      summary: Removes a like from a photo
       description: |-
-        This method removes a like from a specific photo
+        This method removes a like object from a specific photo.
       responses:
         "204":
           description: like removed successfully
@@ -473,7 +495,7 @@ paths:
     post:
       operationId: commentPhoto
       tags: ["photoInteraction"]
-      summary: create a new comment
+      summary: Create a new comment
       description: |-
         This method creates a new comment on the specified photo using the properties in the request body. The server will create a new unique ID.
       requestBody:
@@ -490,6 +512,10 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
+  /photos/{idPhoto}/comments/{idComment}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoID"
+      - $ref: "#/components/parameters/CommentID"
     delete:
       operationId: uncommentPhoto
       tags: ["photoInteraction"]
