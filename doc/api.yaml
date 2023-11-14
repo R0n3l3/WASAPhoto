@@ -54,8 +54,13 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.0.5
+  version: 0.0.6
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
     UserID:
       schema:
@@ -90,6 +95,7 @@ components:
         banned:
           description: A list of Users banned by the user
           type: array
+          minItems: 0
           items: {$ref: "#/components/schemas/User"}
           examples: [["Gino", "Giovanni", "Matteo"]]
           readOnly: false
@@ -105,21 +111,25 @@ components:
           type: integer
           examples: [2]
           readOnly: false
+          minimum: 0
         following:
           description: A list of Users following the user
           type: array
+          minItems: 0
           items: {$ref: "#/components/schemas/User"}
           examples: [["Eleonora", "Andrea", "Giada"]]
           readOnly: false
         followers:
           description: A list of Users that the user follows
           type: array
+          minItems: 0
           items: {$ref: "#/components/schemas/User"}
           examples: [["Paolo", "Pippo", "Paperino"]]
           readOnly: false
         stream:
           description: A collection of user's photos
           type: array
+          minItems: 0
           items: {$ref: "#/components/schemas/Photo"}
           examples: [["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]]
           readOnly: false
@@ -144,11 +154,13 @@ components:
           type: integer
           examples: [1000]
           readOnly: false
+          minimum: 0
         comments:
           description: How many comments the photo has
           type: integer
           examples: [10]
           readOnly: false
+          minimum: 0
         poster: {$ref: "#/components/schemas/User"}
         image:
           title: Image
@@ -194,9 +206,12 @@ components:
           examples: [1]
           readOnly: true
         liker: {$ref: "#/components/schemas/User"}
+security:
+  - bearerAuth: []
 paths:
   /session:
     post:
+      security: []
       tags: ["login"]
       summary: Logs in the user
       description: |-
@@ -233,6 +248,7 @@ paths:
       - $ref: "#/components/parameters/UserID"
     put:
       operationId: setMyUserName
+      tags: ["modifyProfile"]
       summary: Update username
       description: |-
         This method sets a new username for the specified user. The new username is in the body of the request. Returns the user with the username changed.
@@ -242,14 +258,21 @@ paths:
             schema:
               type: string
       responses:
-        "201":
+        "200":
           description: Username updated successfully
           content:
             application/json:
               schema: {$ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
   /users/{username}/banned/:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     post:
       operationId: banUser
+      tags: ["profileInteractions"]
       summary: ban a user
       description: |-
         this method adds an existing user to the 'banned' collection. Returns the banned user.
@@ -263,17 +286,27 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
     delete:
       operationId: unbanUser
+      tags: ["profileInteractions"]
       summary: unban a user
       description: |-
         removes a user from the ban list
       responses:
         "204":
           description: user unbanned successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
   /profiles/:
     get:
       operationId: getUserProfile
+      tags: ["viewProfile"]
       summary: Get a profile
       description: |-
         Get a user profile. The client must specify the username of the profile they want to see.
@@ -290,9 +323,16 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Profile"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
   /profiles/{user}/stream/:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     get:
       operationId: getMyStream
+      tags: ["viewProfile"]
       summary: get a stream
       description: |-
         returns the stream of a specified user.
@@ -302,8 +342,13 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Profile/properties/stream"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
     post:
       operationId: uploadPhoto
+      tags: ["modifyProfile"]
       summary: add a new photo
       description: |
         this method uploads a new photo to the user stream. Return the full object with the id.
@@ -329,9 +374,32 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Photo"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /profiles/{user}/stream/{idPhoto}:
+    parameters:
+      - $ref: "#/components/parameters/PhotoID"
+    delete:
+      operationId: deletePhoto
+      tags: ["modifyProfile"]
+      summary: Removes a photo
+      description: |-
+        removes a photo from the system
+      responses:
+        "204":
+          description: photo removed successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
   /profiles/{user}/following/:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
     post:
       operationId: followUser
+      tags: ["profileInteractions"]
       summary: follow a user
       description: |-
         this method is used to add an existing user to the 'following' collection. Return the user added.
@@ -345,31 +413,30 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
     delete:
       operationId: unfollowUser
+      tags: ["profileInteractions"]
       summary: unfollow a user
       description: |-
         removes a user from the 'following' collection
       responses:
         "204":
           description: user unfollowed successfully
-  /photos/{idPhoto}:
-    parameters:
-      - $ref: "#/components/parameters/PhotoID"
-    delete:
-      operationId: deletePhoto
-      summary: Removes a photo
-      description: |-
-        removes a photo from the system
-      responses:
-        "204":
-          description: photo removed successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
   /photos/{idPhoto}/likes:
     parameters:
       - $ref: "#/components/parameters/PhotoID"
     post:
       operationId: likePhoto
-      summary: Likes/unlikes a photo
+      tags: ["photoInteraction"]
+      summary: Likes a photo
       description: |-
         This method adds a like to the specified photo
       requestBody:
@@ -383,19 +450,29 @@ paths:
             application/json:
               schema: 
                 schema: {$ref: "#/components/schemas/Like"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
     delete:
       operationId: unlikePhoto
+      tags: ["photoInteraction"]
       summary: removes a like from a photo
       description: |-
         This method removes a like from a specific photo
       responses:
         "204":
           description: like removed successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
   /photos/{idPhoto}/comments/:
     parameters:
       - $ref: "#/components/parameters/PhotoID"
     post:
       operationId: commentPhoto
+      tags: ["photoInteraction"]
       summary: create a new comment
       description: |-
         This method creates a new comment on the specified photo using the properties in the request body. The server will create a new unique ID.
@@ -409,12 +486,20 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Comment"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
     delete:
       operationId: uncommentPhoto
+      tags: ["photoInteraction"]
       summary: remove a comment
       description: |-
         This method removes a comment from the specified photo
       responses:
         "204":
           description: Comment deleted successfully
-    
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
