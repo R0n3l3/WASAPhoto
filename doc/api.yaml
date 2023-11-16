@@ -54,7 +54,7 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.1.0
+  version: 0.1.1
 components:
   securitySchemes:
     bearerAuth:
@@ -62,7 +62,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
   parameters:
-    UserID:
+    user_id:
       schema:
         type: string
         example: "Eleonora"
@@ -71,30 +71,30 @@ components:
       in: path
       required: true
       description: User ID
-    PhotoID:
+    photo_id:
       schema:
         type: integer
         example: 2
         readOnly: true
-      name: idPhoto
+      name: id_photo
       in: path
       required: true
       description: Photo ID
-    LikeID:
+    like_id:
       schema:
         type: integer
         example: 1
         readOnly: true
-      name: idLike
+      name: id_like
       in: path
       required: true
       description: Like ID
-    CommentID:
+    comment_id:
       schema:
         type: integer
         example: 2
         readOnly: true
-      name: idComment
+      name: id_comment
       in: path
       required: true
       description: Comment ID
@@ -108,14 +108,14 @@ components:
         username:
           description: Unique user identifier
           type: string
-          examples: ["Eleonora"]
+          example: "Eleonora"
           readOnly: false
         banned:
           description: A list of Users banned by the user
           type: array
           minItems: 0
           items: {$ref: "#/components/schemas/User"}
-          examples: [["Gino", "Giovanni", "Matteo"]]
+          example: ["Gino", "Giovanni", "Matteo"]
           readOnly: false
         profile: {$ref: "#/components/schemas/Profile"}
     Profile:
@@ -124,10 +124,10 @@ components:
       type: object
       properties:
         user: {$ref: "#/components/schemas/User"}
-        photoN:
+        photo_number:
           description: How many photos the user uploaded
           type: integer
-          examples: [2]
+          example: 2
           readOnly: false
           minimum: 0
         following:
@@ -135,48 +135,48 @@ components:
           type: array
           minItems: 0
           items: {$ref: "#/components/schemas/User"}
-          examples: [["Eleonora", "Andrea", "Giada"]]
+          example: ["Eleonora", "Andrea", "Giada"]
           readOnly: false
         followers:
           description: A list of Users following the user
           type: array
           minItems: 0
           items: {$ref: "#/components/schemas/User"}
-          examples: [["Paolo", "Pippo", "Paperino"]]
+          example: ["Paolo", "Pippo", "Paperino"]
           readOnly: false
         stream:
           description: A collection of user's photos
           type: array
           minItems: 0
           items: {$ref: "#/components/schemas/Photo"}
-          examples: [["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]]
+          example: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]
           readOnly: false
     Photo:
       title: Photo
       description: "This object represents a single photo"
       type: object
       properties:
-        idPhoto:
+        id_photo:
           description: Unique photo identifier
           type: integer
-          examples: [1]
+          example: 1
           readOnly: true
-        uploadTime: 
+        upload_time: 
           description: Time of photo uploading
           type: string
           format: date-time
-          examples: [2020-11-10T17:05:50Z]
+          example: 2020-11-10T17:05:50Z
           readOnly: true
         likes:
           description: How many likes the photo has
           type: integer
-          examples: [1000]
+          example: 1000
           readOnly: false
           minimum: 0
         comments:
           description: How many comments the photo has
           type: integer
-          examples: [10]
+          example: 10
           readOnly: false
           minimum: 0
         poster: {$ref: "#/components/schemas/User"}
@@ -188,29 +188,29 @@ components:
             link:
               description: A link to the image
               type: string
-              format: uri
-              examples: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]
+              format: url
+              example: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"
               readOnly: true
     Comment:
       title: Comment
       description: "This object represents a single comment"
       type: object
       properties:
-        idComment:
+        id_comment:
           description: Unique comment identifier
           type: integer
-          examples: [1]
+          example: 1
           readOnly: true
         content:
           description: The content of the comment
           type: string
-          examples: ["Nice photo!"]
+          example: "Nice photo!"
           readOnly: true
-        commentTime:
+        comment_time:
           description: When a comment was made
           type: string
           format: date-time
-          examples: [2020-11-10T17:05:50Z]
+          example: 2020-11-10T17:05:50Z
           readOnly: true
         author: {$ref: "#/components/schemas/User"}
     Like:
@@ -218,10 +218,10 @@ components:
       description: "This object represents a single like"
       type: object
       properties:
-        idLike:
+        id_like:
           description: Unique like identifier
           type: integer
-          examples: [1]
+          example: 1
           readOnly: true
         liker: {$ref: "#/components/schemas/User"}
 security:
@@ -259,11 +259,11 @@ paths:
                 properties:
                   identifier:
                     type: string
-                    examples: ["abcdef012345"]
+                    example: "abcdef012345"
 
   /users/{username}:
     parameters: 
-      - $ref: "#/components/parameters/UserID"
+      - $ref: "#/components/parameters/user_id"
     put:
       operationId: setMyUserName
       tags: ["modifyProfile"]
@@ -287,7 +287,7 @@ paths:
           description: Internal Server Error
   /users/{username}/banned/:
     parameters:
-      - $ref: "#/components/parameters/UserID"
+      - $ref: "#/components/parameters/user_id"
     post:
       operationId: banUser
       tags: ["profileInteractions"]
@@ -345,9 +345,9 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /profiles/{user}/stream/:
+  /profiles/{username}/stream/:
     parameters:
-      - $ref: "#/components/parameters/UserID"
+      - $ref: "#/components/parameters/user_id"
     get:
       operationId: getMyStream
       tags: ["viewProfile"]
@@ -359,7 +359,9 @@ paths:
           description: User stream shown
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/Profile/properties/stream"}
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Photo"}
         "400":
           description: Bad Request
         "500":
@@ -396,9 +398,10 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /profiles/{user}/stream/{idPhoto}:
+  /profiles/{username}/stream/{id_photo}:
     parameters:
-      - $ref: "#/components/parameters/PhotoID"
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
     delete:
       operationId: deletePhoto
       tags: ["modifyProfile"]
@@ -412,9 +415,9 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /profiles/{user}/following/:
+  /profiles/{username}/following/:
     parameters:
-      - $ref: "#/components/parameters/UserID"
+      - $ref: "#/components/parameters/user_id"
     post:
       operationId: followUser
       tags: ["profileInteractions"]
@@ -448,9 +451,9 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /photos/{idPhoto}/likes:
+  /photos/{id_photo}/likes:
     parameters:
-      - $ref: "#/components/parameters/PhotoID"
+      - $ref: "#/components/parameters/photo_id"
     post:
       operationId: likePhoto
       tags: ["photoInteraction"]
@@ -472,10 +475,10 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /photos/{idPhoto}/likes/{idLike}:
+  /photos/{id_photo}/likes/{id_like}:
     parameters:
-      - $ref: "#/components/parameters/PhotoID"
-      - $ref: "#/components/parameters/LikeID"
+      - $ref: "#/components/parameters/photo_id"
+      - $ref: "#/components/parameters/like_id"
     delete:
       operationId: unlikePhoto
       tags: ["photoInteraction"]
@@ -489,9 +492,9 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /photos/{idPhoto}/comments/:
+  /photos/{id_photo}/comments/:
     parameters:
-      - $ref: "#/components/parameters/PhotoID"
+      - $ref: "#/components/parameters/photo_id"
     post:
       operationId: commentPhoto
       tags: ["photoInteraction"]
@@ -512,10 +515,10 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-  /photos/{idPhoto}/comments/{idComment}:
+  /photos/{id_photo}/comments/{id_comment}:
     parameters:
-      - $ref: "#/components/parameters/PhotoID"
-      - $ref: "#/components/parameters/CommentID"
+      - $ref: "#/components/parameters/photo_id"
+      - $ref: "#/components/parameters/comment_id"
     delete:
       operationId: uncommentPhoto
       tags: ["photoInteraction"]
