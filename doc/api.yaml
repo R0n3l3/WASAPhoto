@@ -54,13 +54,189 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.0.1
+  version: 0.1.1
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    user_id:
+      schema:
+        type: string
+        example: Maria
+        pattern: 'ˆ.*?$'
+        minLength: 3
+        maxLength: 16
+        readOnly: false
+      name: username
+      in: path
+      required: true
+      description: User ID
+    photo_id:
+      schema:
+        type: integer
+        example: 2
+        readOnly: true
+      name: id_photo
+      in: path
+      required: true
+      description: Photo ID
+    like_id:
+      schema:
+        type: integer
+        example: 1
+        readOnly: true
+      name: id_like
+      in: path
+      required: true
+      description: Like ID
+    comment_id:
+      schema:
+        type: integer
+        example: 2
+        readOnly: true
+      name: id_comment
+      in: path
+      required: true
+      description: Comment ID
+
+  schemas:
+    User:
+      title: User
+      description: "This object represents a single user."
+      type: object
+      properties:
+        username:
+          description: Unique user identifier
+          type: string
+          example: Maria
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+          readOnly: false
+        banned:
+          description: A list of Users banned by the user
+          type: array
+          minItems: 0
+          maxItems: 99999
+          items: {$ref: "#/components/schemas/User"}
+          example: ["Gino", "Giovanni", "Matteo"]
+          readOnly: false
+        profile: {$ref: "#/components/schemas/Profile"}
+    Profile:
+      title: Profile
+      description: "This object represents the profile of a user"
+      type: object
+      properties:
+        user: {$ref: "#/components/schemas/User"}
+        photo_number:
+          description: How many photos the user uploaded
+          type: integer
+          example: 2
+          readOnly: false
+          minimum: 0
+        following:
+          description: A list of Users that the user follows
+          type: array
+          minItems: 0
+          maxItems: 99999
+          items: {$ref: "#/components/schemas/User"}
+          example: ["Eleonora", "Andrea", "Giada"]
+          readOnly: false
+        followers:
+          description: A list of Users following the user
+          type: array
+          minItems: 0
+          maxItems: 99999
+          items: {$ref: "#/components/schemas/User"}
+          example: ["Paolo", "Pippo", "Paperino"]
+          readOnly: false
+        stream:
+          description: A collection of user's photos
+          type: array
+          minItems: 0
+          maxItems: 99999
+          items: {$ref: "#/components/schemas/Photo"}
+          example: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]
+          readOnly: false
+    Photo:
+      title: Photo
+      description: "This object represents a single photo"
+      type: object
+      properties:
+        id_photo:
+          description: Unique photo identifier
+          type: integer
+          example: 1
+          readOnly: true
+        upload_time: 
+          description: Time of photo uploading
+          type: string
+          format: date-time
+          example: 2020-11-10T17:05:50Z
+          readOnly: true
+        likes:
+          description: How many likes the photo has
+          type: integer
+          example: 1000
+          readOnly: false
+          minimum: 0
+        comments:
+          description: How many comments the photo has
+          type: integer
+          example: 10
+          readOnly: false
+          minimum: 0
+        poster: {$ref: "#/components/schemas/User"}
+        image:
+          title: Image
+          description: "This is the image contained in the photo"
+          type: object
+          properties:
+            link:
+              description: A link to the image
+              type: string
+              format: url
+              example: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"
+              readOnly: true
+    Comment:
+      title: Comment
+      description: "This object represents a single comment"
+      type: object
+      properties:
+        id_comment:
+          description: Unique comment identifier
+          type: integer
+          example: 1
+          readOnly: true
+        content:
+          description: The content of the comment
+          type: string
+          example: "Nice photo!"
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 9999
+          readOnly: true
+        comment_time:
+          description: When a comment was made
+          type: string
+          format: date-time
+          example: 2020-11-10T17:05:50Z
+          readOnly: true
+        author: {$ref: "#/components/schemas/User"}
+    Like:
+      title: Like
+      description: "This object represents a single like"
+      type: object
+      properties:
+        id_like:
+          description: Unique like identifier
+          type: integer
+          example: 1
+          readOnly: true
+        liker: {$ref: "#/components/schemas/User"}
 security:
   - bearerAuth: []
 paths:
@@ -70,9 +246,7 @@ paths:
       tags: ["login"]
       summary: Logs in the user
       description: |-
-        If the user does not exist, it will be created,
-        and an identifier is returned.
-        If the user exists, the user identifier is returned.
+       If the user does not exist, it will be created, and an identifier is returned. If the user exists, the user identifier is returned.
       operationId: doLogin
       requestBody:
         description: User details
@@ -97,5 +271,285 @@ paths:
                 type: object
                 properties:
                   identifier:
-                    type: integer
-                    example: 1
+                    type: string
+                    example: "abcdef012345"
+
+  /users/{username}:
+    parameters: 
+      - $ref: "#/components/parameters/user_id"
+    put:
+      operationId: setMyUserName
+      tags: ["modifyProfile"]
+      summary: Update username
+      description: |-
+        This method sets a new username for the specified user. The new username is in the body of the request. Returns the user with the username changed.
+      requestBody:
+        content:
+          UserID:
+            schema:
+              type: string
+              pattern: 'ˆ.*?$'
+              minLength: 3
+              maxLength: 16
+      responses:
+        "200":
+          description: Username updated successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /users/{username}/banned/:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    post:
+      operationId: banUser
+      tags: ["profileInteractions"]
+      summary: Ban a user
+      description: |-
+        This method adds an existing user to the 'banned' collection. Returns the banned user.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/User"}
+      responses:
+        "200":
+          description: User banned successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    delete:
+      operationId: unbanUser
+      tags: ["profileInteractions"]
+      summary: Unban a user
+      description: |-
+        This method removes a user from the ban list.
+      responses:
+        "204":
+          description: user unbanned successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /profiles/:
+    get:
+      operationId: getUserProfile
+      tags: ["viewProfile"]
+      summary: Get a profile
+      description: |-
+        This method returns a user profile. The client must specify the username of the profile they want to see.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          description: Username of the profile
+          schema:
+            type: string
+            pattern: 'ˆ.*?$'
+            minLength: 3
+            maxLength: 16
+      responses:
+        "200":
+          description: User profile shown
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Profile"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /profiles/{username}/stream/:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    get:
+      operationId: getMyStream
+      tags: ["viewProfile"]
+      summary: Get a stream
+      description: |-
+        This method returns the stream of a specified user.
+      responses:
+        "200":
+          description: User stream shown
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Photo"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    post:
+      operationId: uploadPhoto
+      tags: ["modifyProfile"]
+      summary: Add a new photo
+      description: |
+        This method uploads a new photo to the user stream. Return the full object with the id.
+      requestBody:
+        content:
+          multipath/form-data:
+            schema: 
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                description:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      description: The description of the photo
+                      minLength: 1
+                      maxLength: 2200
+                      pattern: 'ˆ.*?$'
+      responses:
+        "201":
+          description: Photo successfully uploaded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /profiles/{username}/stream/{id_photo}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
+    delete:
+      operationId: deletePhoto
+      tags: ["modifyProfile"]
+      summary: Removes a photo
+      description: |-
+        This method removes a photo from the stream of the user.
+      responses:
+        "204":
+          description: Photo removed successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /profiles/{username}/following/:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    post:
+      operationId: followUser
+      tags: ["profileInteractions"]
+      summary: Follow a user
+      description: |-
+        This method is used to add an existing user to the 'following' collection. Return the user added.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User"}
+      responses:
+        "200":
+          description: User added successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    delete:
+      operationId: unfollowUser
+      tags: ["profileInteractions"]
+      summary: Unfollow a user
+      description: |-
+        This method removes a user from the 'following' collection.
+      responses:
+        "204":
+          description: User unfollowed successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /photos/{id_photo}/likes:
+    parameters:
+      - $ref: "#/components/parameters/photo_id"
+    post:
+      operationId: likePhoto
+      tags: ["photoInteraction"]
+      summary: Likes a photo
+      description: |-
+        This method adds a like object to the specified photo. Returns the like with the id.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Like"}
+      responses:
+        "201":
+          description: Likes updated successfully
+          content:
+            application/json:
+              schema: 
+                schema: {$ref: "#/components/schemas/Like"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /photos/{id_photo}/likes/{id_like}:
+    parameters:
+      - $ref: "#/components/parameters/photo_id"
+      - $ref: "#/components/parameters/like_id"
+    delete:
+      operationId: unlikePhoto
+      tags: ["photoInteraction"]
+      summary: Removes a like from a photo
+      description: |-
+        This method removes a like object from a specific photo.
+      responses:
+        "204":
+          description: like removed successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /photos/{id_photo}/comments/:
+    parameters:
+      - $ref: "#/components/parameters/photo_id"
+    post:
+      operationId: commentPhoto
+      tags: ["photoInteraction"]
+      summary: Create a new comment
+      description: |-
+        This method creates a new comment on the specified photo using the properties in the request body. The server will create a new unique ID.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Comment"}
+      responses:
+        "201":
+          description: Comment created successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Comment"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /photos/{id_photo}/comments/{id_comment}:
+    parameters:
+      - $ref: "#/components/parameters/photo_id"
+      - $ref: "#/components/parameters/comment_id"
+    delete:
+      operationId: uncommentPhoto
+      tags: ["photoInteraction"]
+      summary: remove a comment
+      description: |-
+        This method removes a comment from the specified photo
+      responses:
+        "204":
+          description: Comment deleted successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
