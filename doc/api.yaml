@@ -54,7 +54,7 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.1.1
+  version: 0.1.2
 components:
   securitySchemes:
     bearerAuth:
@@ -65,7 +65,10 @@ components:
     user_id:
       schema:
         type: string
-        example: "Eleonora"
+        example: Maria
+        pattern: 'ˆ.*?$'
+        minLength: 3
+        maxLength: 16
         readOnly: false
       name: username
       in: path
@@ -108,12 +111,16 @@ components:
         username:
           description: Unique user identifier
           type: string
-          example: "Eleonora"
+          example: Maria
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
           readOnly: false
         banned:
           description: A list of Users banned by the user
           type: array
           minItems: 0
+          maxItems: 99999
           items: {$ref: "#/components/schemas/User"}
           example: ["Gino", "Giovanni", "Matteo"]
           readOnly: false
@@ -134,6 +141,7 @@ components:
           description: A list of Users that the user follows
           type: array
           minItems: 0
+          maxItems: 99999
           items: {$ref: "#/components/schemas/User"}
           example: ["Eleonora", "Andrea", "Giada"]
           readOnly: false
@@ -141,6 +149,7 @@ components:
           description: A list of Users following the user
           type: array
           minItems: 0
+          maxItems: 99999
           items: {$ref: "#/components/schemas/User"}
           example: ["Paolo", "Pippo", "Paperino"]
           readOnly: false
@@ -148,6 +157,7 @@ components:
           description: A collection of user's photos
           type: array
           minItems: 0
+          maxItems: 99999
           items: {$ref: "#/components/schemas/Photo"}
           example: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"]
           readOnly: false
@@ -205,6 +215,9 @@ components:
           description: The content of the comment
           type: string
           example: "Nice photo!"
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 9999
           readOnly: true
         comment_time:
           description: When a comment was made
@@ -275,6 +288,9 @@ paths:
           UserID:
             schema:
               type: string
+              pattern: 'ˆ.*?$'
+              minLength: 3
+              maxLength: 16
       responses:
         "200":
           description: Username updated successfully
@@ -335,6 +351,9 @@ paths:
           description: Username of the profile
           schema:
             type: string
+            pattern: 'ˆ.*?$'
+            minLength: 3
+            maxLength: 16
       responses:
         "200":
           description: User profile shown
@@ -387,7 +406,9 @@ paths:
                     content:
                       type: string
                       description: The description of the photo
+                      minLength: 1
                       maxLength: 2200
+                      pattern: 'ˆ.*?$'
       responses:
         "201":
           description: Photo successfully uploaded
