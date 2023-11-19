@@ -54,7 +54,7 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.0.2
+  version: 0.1.0
 tags:
   - name: login
     description: Login operations
@@ -116,7 +116,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/User/properties/username"}
+          items: {$ref: "#/components/schemas/User"}
           example: ["Gino", "Gianni"]
           readOnly: false
         profile: {$ref: "#/components/schemas/Profile"}
@@ -130,7 +130,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/Photo/properties/photoId"}
+          items: {$ref: "#/components/schemas/Photo"}
           readOnly: false
         photoNumber:
           description: Number of photos uploaded
@@ -186,7 +186,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/Like/properties/likeId"}
+          items: {$ref: "#/components/schemas/Like"}
           readOnly: false
         likeNumber:
           description: Number of likes of the photo
@@ -198,7 +198,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/Comment/properties/commentId"}
+          items: {$ref: "#/components/schemas/Comment"}
           readOnly: false
         commentNumber:
           description: Number of comments of the photo
