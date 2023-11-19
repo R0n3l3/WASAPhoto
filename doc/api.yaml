@@ -55,6 +55,17 @@ info:
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
   version: 0.0.2
+tags:
+  - name: login
+    description: Login operations
+  - name: view
+    description: Operations to search and view data
+  - name: modifyProfile
+    description: Operations to modify the user profile
+  - name: profileInteractions
+    description: Operations to interact with other users
+  - name: photoInteractions
+    description: Operations to interact with photos
 components:
   securitySchemes:
     bearerAuth:
@@ -104,7 +115,7 @@ components:
           description: List of banned users
           type: array
           minItems: 0
-          maxItems: 999999
+          maxItems: 999999999
           items: {$ref: "#/components/schemas/User/properties/username"}
           example: ["Gino", "Gianni"]
           readOnly: false
@@ -118,7 +129,7 @@ components:
           description: List of photos uploaded
           type: array
           minItems: 0
-          maxItems: 999999
+          maxItems: 999999999
           items: {$ref: "#/components/schemas/Photo/properties/photoId"}
           readOnly: false
         photoNumber:
@@ -130,7 +141,7 @@ components:
           description: A collection of users that follow User
           type: array
           minItems: 0
-          maxItems: 999999
+          maxItems: 999999999
           items: {$ref: "#/components/schemas/User"}
           example: ["Giulia", "Francesco"]
           readOnly: false
@@ -138,7 +149,7 @@ components:
           description: A collection of users followed by User
           type: array
           minItems: 0
-          maxItems: 999999
+          maxItems: 999999999
           items: {$ref: "#/components/schemas/User"}
           example: ["Paolo", "Gino"]
           readOnly: false
@@ -174,7 +185,7 @@ components:
           description: A collection of the likes the photo received
           type: array
           minItems: 0
-          maxItems: 999999
+          maxItems: 999999999
           items: {$ref: "#/components/schemas/Like/properties/likeId"}
           readOnly: false
         likeNumber:
@@ -186,7 +197,7 @@ components:
           description: A collection of the comments the photo received
           type: array
           minItems: 0
-          maxItems: 999999
+          maxItems: 999999999
           items: {$ref: "#/components/schemas/Comment/properties/commentId"}
           readOnly: false
         commentNumber:
@@ -230,6 +241,15 @@ components:
           format: date-time
           example: 2020-11-10T17:05:50Z
           readOnly: true
+  responses:
+    404NotFound:
+      description: The resource was not found
+    500ServerError:
+      description: Internal Server Error
+    400BadRequest:
+      description: Bad Request
+    204Successfull:
+      description: The operation was successfull
 security:
   - bearerAuth: []
 paths:
@@ -291,10 +311,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Profile"}
-        "404":
-          description: User not found
-        "500":
-          description: Internal Server Error
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
 
   /users/{userId}:
     parameters:
@@ -315,10 +333,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/User"}
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/banned:
     parameters:
     - $ref: "#/components/parameters/user_id"
@@ -333,12 +349,9 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/User"}
       responses:
-        "204":
-          description: User banned successfully
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "500": {$ref: "#/components/responses/500ServerError"}
 
   /users/{userId}/banned/{userId}:
     parameters:
@@ -350,12 +363,9 @@ paths:
       description: |-
         This method is used to remove an existing user to the 'banned' collection.
       responses:
-        "204":
-          description: User removed successfully
-        "404":
-          description: User not found
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -375,10 +385,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Photo"}
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -390,19 +398,16 @@ paths:
       description: |-
         This method removes a photo from the associated user.
       responses:
-        "204":
-          description: Photo removed successfully
-        "404":
-          description: Photo not found
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}/likes:
     parameters:
       - $ref: "#/components/parameters/user_id"
       - $ref: "#/components/parameters/photo_id"
     post:
       operationId: likePhoto
-      tags: ["photoInteraction"]
+      tags: ["photoInteractions"]
       summary: Like a photo
       description: |-
         This method adds a new like to the associated photo. The new like is contained in the body of the request. Returns the new like id.
@@ -416,10 +421,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Like"}
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}/likes/{likeId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -427,24 +430,21 @@ paths:
       - $ref: "#/components/parameters/like_id"
     delete:
       operationId: unlikePhoto
-      tags: ["photoInteraction"]
+      tags: ["photoInteractions"]
       summary: Remove a like
       description: |-
         This method removes a like from the associated photo.
       responses:
-        "204":
-          description: Like removed successfully
-        "404":
-          description: Like not found
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}/comments:
     parameters:
       - $ref: "#/components/parameters/user_id"
       - $ref: "#/components/parameters/photo_id"
     post:
       operationId: commentPhoto
-      tags: ["photoInteraction"]
+      tags: ["photoInteractions"]
       summary: Comment a photo
       description: |-
         This method adds a new comment to the associated photo. The new comment is contained in the body of the request. Returns the new comment id.
@@ -458,10 +458,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Comment"}
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}/comments/{commentId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -469,17 +467,14 @@ paths:
       - $ref: "#/components/parameters/comment_id"
     delete:
       operationId: uncommentPhoto
-      tags: ["photoInteraction"]
+      tags: ["photoInteractions"]
       summary: Remove a comment
       description: |-
         This method removes a comment from the associated photo.
       responses:
-        "204":
-          description: Comment removed successfully
-        "404":
-          description: Comment not found
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/following:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -497,6 +492,8 @@ paths:
           schema:
             type: array
             items: {$ref: "#/components/schemas/User"}
+            minItems: 0
+            maxItems: 999999999
       responses:
         "200":
           description: Photos found successfully
@@ -504,11 +501,11 @@ paths:
             application/json:
               schema:
                 type: array 
-                items: {$ref: "#/components/schemas/Profile/properties/photos"}
-        "404":
-          description: Photos not found
-        "500":
-          description: Internal Server Error
+                items: {$ref: "#/components/schemas/Photo"}
+                minItems: 0
+                maxItems: 999999999
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
     post:
       operationId: followUser
       tags: ["profileInteractions"]
@@ -520,12 +517,9 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/User"}
       responses:
-        "204":
-          description: User added successfully
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/following/{userId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -536,9 +530,6 @@ paths:
       description: |-
         This method is used to remove an existing user to the 'following' collection.
       responses:
-        "204":
-          description: User removed successfully
-        "404":
-          description: User not found
-        "500":
-          description: Internal Server Error
+        "204": {$ref: "#/components/responses/204Successfull"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+        "500": {$ref: "#/components/responses/500ServerError"}
