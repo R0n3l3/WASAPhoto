@@ -54,13 +54,38 @@ info:
     The backend must reply to CORS pre-flight requests with the appropriate setting.
     
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
-  version: 0.0.1
+  version: 0.0.2
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    user_id:
+      schema: {$ref: "#/components/schemas/User/properties/username"}
+      name: userId
+      in: path
+      required: true
+      description: User ID
+    photo_id:
+      schema: {$ref: "#/components/schemas/Photo/properties/photoId"}
+      name: photoId
+      in: path
+      required: true
+      description: Photo ID
+    like_id:
+      schema: {$ref: "#/components/schemas/Like/properties/likeId"}
+      name: likeId
+      in: path
+      required: true
+      description: Like ID
+    comment_id:
+      schema: {$ref: "#/components/schemas/Comment/properties/commentId"}
+      name: commentId
+      in: path
+      required: true
+      description: Comment ID
   schemas:
     User:
       title: User
@@ -70,7 +95,7 @@ components:
         username:
           description: Unique user identifier
           type: string
-          pattern: 'ˆ.*?$'
+          pattern: ˆ.*?$
           minLength: 3
           maxLength: 16
           example: Maria
@@ -80,22 +105,21 @@ components:
           type: array
           minItems: 0
           maxItems: 999999
-          items: {$ref: "#/components/schemas/User"}
+          items: {$ref: "#/components/schemas/User/properties/username"}
           example: ["Gino", "Gianni"]
           readOnly: false
+        profile: {$ref: "#/components/schemas/Profile"}
     Profile:
       title: Profile
       description: "This object represents the personal profile of a user"
       type: object
       properties:
-        user: {$ref: "#/components/schemas/User"}
         photos:
           description: List of photos uploaded
           type: array
           minItems: 0
           maxItems: 999999
-          items: {$ref: "#/components/schemas/Photo"}
-          example: ["pollo.png", "paesaggio.png"]
+          items: {$ref: "#/components/schemas/Photo/properties/photoId"}
           readOnly: false
         photoNumber:
           description: Number of photos uploaded
@@ -151,7 +175,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999
-          items: {$ref: "#/components/schemas/Like"}
+          items: {$ref: "#/components/schemas/Like/properties/likeId"}
           readOnly: false
         likeNumber:
           description: Number of likes of the photo
@@ -163,7 +187,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999
-          items: {$ref: "#/components/schemas/Comment"}
+          items: {$ref: "#/components/schemas/Comment/properties/commentId"}
           readOnly: false
         commentNumber:
           description: Number of comments of the photo
@@ -195,7 +219,7 @@ components:
         content:
           description: The content of a comment
           type: string
-          pattern: 'ˆ.*?$'
+          pattern: ˆ.*?$
           minLength: 3
           maxLength: 16
           example: Nice photo!
@@ -229,7 +253,7 @@ paths:
                 name:
                   type: string
                   example: Maria
-                  pattern: 'ˆ.*?$'
+                  pattern: ˆ.*?$
                   minLength: 3
                   maxLength: 16
         required: true
@@ -244,3 +268,277 @@ paths:
                   identifier:
                     type: integer
                     example: 1
+  /users:
+    get:
+      operationId: getUserProfile
+      tags: ["view"]
+      summary: Search user profile
+      description: |-
+        This method is used to search for a user with a specific username. The username is in the query. Returns the profile of the user.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          description: Username of the user searched
+          schema:
+            type: string
+            pattern: 'ˆ.*?$'
+            minLength: 3
+            maxLength: 16
+      responses:
+        "200":
+          description: User found successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Profile"}
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+
+  /users/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    put:
+      operationId: setMyUsername
+      tags: ["modifyProfile"]
+      summary: Update username
+      description: |-
+        This method sets a new username for the associated user. We replace the user with a username-changed user, present in the body of the request. Returns the new user.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/User"}
+      responses:
+        "200":
+          description: Username updated successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /users/{userId}/banned:
+    parameters:
+    - $ref: "#/components/parameters/user_id"
+    post:
+      operationId: banUser
+      tags: ["profileInteractions"]
+      summary: Ban a user
+      description: |-
+         This method is used to add an existing user to the 'banned' collection. The user id is in the body of the request.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/User"}
+      responses:
+        "204":
+          description: User banned successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+
+  /users/{userId}/banned/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    delete:
+      operationId: unbanUser
+      tags: ["profileInteractions"]
+      summary: Unban a user
+      description: |-
+        This method is used to remove an existing user to the 'banned' collection.
+      responses:
+        "204":
+          description: User removed successfully
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/photos:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    post:
+      operationId: uploadPhoto
+      tags: ["modifyProfile"]
+      summary: Upload a photo
+      description: |-
+        This method adds a new photo to the associated user. The new photo is contained in the body of the request. Returns the new photo id.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Photo"}
+      responses:
+        "201":
+          description: Photo uploaded successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Photo"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/photos/{photoId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
+    delete:
+      operationId: deletePhoto
+      tags: ["modifyProfile"]
+      summary: Delete a photo
+      description: |-
+        This method removes a photo from the associated user.
+      responses:
+        "204":
+          description: Photo removed successfully
+        "404":
+          description: Photo not found
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/photos/{photoId}/likes:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
+    post:
+      operationId: likePhoto
+      tags: ["photoInteraction"]
+      summary: Like a photo
+      description: |-
+        This method adds a new like to the associated photo. The new like is contained in the body of the request. Returns the new like id.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Like"}
+      responses:
+        "201":
+          description: Like added successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Like"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/photos/{photoId}/likes/{likeId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
+      - $ref: "#/components/parameters/like_id"
+    delete:
+      operationId: unlikePhoto
+      tags: ["photoInteraction"]
+      summary: Remove a like
+      description: |-
+        This method removes a like from the associated photo.
+      responses:
+        "204":
+          description: Like removed successfully
+        "404":
+          description: Like not found
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/photos/{photoId}/comments:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
+    post:
+      operationId: commentPhoto
+      tags: ["photoInteraction"]
+      summary: Comment a photo
+      description: |-
+        This method adds a new comment to the associated photo. The new comment is contained in the body of the request. Returns the new comment id.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Comment"}
+      responses:
+        "201":
+          description: Comment added successfully
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Comment"}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/photos/{photoId}/comments/{commentId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/photo_id"
+      - $ref: "#/components/parameters/comment_id"
+    delete:
+      operationId: uncommentPhoto
+      tags: ["photoInteraction"]
+      summary: Remove a comment
+      description: |-
+        This method removes a comment from the associated photo.
+      responses:
+        "204":
+          description: Comment removed successfully
+        "404":
+          description: Comment not found
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/following:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    get:
+      operationId: getMyStream
+      tags: ["view"]
+      summary: Get user stream
+      description: |-
+        This method is used to get the stream of a specified user. The following list is in the path. Returns the photos of the users, in reverse chronological order.
+      parameters:
+        - name: following
+          in: path
+          required: true
+          description: Users followed
+          schema:
+            type: array
+            items: {$ref: "#/components/schemas/User"}
+      responses:
+        "200":
+          description: Photos found successfully
+          content:
+            application/json:
+              schema:
+                type: array 
+                items: {$ref: "#/components/schemas/Profile/properties/photos"}
+        "404":
+          description: Photos not found
+        "500":
+          description: Internal Server Error
+    post:
+      operationId: followUser
+      tags: ["profileInteractions"]
+      summary: Follow a user
+      description: |-
+         This method is used to add an existing user to the 'following' collection. The user id is in the body of the request.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/User"}
+      responses:
+        "204":
+          description: User added successfully
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /users/{userId}/profile/following/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    delete:
+      operationId: unfollowUser
+      tags: ["profileInteractions"]
+      summary: Unfollow a user
+      description: |-
+        This method is used to remove an existing user to the 'following' collection.
+      responses:
+        "204":
+          description: User removed successfully
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
