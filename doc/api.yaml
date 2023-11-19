@@ -61,6 +61,151 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    User:
+      title: User
+      description: "This object represents a single user"
+      type: object
+      properties:
+        username:
+          description: Unique user identifier
+          type: string
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+          example: Maria
+          readOnly: false
+        banned:
+          description: List of banned users
+          type: array
+          minItems: 0
+          maxItems: 999999
+          items: {$ref: "#/components/schemas/User"}
+          example: ["Gino", "Gianni"]
+          readOnly: false
+    Profile:
+      title: Profile
+      description: "This object represents the personal profile of a user"
+      type: object
+      properties:
+        user: {$ref: "#/components/schemas/User"}
+        photos:
+          description: List of photos uploaded
+          type: array
+          minItems: 0
+          maxItems: 999999
+          items: {$ref: "#/components/schemas/Photo"}
+          example: ["pollo.png", "paesaggio.png"]
+          readOnly: false
+        photoNumber:
+          description: Number of photos uploaded
+          type: integer
+          example: 1
+          readOnly: false
+        followers:
+          description: A collection of users that follow User
+          type: array
+          minItems: 0
+          maxItems: 999999
+          items: {$ref: "#/components/schemas/User"}
+          example: ["Giulia", "Francesco"]
+          readOnly: false
+        following:
+          description: A collection of users followed by User
+          type: array
+          minItems: 0
+          maxItems: 999999
+          items: {$ref: "#/components/schemas/User"}
+          example: ["Paolo", "Gino"]
+          readOnly: false
+    Photo:
+      title: Photo
+      description: "This object represents a photo uploaded by a user"
+      type: object
+      properties:
+        photoId:
+          description: Unique photo identifier
+          type: integer
+          example: 1
+          readOnly: true
+        uploader: {$ref: "#/components/schemas/User"}
+        image:
+          title: Image
+          description: "This is the image contained in the photo"
+          type: object
+          properties:
+            link:
+              description: A link to the image
+              type: string
+              format: url
+              example: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"
+              readOnly: true
+        uploadTime:
+          description: When the photo was uploaded
+          type: string
+          format: date-time
+          example: 2020-11-10T17:05:50Z
+          readOnly: true
+        likes:
+          description: A collection of the likes the photo received
+          type: array
+          minItems: 0
+          maxItems: 999999
+          items: {$ref: "#/components/schemas/Like"}
+          readOnly: false
+        likeNumber:
+          description: Number of likes of the photo
+          type: integer
+          example: 100
+          readOnly: false
+        comments:
+          description: A collection of the comments the photo received
+          type: array
+          minItems: 0
+          maxItems: 999999
+          items: {$ref: "#/components/schemas/Comment"}
+          readOnly: false
+        commentNumber:
+          description: Number of comments of the photo
+          type: integer
+          example: 50
+          readOnly: false
+    Like:
+      title: Like
+      description: "This object represents a single like"
+      type: object
+      properties:
+        likeId:
+          description: Unique like identifier
+          type: integer
+          example: 1
+          readOnly: true
+        liker: {$ref: "#/components/schemas/User"}
+    Comment:
+      title: Comment
+      description: "This object represents a single comment"
+      type: object
+      properties:
+        commentId:
+          description: Unique comment identifier
+          type: integer
+          example: 1
+          readOnly: true
+        commenter: {$ref: "#/components/schemas/User"}
+        content:
+          description: The content of a comment
+          type: string
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+          example: Nice photo!
+          readOnly: true
+        commentTime: 
+          description: When the comment was made
+          type: string
+          format: date-time
+          example: 2020-11-10T17:05:50Z
+          readOnly: true
 security:
   - bearerAuth: []
 paths:
