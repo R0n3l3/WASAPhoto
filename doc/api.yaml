@@ -79,6 +79,18 @@ components:
       in: path
       required: true
       description: User ID
+    banned_id:
+      schema: {$ref: "#/components/schemas/User/properties/username"}
+      name: bannedId
+      in: path
+      required: true
+      description: User banned ID
+    following_id:
+      schema: {$ref: "#/components/schemas/User/properties/username"}
+      name: followingId
+      in: path
+      required: true
+      description: User following ID  
     photo_id:
       schema: {$ref: "#/components/schemas/Photo/properties/photoId"}
       name: photoId
@@ -116,7 +128,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/User"}
+          items: {$ref: "#/components/schemas/User/properties/username"}
           example: ["Gino", "Gianni"]
           readOnly: false
         profile: {$ref: "#/components/schemas/Profile"}
@@ -130,7 +142,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/Photo"}
+          items: {$ref: "#/components/schemas/Photo/properties/photoId"}
           readOnly: false
         photoNumber:
           description: Number of photos uploaded
@@ -173,12 +185,15 @@ components:
               description: A link to the image
               type: string
               format: url
+              maxLength: 2048 
               example: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"
               readOnly: true
         uploadTime:
           description: When the photo was uploaded
           type: string
           format: date-time
+          minLength: 1
+          maxLength: 20
           example: 2020-11-10T17:05:50Z
           readOnly: true
         likes:
@@ -186,7 +201,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/Like"}
+          items: {$ref: "#/components/schemas/Like/properties/likeId"}
           readOnly: false
         likeNumber:
           description: Number of likes of the photo
@@ -198,7 +213,7 @@ components:
           type: array
           minItems: 0
           maxItems: 999999999
-          items: {$ref: "#/components/schemas/Comment"}
+          items: {$ref: "#/components/schemas/Comment/properties/commentId"}
           readOnly: false
         commentNumber:
           description: Number of comments of the photo
@@ -239,6 +254,8 @@ components:
           description: When the comment was made
           type: string
           format: date-time
+          minLength: 1
+          maxLength: 20
           example: 2020-11-10T17:05:50Z
           readOnly: true
   responses:
@@ -318,7 +335,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/user_id"
     put:
-      operationId: setMyUsername
+      operationId: setMyUserName
       tags: ["modifyProfile"]
       summary: Update username
       description: |-
@@ -335,7 +352,7 @@ paths:
               schema: {$ref: "#/components/schemas/User"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "500": {$ref: "#/components/responses/500ServerError"}
-  /users/{userId}/banned:
+  /users/{userId}/banned/:
     parameters:
     - $ref: "#/components/parameters/user_id"
     post:
@@ -353,9 +370,10 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "500": {$ref: "#/components/responses/500ServerError"}
 
-  /users/{userId}/banned/{userId}:
+  /users/{userId}/banned/{bannedId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/banned_id"
     delete:
       operationId: unbanUser
       tags: ["profileInteractions"]
@@ -366,7 +384,7 @@ paths:
         "204": {$ref: "#/components/responses/204Successfull"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "500": {$ref: "#/components/responses/500ServerError"}
-  /users/{userId}/profile/photos:
+  /users/{userId}/profile/photos/:
     parameters:
       - $ref: "#/components/parameters/user_id"
     post:
@@ -380,11 +398,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/Photo"}
       responses:
-        "201":
-          description: Photo uploaded successfully
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/Photo"}
+        "204": {$ref: "#/components/responses/204Successfull"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}:
@@ -401,7 +415,7 @@ paths:
         "204": {$ref: "#/components/responses/204Successfull"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "500": {$ref: "#/components/responses/500ServerError"}
-  /users/{userId}/profile/photos/{photoId}/likes:
+  /users/{userId}/profile/photos/{photoId}/likes/:
     parameters:
       - $ref: "#/components/parameters/user_id"
       - $ref: "#/components/parameters/photo_id"
@@ -416,11 +430,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/Like"}
       responses:
-        "201":
-          description: Like added successfully
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/Like"}
+        "204": {$ref: "#/components/responses/204Successfull"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}/likes/{likeId}:
@@ -438,7 +448,7 @@ paths:
         "204": {$ref: "#/components/responses/204Successfull"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "500": {$ref: "#/components/responses/500ServerError"}
-  /users/{userId}/profile/photos/{photoId}/comments:
+  /users/{userId}/profile/photos/{photoId}/comments/:
     parameters:
       - $ref: "#/components/parameters/user_id"
       - $ref: "#/components/parameters/photo_id"
@@ -453,11 +463,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/Comment"}
       responses:
-        "201":
-          description: Comment added successfully
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/Comment"}
+        "204": {$ref: "#/components/responses/204Successfull"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}/profile/photos/{photoId}/comments/{commentId}:
@@ -475,7 +481,7 @@ paths:
         "204": {$ref: "#/components/responses/204Successfull"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "500": {$ref: "#/components/responses/500ServerError"}
-  /users/{userId}/profile/following:
+  /users/{userId}/profile/following/:
     parameters:
       - $ref: "#/components/parameters/user_id"
     get:
@@ -484,16 +490,6 @@ paths:
       summary: Get user stream
       description: |-
         This method is used to get the stream of a specified user. The following list is in the path. Returns the photos of the users, in reverse chronological order.
-      parameters:
-        - name: following
-          in: path
-          required: true
-          description: Users followed
-          schema:
-            type: array
-            items: {$ref: "#/components/schemas/User"}
-            minItems: 0
-            maxItems: 999999999
       responses:
         "200":
           description: Photos found successfully
@@ -520,9 +516,10 @@ paths:
         "204": {$ref: "#/components/responses/204Successfull"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "500": {$ref: "#/components/responses/500ServerError"}
-  /users/{userId}/profile/following/{userId}:
+  /users/{userId}/profile/following/{followingId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/following_id"
     delete:
       operationId: unfollowUser
       tags: ["profileInteractions"]
