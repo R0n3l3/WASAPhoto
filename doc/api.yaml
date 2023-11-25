@@ -340,12 +340,14 @@ paths:
         "500": {$ref: "#/components/responses/500ServerError"}
     post:
       operationId: createUser
-      tags: []
+      tags: ["login"]
       summary: Create a new user
       description: |-
         This method is used to create a new user with a specific username. The user is in the body of the request. 
       requestBody:
-        schema: {$ref: "#/components/schemas/User"}
+        content: 
+          application/json:
+            schema: {$ref: "#/components/schemas/User"}
       responses:
         "204": {$ref: "#/components/responses/204Successfull"}
         "400": {$ref: "#/components/responses/400BadRequest"}
