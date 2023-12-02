@@ -319,7 +319,8 @@ paths:
       tags: ["view"]
       summary: Search user profile
       description: |-
-        This method is used to search for a user with a specific username. The username is in the query. Returns the profile of the user.
+        This method is used to search for a user with a specific username. The username is in the 
+        query. Returns the profile of the user.
       parameters:
         - name: username
           in: query
@@ -338,20 +339,6 @@ paths:
               schema: {$ref: "#/components/schemas/Profile"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "500": {$ref: "#/components/responses/500ServerError"}
-    post:
-      operationId: createUser
-      tags: ["login"]
-      summary: Create a new user
-      description: |-
-        This method is used to create a new user with a specific username. The user is in the body of the request. 
-      requestBody:
-        content: 
-          application/json:
-            schema: {$ref: "#/components/schemas/User"}
-      responses:
-        "204": {$ref: "#/components/responses/204Successfull"}
-        "400": {$ref: "#/components/responses/400BadRequest"}
-        "500": {$ref: "#/components/responses/500ServerError"}
   /users/{userId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -360,7 +347,9 @@ paths:
       tags: ["modifyProfile"]
       summary: Update username
       description: |-
-        This method sets a new username for the associated user. We replace the user with a username-changed user, present in the body of the request. Returns the new user.
+        This method sets a new username for the associated user. 
+        We replace the user with a username-changed user, present in the body of the request. 
+        Returns the new user.
       requestBody:
         content:
           application/json:
@@ -381,7 +370,8 @@ paths:
       tags: ["profileInteractions"]
       summary: Ban a user
       description: |-
-         This method is used to add an existing user to the 'banned' collection. The user id is in the body of the request.
+         This method is used to add an existing user to the 'banned' collection. 
+        The user id is in the body of the request.
       requestBody:
         content:
           application/json:

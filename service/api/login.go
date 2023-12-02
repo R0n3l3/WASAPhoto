@@ -30,7 +30,7 @@ func (rt *_router) login(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	name := r.URL.Query().Get("username")
 
-	for i := 1; i <= len(Users); i++ {
+	for i := 0; i <= len(Users); i++ {
 		if Users[i].Username == name {
 			json.NewEncoder(w).Encode(name)
 			return
