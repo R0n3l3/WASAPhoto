@@ -7,11 +7,12 @@ import (
 // Handler returns an instance of httprouter.Router that handle APIs registered here
 func (rt *_router) Handler() http.Handler {
 	// Register routes
+	rt.router.POST("/session/", rt.login)
+
 	rt.router.GET("/users/", rt.getUserProfile)
-	rt.router.POST("/users/", rt.createUser)
 
 	rt.router.PUT("/users/:userId", rt.setMyUserName)
-	
+
 	rt.router.POST("/users/:userId/banned/", rt.banUser)
 	rt.router.DELETE("/users/:userId/banned/:bannedId", rt.unbanUser)
 
@@ -36,4 +37,3 @@ func (rt *_router) Handler() http.Handler {
 
 	return rt.router
 }
-

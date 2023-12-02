@@ -311,8 +311,8 @@ paths:
                 type: object
                 properties:
                   identifier:
-                    type: integer
-                    example: 1
+                    type: string
+                    example: Maria
   /users/:
     get:
       operationId: getUserProfile
