@@ -390,7 +390,7 @@ paths:
       tags: ["profileInteractions"]
       summary: Unban a user
       description: |-
-        This method is used to remove an existing user to the 'banned' collection.
+        This method is used to remove an existing user from the 'banned' collection.
       responses:
         "204": {$ref: "#/components/responses/204Successfull"}
         "404": {$ref: "#/components/responses/404NotFound"}

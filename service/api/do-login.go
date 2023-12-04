@@ -25,7 +25,7 @@ var Profiles = []Profile{
 }
 
 // Create new user
-func (rt *_router) login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
 	name := r.URL.Query().Get("username")

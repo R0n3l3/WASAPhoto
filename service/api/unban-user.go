@@ -9,16 +9,22 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	w.Header().Set("content-type", "application/json")
 
 	name := ps.ByName("userId")
-	toUnBan := r.URL.Query().Get("")
+	toUnban := ps.ByName("bannedId")
+
+	var userMe User
+	var index int
 
 	for i := 0; i <= len(Users); i++ {
 		if Users[i].Username == name {
-			for j := 0; j <= len(Users); j++ {
-				if Users[j].Username == toUnBan {
-					//todo
-				}
-			}
+			userMe = Users[i]
+			break
 		}
 	}
-
+	for i := 0; i <= len(Users); i++ {
+		if userMe.Banned[i].Username == toUnban {
+			index = i
+			break
+		}
+	}
+	userMe.Banned = append(userMe.Banned[:index], userMe.Banned[index+1:]...)
 }

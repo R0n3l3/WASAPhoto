@@ -15,7 +15,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	for i := 0; i <= len(Users); i++ {
 		if Users[i].Username == oldName {
 			Users[i].Username = newName
-			Profiles[i].ProfileId = newName
+			Users[i].UserProfile.ProfileId = newName
 			json.NewEncoder(w).Encode(Users[i])
 		}
 	}

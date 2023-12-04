@@ -13,7 +13,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	for i := 0; i <= len(Users); i++ {
 		if Users[i].Username == name {
-			json.NewEncoder(w).Encode(Profiles[i])
+			json.NewEncoder(w).Encode(Users[i].UserProfile)
 			return
 		}
 	}
