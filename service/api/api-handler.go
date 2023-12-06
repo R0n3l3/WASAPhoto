@@ -19,10 +19,10 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:userId/profile/photos/", rt.uploadPhoto)           //todo: errors
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId", rt.deletePhoto) //todo: errors
 
-	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)            //todo
-	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto) //todo
+	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)            //todo: errors
+	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto) //todo: errors
 
-	rt.router.POST("/users/:userId/profile/photos/:photoId/comments/", rt.commentPhoto)               //todo
+	rt.router.POST("/users/:userId/profile/photos/:photoId/comments/", rt.commentPhoto)               //todo: errors
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId/comments/:commentId", rt.uncommentPhoto) //todo: errors
 
 	rt.router.GET("/users/:userId/profile/following/", rt.getMyStream)                 //todo: errors
