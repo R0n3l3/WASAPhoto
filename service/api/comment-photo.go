@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -13,41 +14,48 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	w.Header().Set("content-type", "application/json")
 
-	name := ps.ByName("userId")
-	myName := r.URL.Query().Get("username")
-	photo, err := strconv.Atoi(ps.ByName("photoId"))
+	uploaderName := ps.ByName("userId")              //Get the uploader name
+	myName := r.URL.Query().Get("username")          //Get my name
+	photo, err := strconv.Atoi(ps.ByName("photoId")) //Get the commented photo
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	text := r.URL.Query().Get("content")
-
-	var userMe User
-	var otherProfile Profile
-
-	for i := 0; i < len(Users); i++ {
-		if Users[i].Username == myName {
-			userMe = Users[i]
-			break
-		}
-		if Users[i].Username == name {
-			otherProfile = Users[i].UserProfile
-			break
-		}
+	text := r.URL.Query().Get("content") //Get the content of the comment
+	if text == "" {
+		w.WriteHeader(http.StatusNotAcceptable)
+		return
 	}
 
-	newComment := Comment{
+	myUser := getUser(myName)  //Get my user
+	if myUser.Username == "" { //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	uploaderProfile := getProfile(uploaderName) //Get uploader profile
+	if uploaderProfile.ProfileId == "" {        //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	newComment := Comment{ //Create a new comment
 		CommentId:   len(allComments),
-		Commenter:   userMe,
+		Commenter:   myUser,
 		CommentTime: time.Now().Format("2006-01-02 15:04:51"),
 		Content:     text,
 	}
 
-	for i := 0; i < len(otherProfile.Photos); i++ {
-		if otherProfile.Photos[i].PhotoId == photo {
-			otherProfile.Photos[i].CommentNumber += 1
-			otherProfile.Photos[i].Comments = append(otherProfile.Photos[i].Comments, newComment)
-			break
+	for i := 0; i < len(uploaderProfile.Photos); i++ { //Add the comment to the collection and update the total
+		if uploaderProfile.Photos[i].PhotoId == photo {
+			uploaderProfile.Photos[i].CommentNumber += 1
+			uploaderProfile.Photos[i].Comments = append(uploaderProfile.Photos[i].Comments, newComment)
+			err := json.NewEncoder(w).Encode(uploaderProfile.Photos[i])
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 		}
 	}
+	w.WriteHeader(http.StatusNotFound)
+	return
 }

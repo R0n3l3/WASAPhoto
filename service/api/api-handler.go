@@ -19,18 +19,15 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:userId/profile/photos/", rt.uploadPhoto)           //todo: errors
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId", rt.deletePhoto) //todo: errors
 
-	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)            //todo: errors
-	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto) //todo: errors
+	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)            //todo: check api
+	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto) //todo: check api
 
-	rt.router.POST("/users/:userId/profile/photos/:photoId/comments/", rt.commentPhoto)               //todo: errors
-	rt.router.DELETE("/users/:userId/profile/photos/:photoId/comments/:commentId", rt.uncommentPhoto) //todo: errors
+	rt.router.POST("/users/:userId/profile/photos/:photoId/comments/", rt.commentPhoto)               //todo: check api
+	rt.router.DELETE("/users/:userId/profile/photos/:photoId/comments/:commentId", rt.uncommentPhoto) //todo: check api
 
-	rt.router.GET("/users/:userId/profile/following/", rt.getMyStream)                 //todo: errors
+	rt.router.GET("/users/:userId/profile/following/", rt.getMyStream)                 //todo: check api
 	rt.router.POST("/users/:userId/profile/following/", rt.followUser)                 //todo: errors
 	rt.router.DELETE("/users/:userId/profile/following/:followingId", rt.unfollowUser) //todo: errors
-
-	rt.router.GET("/", rt.getHelloWorld)
-	rt.router.GET("/context", rt.wrap(rt.getContextReply))
 
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)

@@ -9,32 +9,35 @@ import (
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	name := ps.ByName("userId")
+	myName := ps.ByName("userId") //Recover my name
 
-	var profileMe Profile
+	myProfile := getProfile(myName) //Recover my profile
 
-	for i := 0; i < len(Users); i++ {
-		if Users[i].Username == name {
-			profileMe = Users[i].UserProfile
-		}
+	if myProfile.ProfileId == "" { //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	var stream []Photo
+	var myStream []Photo //Recover the photos uploaded by the users I follow
 
-	for i := 0; i < len(profileMe.Following); i++ {
-		photos := profileMe.Following[i].UserProfile.Photos
+	for i := 0; i < len(myProfile.Following); i++ {
+		photos := myProfile.Following[i].UserProfile.Photos
 		for j := 0; i < len(photos); j++ {
-			stream = append(stream, photos[j])
+			myStream = append(myStream, photos[j])
 		}
 	}
 
-	for i := 0; i < len(stream); i++ {
-		for j := 0; j < len(stream)-1; j++ {
-			if stream[j].UploadTime > stream[j+1].UploadTime {
-				stream[j], stream[j+1] = stream[j+1], stream[j]
+	for i := 0; i < len(myStream); i++ { //Sort the photos by upload time
+		for j := 0; j < len(myStream)-1; j++ {
+			if myStream[j].UploadTime > myStream[j+1].UploadTime {
+				myStream[j], myStream[j+1] = myStream[j+1], myStream[j]
 			}
 		}
 	}
 
-	json.NewEncoder(w).Encode(stream)
+	err := json.NewEncoder(w).Encode(myStream)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	} //Show the photos
 }

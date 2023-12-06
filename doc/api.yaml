@@ -2,18 +2,25 @@ openapi: 3.0.3
 info: 
   title: WASAPhoto
   description: |-
-    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you.
+    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your 
+    photos directly from your PC, and they will be visible to everyone following you.
     
     ### Functional design specifications
-    Each user will be presented with a stream of photos (images) in reverse chronological order, with information about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed by photos from “following” (other users that the user follows). 
+    Each user will be presented with a stream of photos (images) in reverse chronological order, with information 
+    about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed 
+    by photos from “following” (other users that the user follows). 
     
-    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image (even those uploaded by themself). Only authors can remove their comments. 
+    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image 
+    (even those uploaded by themself). Only authors can remove their comments. 
     
-    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. Alice can decIde to remove the ban at any moment. 
+    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. 
+    Alice can decide to remove the ban at any moment. 
     
-    Users will have their profiles. The personal profile page for the user shows: the user's photos (in reverse chronological order), how many photos have been uploaded, and the user's followers and following. 
+    Users will have their profiles. The personal profile page for the user shows: the user's photos 
+    (in reverse chronological order), how many photos have been uploaded, and the user's followers and following. 
     
-    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. Removal of an image will also remove likes and comments. 
+    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. 
+    Removal of an image will also remove likes and comments. 
     
     A user can search other user profiles via username. 
     
@@ -435,7 +442,8 @@ paths:
       tags: ["photoInteractions"]
       summary: Like a photo
       description: |-
-        This method adds a new like to the associated photo. The new like is contained in the body of the request. Returns the new like id.
+        This method adds a new like to the associated photo. The new like is contained in the body of the request. 
+        Returns the photo.
       requestBody:
         content:
           application/json:
@@ -468,7 +476,8 @@ paths:
       tags: ["photoInteractions"]
       summary: Comment a photo
       description: |-
-        This method adds a new comment to the associated photo. The new comment is contained in the body of the request. Returns the new comment id.
+        This method adds a new comment to the associated photo. The new comment is contained in the body of the request. 
+        Returns the photo.
       requestBody:
         content:
           application/json:
@@ -500,7 +509,8 @@ paths:
       tags: ["view"]
       summary: Get user stream
       description: |-
-        This method is used to get the stream of a specified user. The following list is in the path. Returns the photos of the users, in reverse chronological order.
+        This method is used to get the stream of a specified user. The following list is in the path. 
+        Returns the photos of the users, in reverse chronological order.
       responses:
         "200":
           description: Photos found successfully
