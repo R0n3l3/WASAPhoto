@@ -56,7 +56,15 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	for k := 0; k < len(photo.Likes); k++ { //Remove the like from the collection and update the total
 		if photo.Likes[k].LikeId == like {
+			photo.LikeNumber -= 1
 			photo.Likes = append(photo.Likes[:k], photo.Likes[k+1:]...)
+			break
+		}
+	}
+
+	for i := 0; i < len(allLikes); i++ { //Remove the like from the general collection
+		if allLikes[i].LikeId == like {
+			allLikes = append(allLikes[:i], allLikes[i+1:]...)
 			return
 		}
 	}

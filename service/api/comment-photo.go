@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-var allComments = []Comment{}
-
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
@@ -44,6 +42,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		CommentTime: time.Now().Format("2006-01-02 15:04:51"),
 		Content:     text,
 	}
+
+	allComments = append(allComments, newComment) //Add the comment to the general collection
 
 	for i := 0; i < len(uploaderProfile.Photos); i++ { //Add the comment to the collection and update the total
 		if uploaderProfile.Photos[i].PhotoId == photo {

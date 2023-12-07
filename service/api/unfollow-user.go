@@ -8,35 +8,37 @@ import (
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	name := ps.ByName("userId")
-	toUnfollow := ps.ByName("followingId")
+	me := ps.ByName("userId")              //Get my name
+	toUnfollow := ps.ByName("followingId") //Get the unfollow name
 
-	var profileMe Profile
-	var profileUnfollow Profile
-	var index int
-	var index2 int
-
-	for i := 0; i <= len(Users); i++ {
-		if Users[i].Username == name {
-			profileMe = Users[i].UserProfile
-			break
-		}
+	profileMe := getProfile(me)    //Get my profile
+	if profileMe.ProfileId == "" { //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
+
+	profileUnfollow := getProfile(toUnfollow) //Get their profile
+	if profileUnfollow.ProfileId == "" {      //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	//Remove the user from my following
 	for i := 0; i <= len(profileMe.Following); i++ {
 		if profileMe.Following[i].Username == toUnfollow {
-			index = i
-			profileUnfollow = profileMe.Following[i].UserProfile
+			profileMe.Following = append(profileMe.Following[:i], profileMe.Following[i+1:]...)
 			break
 		}
 	}
 
+	//Remove me from followers
 	for i := 0; i < len(profileUnfollow.Followers); i++ {
-		if profileUnfollow.Followers[i].Username == name {
-			index2 = i
-			break
+		if profileUnfollow.Followers[i].Username == me {
+			profileUnfollow.Followers = append(profileUnfollow.Followers[:i], profileUnfollow.Followers[i+1:]...)
+			return
 		}
 	}
 
-	profileMe.Following = append(profileMe.Following[:index], profileMe.Following[index+1:]...)
-	profileUnfollow.Followers = append(profileUnfollow.Followers[:index2], profileUnfollow.Followers[index2+1:]...)
+	w.WriteHeader(http.StatusNotFound) //If I couldn't find the user, error
+	return
 }

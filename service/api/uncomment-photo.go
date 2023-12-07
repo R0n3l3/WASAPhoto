@@ -55,9 +55,17 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 			}
 			photo.CommentNumber -= 1
 			photo.Comments = append(photo.Comments[:k], photo.Comments[k+1:]...)
+			break
+		}
+	}
+
+	//Remove the comment from the general collection
+	for i := 0; i < len(allComments); i++ {
+		if allComments[i].CommentId == comment {
+			allComments = append(allComments[:i], allComments[i+1:]...)
 			return
 		}
 	}
-	w.WriteHeader(http.StatusNotFound)
+	w.WriteHeader(http.StatusNotFound) //If I didn't find the comment, error
 	return
 }

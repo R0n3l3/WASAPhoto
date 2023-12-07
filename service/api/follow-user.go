@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -8,21 +9,26 @@ import (
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	toFollow := r.URL.Query().Get("username")
-	me := ps.ByName("userId")
+	toFollow := r.URL.Query().Get("username") //Get the name I want to follow
+	me := ps.ByName("userId")                 //Get my name
 
-	var userFollow User
-	var userMe User
-
-	for i := 0; i < len(Users); i++ {
-		if Users[i].Username == toFollow {
-			userFollow = Users[i]
-		}
-		if Users[i].Username == me {
-			userMe = Users[i]
-		}
+	userFollow := getUser(toFollow) //Get the user I want to follow
+	if userFollow.Username == "" {  //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	userMe.UserProfile.Following = append(userMe.UserProfile.Following, userFollow)
-	userFollow.UserProfile.Followers = append(userFollow.UserProfile.Followers, userMe)
+	userMe := getUser(me)      //Get my user
+	if userMe.Username == "" { //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	userMe.UserProfile.Following = append(userMe.UserProfile.Following, userFollow)     //Add to follow to my following
+	userFollow.UserProfile.Followers = append(userFollow.UserProfile.Followers, userMe) //Add me to their followers
+	err := json.NewEncoder(w).Encode(userFollow.UserProfile)                            //Return the profile followed
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 }

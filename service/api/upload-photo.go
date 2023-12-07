@@ -1,42 +1,25 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"time"
 )
 
-var allPhotos = []Photo{
-	{
-		PhotoId:  0,
-		Uploader: Users[0],
-		PhotoImage: Image{
-			Link: "https://www.piggypet.it/wp-content/uploads/2023/08/Progetto-senza-titolo-2023-08-05T132259.115-870x563@2x.jpg",
-		},
-		UploadTime:    "2020-11-10T17:05:50Z",
-		Likes:         []Like{},
-		LikeNumber:    0,
-		Comments:      []Comment{},
-		CommentNumber: 0,
-	},
-}
-
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	link := r.URL.Query().Get("link")
-	uploaderUsername := ps.ByName("userId")
+	link := r.URL.Query().Get("link")       //Get the link of the image
+	uploaderUsername := ps.ByName("userId") //Get the name of the uploader
 
-	var uploader User
-
-	for i := 0; i < len(Users); i++ {
-		if Users[i].Username == uploaderUsername {
-			uploader = Users[i]
-			break
-		}
+	uploader := getUser(uploaderUsername) //Get the user of the uploader
+	if uploader.Username == "" {          //If null, it means that the user does not exist
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	newPhoto := Photo{
+	newPhoto := Photo{ //Create a new photo
 		PhotoId:  len(allPhotos),
 		Uploader: uploader,
 		PhotoImage: Image{
@@ -49,8 +32,22 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		CommentNumber: 0,
 	}
 
-	allPhotos = append(allPhotos, newPhoto)
+	allPhotos = append(allPhotos, newPhoto) //Add the photo to the general collection
 
-	uploader.UserProfile.PhotoNumber += 1
-	uploader.UserProfile.Photos = append(uploader.UserProfile.Photos, newPhoto)
+	profile := uploader.UserProfile
+
+	profile.PhotoNumber += 1                          //Update the total of photos
+	profile.Photos = append(profile.Photos, newPhoto) //Add the photo to the collection
+	err := json.NewEncoder(w).Encode(newPhoto)        //Show the new photo
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	for i := 0; i < len(profile.Photos); i++ { //Sort the photos
+		for j := 0; j < len(profile.Photos)-1; j++ {
+			if profile.Photos[j].UploadTime > profile.Photos[j+1].UploadTime {
+				profile.Photos[j], profile.Photos[j+1] = profile.Photos[j+1], profile.Photos[j]
+			}
+		}
+	}
 }

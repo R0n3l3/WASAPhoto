@@ -40,6 +40,8 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		Liker:  myUser,
 	}
 
+	allLikes = append(allLikes, newLike) //Add the like to the total collection
+
 	for i := 0; i < len(uploaderProfile.Photos); i++ { //Update the total number of likes and add that instance of like to the collection
 		if uploaderProfile.Photos[i].PhotoId == id {
 			uploaderProfile.Photos[i].LikeNumber += 1
@@ -51,6 +53,6 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 			}
 		}
 	}
-	w.WriteHeader(http.StatusNotFound)
+	w.WriteHeader(http.StatusNotFound) //If I didn't find the photo, return error
 	return
 }
