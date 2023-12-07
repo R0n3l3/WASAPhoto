@@ -377,7 +377,7 @@ paths:
       tags: ["profileInteractions"]
       summary: Ban a user
       description: |-
-         This method is used to add an existing user to the 'banned' collection. 
+        This method is used to add an existing user to the 'banned' collection. 
         The user id is in the body of the request.
       requestBody:
         content:
