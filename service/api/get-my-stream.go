@@ -35,9 +35,9 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 
-	err := json.NewEncoder(w).Encode(myStream)
+	err := json.NewEncoder(w).Encode(myStream) //Show the photos
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} //Show the photos
+	}
 }

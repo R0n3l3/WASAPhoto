@@ -13,8 +13,8 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.PUT("/users/:userId", rt.setMyUserName) //todo: errors
 
-	rt.router.POST("/users/:userId/banned/", rt.banUser)              //todo: errors
-	rt.router.DELETE("/users/:userId/banned/:bannedId", rt.unbanUser) //todo: errors
+	rt.router.POST("/users/:userId/banned/", rt.banUser)              //todo: check api
+	rt.router.DELETE("/users/:userId/banned/:bannedId", rt.unbanUser) //todo: check api
 
 	rt.router.POST("/users/:userId/profile/photos/", rt.uploadPhoto)           //todo: errors
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId", rt.deletePhoto) //todo: errors
