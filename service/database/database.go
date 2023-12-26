@@ -74,4 +74,3 @@ func New(db *sql.DB) (AppDatabase, error) {
 func (db *appdbimpl) Ping() error {
 	return db.c.Ping()
 }
-

@@ -19,4 +19,3 @@ type RequestContext struct {
 	// Logger is a custom field logger for the request
 	Logger logrus.FieldLogger
 }
-

@@ -19,4 +19,3 @@ func Now() time.Time {
 func Since(tm time.Time) time.Duration {
 	return Now().Sub(tm)
 }
-

@@ -23,4 +23,3 @@ func registerWebUI(hdl http.Handler) (http.Handler, error) {
 		hdl.ServeHTTP(w, r)
 	}), nil
 }
-

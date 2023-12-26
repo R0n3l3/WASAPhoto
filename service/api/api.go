@@ -94,4 +94,3 @@ type _router struct {
 
 	db database.AppDatabase
 }
-

@@ -6,4 +6,3 @@ func (db *appdbimpl) GetName() (string, error) {
 	err := db.c.QueryRow("SELECT name FROM example_table WHERE id=1").Scan(&name)
 	return name, err
 }
-
