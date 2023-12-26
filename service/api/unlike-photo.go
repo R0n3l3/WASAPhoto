@@ -8,33 +8,33 @@ import (
 
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	uploaderName := ps.ByName("userId")     //Get the uploader of the photo
-	myName := r.URL.Query().Get("username") //Get my username
+	uploaderName := ps.ByName("userId")     // Get the uploader of the photo
+	myName := r.URL.Query().Get("username") // Get my username
 
-	id, err := strconv.Atoi(ps.ByName("photoId")) //Get the id of the photo I want to unlike
+	id, err := strconv.Atoi(ps.ByName("photoId")) // Get the id of the photo I want to unlike
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	like, err := strconv.Atoi(r.URL.Query().Get("likeId")) //Get the like I want to remove
+	like, err := strconv.Atoi(r.URL.Query().Get("likeId")) // Get the like I want to remove
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uploaderProfile := getProfile(uploaderName) //Get the uploader profile
-	if uploaderProfile.ProfileId == "" {        //If null, it means that the user does not exist
+	uploaderProfile := getProfile(uploaderName) // Get the uploader profile
+	if uploaderProfile.ProfileId == "" {        // If null, it means that the user does not exist
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	myUser := getUser(myName)  //Get my user
-	if myUser.Username == "" { //If null, it means that the user does not exist
+	myUser := getUser(myName)  // Get my user
+	if myUser.Username == "" { // If null, it means that the user does not exist
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	var photo Photo //Get the photo I want to remove the like from
+	var photo Photo // Get the photo I want to remove the like from
 
 	for j := 0; j <= len(uploaderProfile.Photos); j++ {
 		if uploaderProfile.Photos[j].PhotoId == id {
@@ -44,17 +44,17 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 
-	if photo.UploadTime == "" { //If I didn't find the photo, return error
+	if photo.UploadTime == "" { // If I didn't find the photo, return error
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	if photo.Uploader.Username != myUser.Username { //If I didn't put the like, return error
+	if photo.Uploader.Username != myUser.Username { // If I didn't put the like, return error
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	for k := 0; k < len(photo.Likes); k++ { //Remove the like from the collection and update the total
+	for k := 0; k < len(photo.Likes); k++ { // Remove the like from the collection and update the total
 		if photo.Likes[k].LikeId == like {
 			photo.LikeNumber -= 1
 			photo.Likes = append(photo.Likes[:k], photo.Likes[k+1:]...)
@@ -62,12 +62,12 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 
-	for i := 0; i < len(allLikes); i++ { //Remove the like from the general collection
+	for i := 0; i < len(allLikes); i++ { // Remove the like from the general collection
 		if allLikes[i].LikeId == like {
 			allLikes = append(allLikes[:i], allLikes[i+1:]...)
 			return
 		}
 	}
-	w.WriteHeader(http.StatusNotFound) //If I didn't find the like, return error
+	w.WriteHeader(http.StatusNotFound) // If I didn't find the like, return error
 	return
 }

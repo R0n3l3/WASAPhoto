@@ -10,39 +10,39 @@ import (
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	uploaderName := ps.ByName("userId")     //Get the name of the uploader of the photo
-	myName := r.URL.Query().Get("username") //Get my name
-	if myName == uploaderName {             //You cannot like your own photo!
+	uploaderName := ps.ByName("userId")     // Get the name of the uploader of the photo
+	myName := r.URL.Query().Get("username") // Get my name
+	if myName == uploaderName {             // You cannot like your own photo!
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	id, err := strconv.Atoi(ps.ByName("photoId")) //Get the id of the photo I want to like
-	if err != nil {                               //If I get an error, stop
+	id, err := strconv.Atoi(ps.ByName("photoId")) // Get the id of the photo I want to like
+	if err != nil {                               // If I get an error, stop
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	myUser := getUser(myName)  //Get my User
-	if myUser.Username == "" { //If null, it means that the user does not exist
+	myUser := getUser(myName)  // Get my User
+	if myUser.Username == "" { // If null, it means that the user does not exist
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	uploaderProfile := getProfile(uploaderName) //Get the uploader profile
-	if uploaderProfile.ProfileId == "" {        //If null, it means that the user does not exist
+	uploaderProfile := getProfile(uploaderName) // Get the uploader profile
+	if uploaderProfile.ProfileId == "" {        // If null, it means that the user does not exist
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	newLike := Like{ //Create a new instance of a like
+	newLike := Like{ // Create a new instance of a like
 		LikeId: len(allLikes),
 		Liker:  myUser,
 	}
 
-	allLikes = append(allLikes, newLike) //Add the like to the total collection
+	allLikes = append(allLikes, newLike) // Add the like to the total collection
 
-	for i := 0; i < len(uploaderProfile.Photos); i++ { //Update the total number of likes and add that instance of like to the collection
+	for i := 0; i < len(uploaderProfile.Photos); i++ { // Update the total number of likes and add that instance of like to the collection
 		if uploaderProfile.Photos[i].PhotoId == id {
 			uploaderProfile.Photos[i].LikeNumber += 1
 			uploaderProfile.Photos[i].Likes = append(uploaderProfile.Photos[i].Likes, newLike)
@@ -53,6 +53,6 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 			}
 		}
 	}
-	w.WriteHeader(http.StatusNotFound) //If I didn't find the photo, return error
+	w.WriteHeader(http.StatusNotFound) // If I didn't find the photo, return error
 	return
 }

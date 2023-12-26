@@ -9,10 +9,10 @@ import (
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	newName := r.URL.Query().Get("username") //Get the new username
-	oldName := ps.ByName("userId")           //Get the old username
+	newName := r.URL.Query().Get("username") // Get the new username
+	oldName := ps.ByName("userId")           // Get the old username
 
-	for i := 0; i <= len(Users); i++ { //Change the username
+	for i := 0; i <= len(Users); i++ { // Change the username
 		if Users[i].Username == oldName {
 			Users[i].Username = newName
 			Users[i].UserProfile.ProfileId = newName
@@ -23,6 +23,6 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 			}
 		}
 	}
-	w.WriteHeader(http.StatusNotFound) //The user does not exist
+	w.WriteHeader(http.StatusNotFound) // The user does not exist
 	return
 }

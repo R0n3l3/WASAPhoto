@@ -28,9 +28,9 @@ var Profiles = []Profile{
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	name := r.URL.Query().Get("username") //Get the name of the user
+	name := r.URL.Query().Get("username") // Get the name of the user
 
-	for i := 0; i <= len(Users); i++ { //If the user exists, return the name
+	for i := 0; i <= len(Users); i++ { // If the user exists, return the name
 		if Users[i].Username == name {
 			err := json.NewEncoder(w).Encode(name)
 			if err != nil {
@@ -41,7 +41,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 	}
 
-	//Add a new profile and a new user
+	// Add a new profile and a new user
 	Profiles = append(Profiles, Profile{
 		ProfileId:   name,
 		Photos:      []Photo{},
@@ -55,7 +55,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		UserProfile: Profiles[len(Profiles)-1],
 	})
 
-	//Return the name
+	// Return the name
 	err := json.NewEncoder(w).Encode(name)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

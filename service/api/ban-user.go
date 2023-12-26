@@ -9,21 +9,21 @@ import (
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	myName := ps.ByName("userId")          //Get my name
-	toBan := r.URL.Query().Get("username") //Get the name of the banned person
+	myName := ps.ByName("userId")          // Get my name
+	toBan := r.URL.Query().Get("username") // Get the name of the banned person
 
-	myUser := getUser(myName)  //Get my user
-	if myUser.Username == "" { //If null, it means that the user does not exist
+	myUser := getUser(myName)  // Get my user
+	if myUser.Username == "" { // If null, it means that the user does not exist
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	toBanUser := getUser(toBan)   //Get the user to ban
-	if toBanUser.Username == "" { //If null, it means that the user does not exist
+	toBanUser := getUser(toBan)   // Get the user to ban
+	if toBanUser.Username == "" { // If null, it means that the user does not exist
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	//Add the banned person to the list, and remove them from the following and followers collection
+	// Add the banned person to the list, and remove them from the following and followers collection
 	myUser.Banned = append(myUser.Banned, toBanUser)
 
 	for i := 0; i < len(myUser.UserProfile.Followers); i++ {

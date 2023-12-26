@@ -1,6 +1,6 @@
 package api
 
-//This file contains some functions that are frequently used by other methods
+// This file contains some functions that are frequently used by other methods
 
 func getProfile(name string) Profile {
 	for i := 0; i < len(Users); i++ {
