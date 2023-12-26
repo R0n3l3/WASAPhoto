@@ -57,5 +57,4 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
-	return
 }

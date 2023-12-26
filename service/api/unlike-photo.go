@@ -69,5 +69,4 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 	w.WriteHeader(http.StatusNotFound) // If I didn't find the like, return error
-	return
 }

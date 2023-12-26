@@ -40,5 +40,4 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	w.WriteHeader(http.StatusNotFound) // If I couldn't find the user, error
-	return
 }

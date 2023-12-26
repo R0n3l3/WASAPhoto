@@ -21,5 +21,4 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		}
 	}
 	w.WriteHeader(http.StatusNotFound) // If I couldn't find the user, error
-	return
 }

@@ -67,5 +67,4 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		}
 	}
 	w.WriteHeader(http.StatusNotFound) // If I didn't find the comment, error
-	return
 }

@@ -54,5 +54,4 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		}
 	}
 	w.WriteHeader(http.StatusNotFound) // If I didn't find the photo, return error
-	return
 }

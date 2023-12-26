@@ -24,5 +24,4 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 	w.WriteHeader(http.StatusNotFound) // The user does not exist
-	return
 }
