@@ -27,13 +27,24 @@ info:
     A user can log in just by specifying the username. See the "Simplified login" section for details.
 
     ### Simplified login
-    In real-world scenarios, new developments avoId implementing registration, login, and password-lost flows as they are a security nightmare, cumbersome, error-prone, and outsIde the project scope. So, why lose money and time on implementing those? The best practice is now to delegate those tasks to a separate service (“Identity provIder”), either in-house (owned by the same company) or a third party (like “Login with Apple/Facebook/Google” buttons). 
+    In real-world scenarios, new developments avoId implementing registration, login, and 
+    password-lost flows as they are a security nightmare, cumbersome, error-prone, and 
+    outsIde the project scope. So, why lose money and time on implementing those? 
+    The best practice is now to delegate those tasks to a separate service 
+    (“Identity provIder”), either in-house (owned by the same company) or a third party 
+    (like “Login with Apple/Facebook/Google” buttons). 
     
-    In this project, we do not have an external service like this. Instead, we decIded to provIde you with a specification for a login API so that you won't spend time dealing with the design of the endpoint. The provIded OpenAPI document is at the end of this PDF. 
+    In this project, we do not have an external service like this. Instead, we decIded to 
+    provIde you with a specification for a login API so that you won't spend time dealing 
+    with the design of the endpoint. The provIded OpenAPI document is at the end of this PDF. 
     
-    The login endpoint accepts a username - like “Maria” - without any password. If the username already exists, the user is logged in. If the username is new, the user is registered and logged in. The API will return the user Identifier you need to pass into the Authorization header in any other API. 
+    The login endpoint accepts a username - like “Maria” - without any password. If the 
+    username already exists, the user is logged in. If the username is new, the user is 
+    registered and logged in. The API will return the user Identifier you need to pass i
+    nto the Authorization header in any other API. 
     
-    This authentication method is named "Bearer Authentication" (however, in this project, you should use the user Identifier in place of the token):
+    This authentication method is named "Bearer Authentication" (however, in this 
+    project, you should use the user Identifier in place of the token):
       - https://swagger.io/docs/specification/authentication/bearer-authentication/
       - https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
       - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
@@ -285,7 +296,7 @@ components:
 security:
   - bearerAuth: []
 paths:
-  /session:
+  /session/:
     post:
       security: []
       tags: ["login"]
