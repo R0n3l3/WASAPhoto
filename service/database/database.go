@@ -85,6 +85,9 @@ type Comment struct {
 type AppDatabase interface {
 	CreateUser(u string) (int64, error)
 	SetMyUsername(u string, new string) (int64, error)
+	GetUserId(u string) (int64, error)
+	BanUser(toBan string, banning string) (int64, error)
+	UnbanUser(toUnban string, unbanning string) error
 
 	Ping() error
 }
@@ -105,19 +108,47 @@ func New(db *sql.DB) (AppDatabase, error) {
 	var tableName string
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		profilesDatabase := `CREATE TABLE profiles (profileId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, profileName TEXT NOT NULL UNIQUE, photoNumber INTEGER NOT NULL);`
-		usersDatabase := `CREATE TABLE users (userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, userProfile INTEGER NOT NULL UNIQUE,
+		profilesDatabase := `CREATE TABLE profiles (
+    profileId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    profileName TEXT NOT NULL UNIQUE, 
+    photoNumber INTEGER NOT NULL);`
+		usersDatabase := `CREATE TABLE users (
+    userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    username TEXT NOT NULL UNIQUE, 
+    userProfile INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY (userProfile) REFERENCES profiles(profileId));`
-		banDatabase := `CREATE TABLE ban (banner INTEGER NOT NULL PRIMARY KEY, banned INTEGER NOT NULL PRIMARY KEY, 
-	FOREIGN KEY (banner) REFERENCES users(userId), FOREIGN KEY (banned) REFERENCES users(userId));`
-		followDatabase := `CREATE TABLE follow (follower INTEGER NOT NULL PRIMARY KEY, following INTEGER NOT NULL PRIMARY KEY,
-	FOREIGN KEY (follower) REFERENCES users(userId), FOREIGN KEY (following) REFERENCES users(userId));`
-		photosDatabase := `CREATE TABLE photos (photoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, uploader INTEGER NOT NULL, uploadTime TIMESTAMP NOT NULL, likeNumber INTEGER NOT NULL, commentNumber INTEGER NOT NULL, image BLOB NOT NULL,
+		banDatabase := `CREATE TABLE ban (
+    banner INTEGER NOT NULL PRIMARY KEY, 
+    banned INTEGER NOT NULL PRIMARY KEY, 
+	FOREIGN KEY (banner) REFERENCES users(userId), 
+	FOREIGN KEY (banned) REFERENCES users(userId));`
+		followDatabase := `CREATE TABLE follow (
+    follower INTEGER NOT NULL PRIMARY KEY, 
+    following INTEGER NOT NULL PRIMARY KEY,
+	FOREIGN KEY (follower) REFERENCES users(userId), 
+	FOREIGN KEY (following) REFERENCES users(userId));`
+		photosDatabase := `CREATE TABLE photos (
+    photoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    uploader INTEGER NOT NULL, 
+    uploadTime TIMESTAMP NOT NULL, 
+    likeNumber INTEGER NOT NULL, 
+    commentNumber INTEGER NOT NULL, 
+    image BLOB NOT NULL,
 	FOREIGN KEY (uploader) REFERENCES users(userId));`
-		likesDatabase := `CREATE TABLE likes (likeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, liker INTEGER NOT NULL, photoLiked INTEGER NOT NULL,
-	FOREIGN KEY (liker) REFERENCES users(userId), FOREIGN KEY(photoLiked) REFERENCES photos(photoId));`
-		commentsDatabase := `CREATE TABLE comments (commentId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, commenter INTEGER NOT NULL, commentTime TIMESTAMP NOT NULL, content TEXT NOT NULL, photoComment INTEGER NOT NULL, 
-	FOREIGN KEY (commenter) REFERENCES users(userId), FOREIGN KEY (photoComment) REFERENCES photos(photoId));`
+		likesDatabase := `CREATE TABLE likes (
+    likeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    liker INTEGER NOT NULL, 
+    photoLiked INTEGER NOT NULL,
+	FOREIGN KEY (liker) REFERENCES users(userId), 
+	FOREIGN KEY(photoLiked) REFERENCES photos(photoId));`
+		commentsDatabase := `CREATE TABLE comments (
+    commentId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    commenter INTEGER NOT NULL, 
+    commentTime TIMESTAMP NOT NULL, 
+    content TEXT NOT NULL, 
+    photoComment INTEGER NOT NULL, 
+	FOREIGN KEY (commenter) REFERENCES users(userId), 
+	FOREIGN KEY (photoComment) REFERENCES photos(photoId));`
 
 		_, err = db.Exec(usersDatabase)
 		if err != nil {

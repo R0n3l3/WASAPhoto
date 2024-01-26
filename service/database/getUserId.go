@@ -7,12 +7,11 @@ import (
 )
 
 func (db *appdbimpl) GetUserId(u string) (int64, error) {
-	var user User
-	err := db.c.QueryRow("SELECT id, username FROM users WHERE username= ?", &user.UserId, &user.Username)
-	if err != nil {
+	var id int64
+	if err := db.c.QueryRow("SELECT userId FROM users WHERE username= ?", u).Scan(&id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return user.UserId, fmt.Errorf("user does not exist: %w", err)
+			return id, fmt.Errorf("user does not exist: %w", err)
 		}
 	}
-	return user.UserId, nil
+	return id, nil
 }
