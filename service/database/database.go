@@ -84,12 +84,7 @@ type Comment struct {
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	CreateUser(u string) (int64, error)
-	GetUserId(u string) (int64, error)
 	SetMyUsername(u string, new string) (int64, error)
-
-	BanUser(u string, ban string) (int64, error)
-	UnbanUser(u string, ban string) error
-	GetBanned(u string) []string
 
 	Ping() error
 }
@@ -110,18 +105,18 @@ func New(db *sql.DB) (AppDatabase, error) {
 	var tableName string
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		profilesDatabase := `CREATE TABLE profiles (profileId INTEGER NOT NULL PRIMARY KEY, profileName TEXT NOT NULL UNIQUE, photoNumber INTEGER NOT NULL);`
+		profilesDatabase := `CREATE TABLE profiles (profileId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, profileName TEXT NOT NULL UNIQUE, photoNumber INTEGER NOT NULL);`
 		usersDatabase := `CREATE TABLE users (userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, userProfile INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY (userProfile) REFERENCES profiles(profileId));`
-		bannedDatabase := `CREATE TABLE banned (banner INTEGER NOT NULL PRIMARY KEY, banned INTEGER NOT NULL PRIMARY KEY, 
+		banDatabase := `CREATE TABLE ban (banner INTEGER NOT NULL PRIMARY KEY, banned INTEGER NOT NULL PRIMARY KEY, 
 	FOREIGN KEY (banner) REFERENCES users(userId), FOREIGN KEY (banned) REFERENCES users(userId));`
 		followDatabase := `CREATE TABLE follow (follower INTEGER NOT NULL PRIMARY KEY, following INTEGER NOT NULL PRIMARY KEY,
 	FOREIGN KEY (follower) REFERENCES users(userId), FOREIGN KEY (following) REFERENCES users(userId));`
-		photosDatabase := `CREATE TABLE photos (photoId INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, uploader INTEGER NOT NULL, uploadTime TIMESTAMP NOT NULL, likeNumber INTEGER NOT NULL, commentNumber INTEGER NOT NULL, image BLOB NOT NULL,
+		photosDatabase := `CREATE TABLE photos (photoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, uploader INTEGER NOT NULL, uploadTime TIMESTAMP NOT NULL, likeNumber INTEGER NOT NULL, commentNumber INTEGER NOT NULL, image BLOB NOT NULL,
 	FOREIGN KEY (uploader) REFERENCES users(userId));`
-		likesDatabase := `CREATE TABLE likes (likeId INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, liker INTEGER NOT NULL, photoLiked INTEGER NOT NULL,
+		likesDatabase := `CREATE TABLE likes (likeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, liker INTEGER NOT NULL, photoLiked INTEGER NOT NULL,
 	FOREIGN KEY (liker) REFERENCES users(userId), FOREIGN KEY(photoLiked) REFERENCES photos(photoId));`
-		commentsDatabase := `CREATE TABLE comments (commentId INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, commenter INTEGER NOT NULL, commentTime TIMESTAMP NOT NULL, content TEXT NOT NULL, photoComment INTEGER NOT NULL, 
+		commentsDatabase := `CREATE TABLE comments (commentId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, commenter INTEGER NOT NULL, commentTime TIMESTAMP NOT NULL, content TEXT NOT NULL, photoComment INTEGER NOT NULL, 
 	FOREIGN KEY (commenter) REFERENCES users(userId), FOREIGN KEY (photoComment) REFERENCES photos(photoId));`
 
 		_, err = db.Exec(usersDatabase)
@@ -132,7 +127,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
-		_, err = db.Exec(bannedDatabase)
+		_, err = db.Exec(banDatabase)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
