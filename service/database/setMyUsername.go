@@ -8,7 +8,7 @@ import (
 
 func (db *appdbimpl) SetMyUsername(u string, new string) (int64, error) {
 	id, _ := db.GetUserId(u)
-	_, err := db.c.Exec("UPDATE users SET username=? WHERE username=?", new, u)
+	_, err := db.c.Exec("UPDATE users SET username=? WHERE userId=?", new, id)
 	if err != nil {
 		var user User
 		if errors.Is(db.c.QueryRow("SELECT userId, username FROM users WHERE username=?", u).Scan(&user.UserId, &user.Username), sql.ErrNoRows) {

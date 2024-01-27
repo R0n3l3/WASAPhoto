@@ -86,11 +86,16 @@ type AppDatabase interface {
 	CreateUser(u string) (int64, error)
 	SetMyUsername(u string, new string) (int64, error)
 	GetUserId(u string) (int64, error)
+	GetUserProfile(u string) (int64, error)
 
 	BanUser(toBan string, banning string) (int64, error)
 	UnbanUser(toUnban string, unbanning string) error
 
 	UploadPhoto(uploader string, image []byte) (int64, error)
+	DeletePhoto(id int64) error
+
+	LikePhoto(photoId int64, liker string) (int64, error)
+	UnlikePhoto(id int64) error
 
 	Ping() error
 }
