@@ -97,6 +97,12 @@ type AppDatabase interface {
 	LikePhoto(photoId int64, liker string) (int64, error)
 	UnlikePhoto(id int64) error
 
+	CommentPhoto(photoId int64, commenter string, content string) (int64, error)
+	UncommentPhoto(commentId int64) error
+
+	FollowUser(toFollow string, follower string) (int64, error)
+	UnfollowUser(toUnfollow string, unfollower string) error
+
 	Ping() error
 }
 
