@@ -1,12 +1,13 @@
 package database
 
-func (db *appdbimpl) BanUser(toBan string, banning string) (int64, error) {
+func (db *appdbimpl) BanUser(toBan string, banning string) (User, error) {
 	idToBan, _ := db.GetUserId(toBan)
 	idBanning, _ := db.GetUserId(banning)
 
-	_, err := db.c.Exec("INSERT INTO ban(banner, banned) VALUES (?, ?)", idBanning, idToBan)
-	if err != nil {
+	var user User
+
+	if err := db.c.QueryRow("INSERT INTO ban(banner, banned) VALUES (?, ?)", idBanning, idToBan).Scan(&user); err != nil {
 		panic(err) //TODO
 	}
-	return idBanning, nil
+	return user, nil
 }

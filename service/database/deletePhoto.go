@@ -14,8 +14,8 @@ func (db *appdbimpl) DeletePhoto(id int64) error {
 			return fmt.Errorf("no matching rows found: %w", err)
 		}
 	}
-	uploaderId, _ = db.GetUserProfile(username)
-	_, err := db.c.Exec("UPDATE profiles SET photoNumber-=1 WHERE profileId=?", uploaderId)
+	profile, _ := db.GetUserProfile(username)
+	_, err := db.c.Exec("UPDATE profiles SET photoNumber=profiles.photoNumber-1 WHERE profileId=?", profile.ProfileId)
 	if err != nil {
 		panic(err)
 	}
