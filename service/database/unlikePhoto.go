@@ -13,7 +13,7 @@ func (db *appdbimpl) UnlikePhoto(id int64) error {
 			return fmt.Errorf("no matching rows found: %w", err)
 		}
 	}
-	_, err := db.c.Exec("UPDATE photos SET likeNumber-=1 WHERE photoId=?", photoId)
+	_, err := db.c.Exec("UPDATE photos SET likeNumber=likeNumber-1 WHERE photoId=?", photoId)
 	if err != nil {
 		panic(err)
 	}

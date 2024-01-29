@@ -9,7 +9,7 @@ import (
 func (db *appdbimpl) CommentPhoto(photoId int64, commenter string, content string) (int64, error) {
 	id, _ := db.GetUserId(commenter)
 
-	_, err := db.c.Exec("UPDATE photos SET commentNumber+=1 WHERE photoId=?", photoId)
+	_, err := db.c.Exec("UPDATE photos SET commentNumber=commentNumber+1 WHERE photoId=?", photoId)
 	if err != nil {
 		var photo Photo
 		if err = db.c.QueryRow("SELECT photoId FROM photos WHERE photoId=?", photoId).Scan(&photo.PhotoId); err != nil {

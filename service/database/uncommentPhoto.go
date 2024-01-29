@@ -13,7 +13,7 @@ func (db *appdbimpl) UncommentPhoto(commentId int64) error {
 			return fmt.Errorf("no matching rows found: %w", err)
 		}
 	}
-	_, err := db.c.Exec("UPDATE photos SET commentNumber-=1 WHERE photoId=?", photoId)
+	_, err := db.c.Exec("UPDATE photos SET commentNumber=commentNumber-1 WHERE photoId=?", photoId)
 	if err != nil {
 		panic(err)
 	}

@@ -9,7 +9,7 @@ import (
 func (db *appdbimpl) LikePhoto(photoId int64, liker string) (int64, error) {
 	id, _ := db.GetUserId(liker)
 
-	_, err := db.c.Exec("UPDATE photos SET likeNumber+=1 WHERE photoId=?", photoId)
+	_, err := db.c.Exec("UPDATE photos SET likeNumber=likeNumber+1 WHERE photoId=?", photoId)
 	if err != nil {
 		var photo Photo
 		if err = db.c.QueryRow("SELECT photoId FROM photos WHERE photoId=?", photoId).Scan(&photo.PhotoId); err != nil {
