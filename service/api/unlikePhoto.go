@@ -12,7 +12,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = rt.db.UnlikePhoto(int64(like))
+	err = rt.db.UnlikePhoto(uint64(like))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

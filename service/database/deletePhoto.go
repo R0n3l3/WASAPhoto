@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) DeletePhoto(id int64) error {
-	var uploaderId int64
+func (db *appdbimpl) DeletePhoto(id uint64) error {
+	var uploaderId uint64
 	var username string
 	if err := db.c.QueryRow("SELECT uploader, username FROM photos, users WHERE photoId=? AND userId=uploader", id).Scan(&uploaderId, &username); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

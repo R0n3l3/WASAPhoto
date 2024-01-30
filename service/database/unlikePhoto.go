@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) UnlikePhoto(id int64) error {
-	var photoId int64
+func (db *appdbimpl) UnlikePhoto(id uint64) error {
+	var photoId uint64
 	if err := db.c.QueryRow("SELECT photoLiked FROM likes WHERE likeId=?", id).Scan(&photoId); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("no matching rows found: %w", err)

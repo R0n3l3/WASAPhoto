@@ -38,9 +38,9 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	CreateUser(u string) (int64, error)
+	CreateUser(u string) (uint64, error)
 	SetMyUsername(u string, new string) (User, error)
-	GetUserId(u string) (int64, error)
+	GetUserId(u string) (uint64, error)
 	GetUserProfile(u string) (Profile, error)
 
 	BanUser(toBan string, banning string) (User, error)
@@ -48,14 +48,14 @@ type AppDatabase interface {
 	IsBanned(myName string, theirName string) bool
 
 	UploadPhoto(uploader string, image []byte) (Photo, error)
-	DeletePhoto(id int64) error
+	DeletePhoto(id uint64) error
 	GetMyStream(u string) ([]Photo, error)
 
-	LikePhoto(photoId int64, liker string) (Like, error)
-	UnlikePhoto(id int64) error
+	LikePhoto(photoId uint64, liker string) (Like, error)
+	UnlikePhoto(id uint64) error
 
-	CommentPhoto(photoId int64, commenter string, content string) (Comment, error)
-	UncommentPhoto(commentId int64) error
+	CommentPhoto(photoId uint64, commenter string, content string) (Comment, error)
+	UncommentPhoto(commentId uint64) error
 
 	FollowUser(toFollow string, follower string) (Profile, error)
 	UnfollowUser(toUnfollow string, unfollower string) error

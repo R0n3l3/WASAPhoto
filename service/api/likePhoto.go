@@ -20,7 +20,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	like, err := rt.db.LikePhoto(int64(id), myName)
+	like, err := rt.db.LikePhoto(uint64(id), myName)
 	if err != nil {
 		panic(err)
 	}

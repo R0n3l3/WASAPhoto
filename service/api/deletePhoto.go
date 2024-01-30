@@ -14,7 +14,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = rt.db.DeletePhoto(int64(id))
+	err = rt.db.DeletePhoto(uint64(id))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return

@@ -6,8 +6,10 @@ func (db *appdbimpl) BanUser(toBan string, banning string) (User, error) {
 
 	var user User
 
-	if err := db.c.QueryRow("INSERT INTO ban(banner, banned) VALUES (?, ?)", idBanning, idToBan).Scan(&user); err != nil {
-		panic(err) //TODO
+	if err := db.c.QueryRow("INSERT INTO ban(banner, banned) VALUES (?, ?)", idBanning, idToBan).Scan(&user.UserId); err != nil {
+		return user, err
 	}
+
+	user.Username=
 	return user, nil
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) CreateUser(u string) (int64, error) {
+func (db *appdbimpl) CreateUser(u string) (uint64, error) {
 	id, err := db.GetUserId(u)
 
 	if err != nil {
@@ -20,13 +20,14 @@ func (db *appdbimpl) CreateUser(u string) (int64, error) {
 		if err != nil {
 			panic(err)
 		}
-		id, err = res.LastInsertId()
+		idUser, err := res.LastInsertId()
 		if err != nil {
 			panic(err)
 		}
-		if idProf != id {
+		if idProf != idUser {
 			return 0, fmt.Errorf("error in id generation")
 		}
+		return uint64(idUser), nil
 	}
 	return id, nil
 }

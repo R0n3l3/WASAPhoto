@@ -12,7 +12,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = rt.db.UncommentPhoto(int64(comment))
+	err = rt.db.UncommentPhoto(uint64(comment))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return

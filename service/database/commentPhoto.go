@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) CommentPhoto(photoId int64, commenter string, content string) (Comment, error) {
+func (db *appdbimpl) CommentPhoto(photoId uint64, commenter string, content string) (Comment, error) {
 	id, _ := db.GetUserId(commenter)
 	var comment Comment
 

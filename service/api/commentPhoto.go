@@ -21,7 +21,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
-	comment, err := rt.db.CommentPhoto(int64(photo), uploaderName, text)
+	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
 	if err != nil {
 		panic(err)
 	}

@@ -16,7 +16,7 @@ func (db *appdbimpl) UploadPhoto(uploader string, image []byte) (Photo, error) {
 	}
 
 	profile, _ := db.GetUserProfile(uploader)
-	_, err := db.c.Exec("UPDATE profiles SET photoNumber+=1 WHERE profileId=?", profile.ProfileId)
+	_, err := db.c.Exec("UPDATE profiles SET photoNumber=profiles.photoNumber+1 WHERE profileId=?", profile.ProfileId)
 	if err != nil {
 		var profile Profile
 		if errors.Is(db.c.QueryRow("SELECT profileId, profileName FROM profiles WHERE profileName=?", uploader).Scan(&profile.ProfileId, &profile.ProfileName), sql.ErrNoRows) {

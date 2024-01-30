@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) LikePhoto(photoId int64, liker string) (Like, error) {
+func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
 	id, _ := db.GetUserId(liker)
 	var like Like
 
