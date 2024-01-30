@@ -49,15 +49,15 @@ type AppDatabase interface {
 
 	UploadPhoto(uploader string, image []byte) (Photo, error)
 	DeletePhoto(id int64) error
-	GetMyStream(u string) ([]int64, error)
+	GetMyStream(u string) ([]Photo, error)
 
 	LikePhoto(photoId int64, liker string) (Like, error)
 	UnlikePhoto(id int64) error
 
-	CommentPhoto(photoId int64, commenter string, content string) (int64, error)
+	CommentPhoto(photoId int64, commenter string, content string) (Comment, error)
 	UncommentPhoto(commentId int64) error
 
-	FollowUser(toFollow string, follower string) (int64, error)
+	FollowUser(toFollow string, follower string) (Profile, error)
 	UnfollowUser(toUnfollow string, unfollower string) error
 
 	Ping() error

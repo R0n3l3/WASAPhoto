@@ -28,5 +28,21 @@ func (db *appdbimpl) DeletePhoto(id int64) error {
 		}
 	}
 
+	_, err = db.c.Exec("DELETE FROM likes WHERE photoLiked=?", id)
+	if err != nil {
+		var photo Photo
+		if errors.Is(db.c.QueryRow("SELECT photoId from photos WHERE photoId=?", id).Scan(&photo.PhotoId), sql.ErrNoRows) {
+			return fmt.Errorf("no matching rows found: %w", err)
+		}
+	}
+
+	_, err = db.c.Exec("DELETE FROM comments WHERE photoComment=?", id)
+	if err != nil {
+		var photo Photo
+		if errors.Is(db.c.QueryRow("SELECT photoId from photos WHERE photoId=?", id).Scan(&photo.PhotoId), sql.ErrNoRows) {
+			return fmt.Errorf("no matching rows found: %w", err)
+		}
+	}
+
 	return nil
 }

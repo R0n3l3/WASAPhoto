@@ -20,6 +20,14 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)            // todo: check api
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto) // todo: check api
+
+	rt.router.POST("/users/:userId/profile/photos/:photoId/comments/", rt.commentPhoto)
+	rt.router.DELETE("/users/:userId/profile/photos/:photoId/comments/:commentId", rt.uncommentPhoto)
+
+	rt.router.POST("/users/:userId/profile/following/", rt.followUser)                 //todo: handle banned users
+	rt.router.DELETE("/users/:userId/profile/following/:followingId", rt.unfollowUser) //todo: check api
+
+	rt.router.GET("/users/:userId/profile/following/", rt.getMyStream)
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 

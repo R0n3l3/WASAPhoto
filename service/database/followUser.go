@@ -1,6 +1,6 @@
 package database
 
-func (db *appdbimpl) FollowUser(toFollow string, follower string) (int64, error) {
+func (db *appdbimpl) FollowUser(toFollow string, follower string) (Profile, error) {
 	idToFollow, _ := db.GetUserId(toFollow)
 	idFollower, _ := db.GetUserId(follower)
 
@@ -8,5 +8,7 @@ func (db *appdbimpl) FollowUser(toFollow string, follower string) (int64, error)
 	if err != nil {
 		panic(err) //TODO
 	}
-	return idFollower, nil
+
+	profile, _ := db.GetUserProfile(toFollow)
+	return profile, nil
 }
