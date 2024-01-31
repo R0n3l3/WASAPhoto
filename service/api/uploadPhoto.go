@@ -12,6 +12,12 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	link := []byte(r.URL.Query().Get("link")) //Get the link of the image
 	uploaderUsername := ps.ByName("userId")   //Get the name of the uploader
 
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	photo, _ := rt.db.UploadPhoto(uploaderUsername, link)
 
 	err := json.NewEncoder(w).Encode(photo)

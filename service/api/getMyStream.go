@@ -11,6 +11,12 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	myName := ps.ByName("userId") //Recover my name
 
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	stream, err := rt.db.GetMyStream(myName)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

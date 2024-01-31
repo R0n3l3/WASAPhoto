@@ -12,7 +12,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	myName := ps.ByName("userId")          //Get my name
 	toBan := r.URL.Query().Get("username") //Get the name of the banned person
 
-	isAuth := rt.db.IsAuth(getToken(r.Header.Get("Authorization")))
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

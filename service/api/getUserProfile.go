@@ -20,6 +20,13 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 			return
 		}
 	}
+
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	profile, _ := rt.db.GetUserProfile(name)
 	err := json.NewEncoder(w).Encode(profile)
 	if err != nil {

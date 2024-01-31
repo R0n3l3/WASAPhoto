@@ -10,6 +10,5 @@ func (db *appdbimpl) BanUser(toBan string, banning string) (User, error) {
 		return user, err
 	}
 
-	user.Username=
 	return user, nil
 }

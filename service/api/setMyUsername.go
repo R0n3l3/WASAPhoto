@@ -12,6 +12,12 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	newName := r.URL.Query().Get("username") // Get the new username
 	oldName := ps.ByName("userId")           // Get the old username
 
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	user, _ := rt.db.SetMyUsername(oldName, newName)
 	err := json.NewEncoder(w).Encode(user)
 	if err != nil {

@@ -38,10 +38,11 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	CreateUser(u string) (uint64, error)
+	CreateUser(u string, token uint64) (uint64, error)
 	SetMyUsername(u string, new string) (User, error)
 	GetUserId(u string) (uint64, error)
 	GetUserProfile(u string) (Profile, error)
+	IsAuthorized(token uint64) bool
 
 	BanUser(toBan string, banning string) (User, error)
 	UnbanUser(toUnban string, unbanning string) error
@@ -89,10 +90,20 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
 		}
 	}
+
+	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='auth';`).Scan(&tableName)
+	if errors.Is(err, sql.ErrNoRows) {
+		authDatabase := `CREATE TABLE auth (token INTEGER NOT NULL PRIMARY KEY);`
+		_, err = db.Exec(authDatabase)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+	}
+
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='users';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		usersDatabase := `CREATE TABLE users (
-    userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    userId INTEGER NOT NULL PRIMARY KEY, 
     username TEXT NOT NULL UNIQUE, 
     userProfile INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY (userProfile) REFERENCES profiles(profileId));`

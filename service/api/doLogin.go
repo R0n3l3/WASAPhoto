@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/R0n3l3/WASAPhoto/service/database"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -10,13 +9,11 @@ import (
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	var user database.User
 	token := getToken(r.Header.Get("Authorization"))
-	user.UserId = token
 
 	name := r.URL.Query().Get("username")
 
-	userId, err := rt.db.CreateUser(name)
+	userId, err := rt.db.CreateUser(name, token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

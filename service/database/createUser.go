@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) CreateUser(u string) (uint64, error) {
+func (db *appdbimpl) CreateUser(u string, token uint64) (uint64, error) {
 	id, err := db.GetUserId(u)
 
 	if err != nil {
@@ -16,7 +16,7 @@ func (db *appdbimpl) CreateUser(u string) (uint64, error) {
 		if err != nil {
 			panic(err)
 		}
-		res, err = db.c.Exec("INSERT INTO users(username, userProfile) VALUES (?, ?)", u, idProf)
+		res, err = db.c.Exec("INSERT INTO users(userId, username, userProfile) VALUES (?, ?, ?)", token, u, idProf)
 		if err != nil {
 			panic(err)
 		}
