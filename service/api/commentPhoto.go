@@ -22,7 +22,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-isAuth := rt.db.IsAuth(getToken(r.Header.Get("Authorization")))
+	isAuth := rt.db.IsAuth(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
