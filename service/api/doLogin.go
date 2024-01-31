@@ -10,7 +10,6 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.Header().Set("content-type", "application/json")
 
 	token := getToken(r.Header.Get("Authorization"))
-
 	name := r.URL.Query().Get("username")
 
 	userId, err := rt.db.CreateUser(name, token)

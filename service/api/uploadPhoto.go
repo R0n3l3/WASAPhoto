@@ -18,9 +18,13 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	photo, _ := rt.db.UploadPhoto(uploaderUsername, link)
+	photo, err := rt.db.UploadPhoto(uploaderUsername, link)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-	err := json.NewEncoder(w).Encode(photo)
+	err = json.NewEncoder(w).Encode(photo)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

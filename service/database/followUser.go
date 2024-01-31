@@ -1,14 +1,38 @@
 package database
 
-func (db *appdbimpl) FollowUser(toFollow string, follower string) (Profile, error) {
-	idToFollow, _ := db.GetUserId(toFollow)
-	idFollower, _ := db.GetUserId(follower)
+import (
+	"database/sql"
+	"errors"
+	"log"
+)
 
-	_, err := db.c.Exec("INSERT INTO follow(follower, following) VALUES (?, ?)", idFollower, idToFollow)
+func (db *appdbimpl) FollowUser(toFollow string, follower string) (Profile, error) {
+	var profile Profile
+
+	idToFollow, err := db.GetUserId(toFollow)
 	if err != nil {
-		panic(err) //TODO
+		if errors.Is(err, sql.ErrNoRows) {
+			return profile, err
+		}
+		log.Fatal(err)
 	}
 
-	profile, _ := db.GetUserProfile(toFollow)
+	idFollower, err := db.GetUserId(follower)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return profile, err
+		}
+		log.Fatal(err)
+	}
+
+	_, err = db.c.Exec("INSERT INTO follow(follower, following) VALUES (?, ?)", idFollower, idToFollow)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	profile, err = db.GetUserProfile(toFollow)
+	if err != nil {
+		return profile, err
+	}
 	return profile, nil
 }

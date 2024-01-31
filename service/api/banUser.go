@@ -18,8 +18,13 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	user, _ := rt.db.BanUser(toBan, myName)
-	err := json.NewEncoder(w).Encode(user)
+	user, err := rt.db.BanUser(toBan, myName)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

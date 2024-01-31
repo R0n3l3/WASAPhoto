@@ -18,8 +18,14 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	if rt.db.IsBanned(toFollow, me) {
-		err := json.NewEncoder(w).Encode("You are banned")
+	isBanned, err := rt.db.IsBanned(toFollow, me)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if isBanned {
+		err := json.NewEncoder(w).Encode("Profile not found")
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return

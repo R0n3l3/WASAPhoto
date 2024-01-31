@@ -38,15 +38,16 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	CreateUser(u string, token uint64) (uint64, error)
-	SetMyUsername(u string, new string) (User, error)
 	GetUserId(u string) (uint64, error)
-	GetUserProfile(u string) (Profile, error)
 	IsAuthorized(token uint64) bool
+	IsBanned(myName string, theirName string) (bool, error)
+
+	CreateUser(u string, token uint64) (uint64, error)
+	GetUserProfile(u string) (Profile, error)
+	SetMyUsername(u string, new string) (User, error)
 
 	BanUser(toBan string, banning string) (User, error)
 	UnbanUser(toUnban string, unbanning string) error
-	IsBanned(myName string, theirName string) bool
 
 	UploadPhoto(uploader string, image []byte) (Photo, error)
 	DeletePhoto(id uint64) error

@@ -18,8 +18,12 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	user, _ := rt.db.SetMyUsername(oldName, newName)
-	err := json.NewEncoder(w).Encode(user)
+	user, err := rt.db.SetMyUsername(oldName, newName)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	err = json.NewEncoder(w).Encode(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

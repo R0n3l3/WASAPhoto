@@ -30,7 +30,8 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	err = json.NewEncoder(w).Encode(comment)
