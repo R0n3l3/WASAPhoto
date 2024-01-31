@@ -21,6 +21,13 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
+
+isAuth := rt.db.IsAuth(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	
 	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
 	if err != nil {
 		panic(err)
