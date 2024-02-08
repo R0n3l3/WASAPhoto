@@ -392,7 +392,7 @@ paths:
       tags: ["profileInteractions"]
       summary: Ban a user
       description: |-
-        This method is used to add an existing user to the 'banned' collection. 
+        This method is used to add an existing user to the 'banned' collection.
         The user id is in the body of the request. Return my user.
       requestBody:
         content:
@@ -569,8 +569,8 @@ paths:
       tags: ["profileInteractions"]
       summary: Follow a user
       description: |-
-         This method is used to add an existing user to the 'following' collection. 
-        The user id is in the body of the request. Return the profile followed
+         This method is used to add an existing user to the 'following' collection.
+         The user id is in the body of the request. Return the profile followed
       requestBody:
         content:
           application/json:
