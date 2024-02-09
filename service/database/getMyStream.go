@@ -24,6 +24,11 @@ func (db *appdbimpl) GetMyStream(u string) ([]Photo, error) {
 			print(err.Error())
 			return
 		}
+		err = res.Err()
+		if err != nil {
+			print(err.Error())
+			return
+		}
 	}(res)
 	for res.Next() {
 		var photo Photo
