@@ -22,7 +22,7 @@ type Follow struct {
 	Following uint64
 }
 
-type Photo struct { // Create a new photo
+type Photo struct {
 	PhotoId       uint64
 	Uploader      uint64
 	Image         []byte

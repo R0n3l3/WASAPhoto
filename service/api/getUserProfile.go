@@ -11,7 +11,7 @@ import (
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	myName := ps.ByName("username")
+	myName := ps.ByName("userId")
 	name := r.URL.Query().Get("username")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))

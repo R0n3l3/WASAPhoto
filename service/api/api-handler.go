@@ -9,7 +9,7 @@ func (rt *_router) Handler() http.Handler {
 	//  Register routes
 	rt.router.POST("/session/", rt.doLogin)
 
-	rt.router.GET("/users/:userId", rt.getUserProfile)
+	rt.router.GET("/users/:userId/profile", rt.getUserProfile)
 	rt.router.PUT("/users/:userId", rt.setMyUsername)
 
 	rt.router.POST("/users/:userId/banned/", rt.banUser)
