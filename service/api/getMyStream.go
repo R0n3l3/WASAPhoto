@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -9,7 +11,7 @@ import (
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	myName := ps.ByName("userId") //Recover my name
+	myName := ps.ByName("userId")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -19,7 +21,11 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	stream, err := rt.db.GetMyStream(myName)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	err = json.NewEncoder(w).Encode(stream)

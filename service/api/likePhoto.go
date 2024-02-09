@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -9,10 +11,10 @@ import (
 
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
-	myName := r.URL.Query().Get("username") //Get my name
+	myName := r.URL.Query().Get("username")
 
-	id, err := strconv.Atoi(ps.ByName("photoId")) //Get the id of the photo I want to like
-	if err != nil {                               //If I get an error, stop
+	id, err := strconv.Atoi(ps.ByName("photoId"))
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -25,8 +27,11 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	like, err := rt.db.LikePhoto(uint64(id), myName)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 	err = json.NewEncoder(w).Encode(like)

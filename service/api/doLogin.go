@@ -12,7 +12,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	token := getToken(r.Header.Get("Authorization"))
 	name := r.URL.Query().Get("username")
 
-	userId, err := rt.db.CreateUser(name, token)
+	userId, err := rt.db.DoLogin(name, token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

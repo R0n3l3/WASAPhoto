@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -10,7 +12,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	w.Header().Set("content-type", "application/json")
 
 	myName := ps.ByName("username")
-	name := r.URL.Query().Get("username") //Get the user I want to search
+	name := r.URL.Query().Get("username")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -20,7 +22,11 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	isBanned, err := rt.db.IsBanned(name, myName)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

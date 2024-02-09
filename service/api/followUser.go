@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -9,8 +11,8 @@ import (
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	toFollow := r.URL.Query().Get("username") //Get the name I want to follow
-	me := ps.ByName("userId")                 //Get my name
+	toFollow := r.URL.Query().Get("username")
+	me := ps.ByName("userId")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -20,7 +22,11 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	isBanned, err := rt.db.IsBanned(toFollow, me)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

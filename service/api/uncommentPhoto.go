@@ -1,13 +1,15 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	comment, err := strconv.Atoi(r.URL.Query().Get("commentId")) //Get the comment id
+	comment, err := strconv.Atoi(r.URL.Query().Get("commentId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -21,7 +23,11 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 
 	err = rt.db.UncommentPhoto(uint64(comment))
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 }

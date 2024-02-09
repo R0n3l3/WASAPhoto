@@ -1,13 +1,15 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	like, err := strconv.Atoi(r.URL.Query().Get("likeId")) //Get the like I want to remove
+	like, err := strconv.Atoi(r.URL.Query().Get("likeId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -21,7 +23,11 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err = rt.db.UnlikePhoto(uint64(like))
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 }

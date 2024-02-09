@@ -15,19 +15,19 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:userId/banned/", rt.banUser)
 	rt.router.DELETE("/users/:userId/banned/:bannedId", rt.unbanUser)
 
-	rt.router.POST("/users/:userId/profile/photos/", rt.uploadPhoto) // todo: check api
+	rt.router.POST("/users/:userId/profile/photos/", rt.uploadPhoto)
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId", rt.deletePhoto)
 
-	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)            // todo: check api
-	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto) // todo: check api
+	rt.router.POST("/users/:userId/profile/photos/:photoId/likes/", rt.likePhoto)
+	rt.router.DELETE("/users/:userId/profile/photos/:photoId/likes/:likeId", rt.unlikePhoto)
 
 	rt.router.POST("/users/:userId/profile/photos/:photoId/comments/", rt.commentPhoto)
 	rt.router.DELETE("/users/:userId/profile/photos/:photoId/comments/:commentId", rt.uncommentPhoto)
 
-	rt.router.POST("/users/:userId/profile/following/", rt.followUser)                 //todo: handle banned users
-	rt.router.DELETE("/users/:userId/profile/following/:followingId", rt.unfollowUser) //todo: check api
-
+	rt.router.POST("/users/:userId/profile/following/", rt.followUser)
 	rt.router.GET("/users/:userId/profile/following/", rt.getMyStream)
+	rt.router.DELETE("/users/:userId/profile/following/:followingId", rt.unfollowUser)
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 

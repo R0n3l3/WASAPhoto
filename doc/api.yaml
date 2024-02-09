@@ -333,10 +333,12 @@ paths:
                   identifier:
                     type: integer
                     example: 1
-  /users/:
+  /users/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/user_id"
     get:
       operationId: getUserProfile
-      tags: ["view"]
+      tags: [ "view" ]
       summary: Search user profile
       description: |-
         This method is used to search for a user with a specific username. The username is in the 
@@ -352,17 +354,14 @@ paths:
             minLength: 3
             maxLength: 16
       responses:
-        "200":
+        "201":
           description: Profile found successfully
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/Profile"}
-        "404": {$ref: "#/components/responses/404NotFound"}
-        "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}:
-    parameters:
-      - $ref: "#/components/parameters/user_id"
+              schema: { $ref: "#/components/schemas/Profile" }
+        "404": { $ref: "#/components/responses/404NotFound" }
+        "400": { $ref: "#/components/responses/400BadRequest" }
+        "401": { $ref: "#/components/responses/401StatusUnauthorized" }
     put:
       operationId: setMyUserName
       tags: ["modifyProfile"]
@@ -376,7 +375,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/User"}
       responses:
-        "200":
+        "201":
           description: Username updated successfully
           content:
             application/json:
@@ -399,7 +398,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/User"}
       responses:
-        "200":
+        "201":
           description: User banned successfully
           content:
             application/json:
@@ -438,7 +437,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/Photo"}
       responses:
-        "200":
+        "201":
           description: User found successfully
           content:
             application/json:
@@ -477,7 +476,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/Like"}
       responses:
-        "200":
+        "201":
           description: Like created successfully
           content:
             application/json:
@@ -517,7 +516,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/Comment"}
       responses:
-        "200":
+        "201":
           description: User found successfully
           content:
             application/json:
@@ -552,7 +551,7 @@ paths:
         This method is used to get the stream of a specified user. The following list is in the path. 
         Returns the photos of the users, in reverse chronological order.
       responses:
-        "200":
+        "201":
           description: Photos found successfully
           content:
             application/json:
@@ -576,7 +575,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/User"}
       responses:
-        "200":
+        "201":
           description: User found successfully
           content:
             application/json:

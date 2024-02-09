@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -10,13 +12,13 @@ import (
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	uploaderName := ps.ByName("userId")              //Get the uploader name
-	photo, err := strconv.Atoi(ps.ByName("photoId")) //Get the commented photo
+	uploaderName := ps.ByName("userId")
+	photo, err := strconv.Atoi(ps.ByName("photoId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	text := r.URL.Query().Get("content") //Get the content of the comment
+	text := r.URL.Query().Get("content")
 	if text == "" {
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
@@ -30,7 +32,11 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
