@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"log"
 )
 
 func (db *appdbimpl) GetMyStream(u string) ([]Photo, error) {
@@ -9,32 +10,32 @@ func (db *appdbimpl) GetMyStream(u string) ([]Photo, error) {
 
 	userId, err := db.GetUserId(u)
 	if err != nil {
-		print(err.Error())
+		log.Println(err.Error())
 		return photos, err
 	}
 
 	res, err := db.c.Query("SELECT photoId FROM photos p WHERE EXISTS(SELECT * FROM follow WHERE follower=? AND following=p.uploader) ORDER BY uploadTime DESC", userId)
 	if err != nil {
-		print(err.Error())
+		log.Println(err.Error())
 		return photos, err
 	}
-	defer func(res *sql.Rows) {
+	func(res *sql.Rows) {
 		err = res.Close()
 		if err != nil {
-			print(err.Error())
-			return
-		}
-		err = res.Err()
-		if err != nil {
-			print(err.Error())
+			log.Println(err.Error())
 			return
 		}
 	}(res)
+	err = res.Err()
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
 	for res.Next() {
 		var photo Photo
 		err = res.Scan(&photo)
 		if err != nil {
-			print(err.Error())
+			log.Println(err.Error())
 			return photos, err
 		}
 		photos = append(photos, photo)
