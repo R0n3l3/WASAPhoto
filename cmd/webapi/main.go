@@ -6,7 +6,7 @@ Everything is served via the API web server, except debug variables (/debug/vars
 
 Usage:
 
-	webapi [flags]
+	webapi flags
 
 Flags and configurations are handled automatically by the code in `load-configuration.go`.
 
