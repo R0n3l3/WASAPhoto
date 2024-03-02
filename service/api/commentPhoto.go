@@ -1,0 +1,48 @@
+package api
+
+import (
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"strconv"
+)
+
+func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	w.Header().Set("content-type", "application/json")
+	uploaderName := ps.ByName("userId")
+	photo, err := strconv.Atoi(ps.ByName("photoId"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	text := r.URL.Query().Get("content")
+	if text == "" {
+		w.WriteHeader(http.StatusNotAcceptable)
+		return
+	}
+
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(comment)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+}
