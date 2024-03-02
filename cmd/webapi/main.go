@@ -10,7 +10,7 @@ Usage:
 
 Flags and configurations are handled automatically by the code in `load-configuration.go`.
 
-Return values (exit codes):
+Return values (exit codes)
 
 	0
 		The program ended successfully (no errors, stopped by signal)
