@@ -1,54 +1,54 @@
 openapi: 3.0.3
-info: 
+info:
   title: WASAPhoto
   description: |-
-    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your 
+    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your
     photos directly from your PC, and they will be visible to everyone following you.
-    
+
     ### Functional design specifications
-    Each user will be presented with a stream of photos (images) in reverse chronological order, with information 
-    about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed 
-    by photos from “following” (other users that the user follows). 
-    
-    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image 
-    (even those uploaded by themself). Only authors can remove their comments. 
-    
-    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice. 
-    Alice can decide to remove the ban at any moment. 
-    
-    Users will have their profiles. The personal profile page for the user shows: the user's photos 
-    (in reverse chronological order), how many photos have been uploaded, and the user's followers and following. 
-    
-    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users. 
-    Removal of an image will also remove likes and comments. 
-    
-    A user can search other user profiles via username. 
-    
+    Each user will be presented with a stream of photos (images) in reverse chronological order, with information
+    about when each photo was uploaded (date and time) and how many likes and comments it has. The stream is composed
+    by photos from “following” (other users that the user follows).
+
+    Users can place (and later remove) a "like" to photos from other users. Also, users can add comments to any image
+    (even those uploaded by themself). Only authors can remove their comments.
+
+    Users can ban other users. If user Alice bans user Eve, Eve won't be able to see any information about Alice.
+    Alice can decide to remove the ban at any moment.
+
+    Users will have their profiles. The personal profile page for the user shows: the user's photos
+    (in reverse chronological order), how many photos have been uploaded, and the user's followers and following.
+
+    Users can change their usernames, upload photos, remove photos, and follow/unfollow other users.
+    Removal of an image will also remove likes and comments.
+
+    A user can search other user profiles via username.
+
     A user can log in just by specifying the username. See the "Simplified login" section for details.
 
     ### Simplified login
-    In real-world scenarios, new developments avoId implementing registration, login, and 
-    password-lost flows as they are a security nightmare, cumbersome, error-prone, and 
-    outsIde the project scope. So, why lose money and time on implementing those? 
-    The best practice is now to delegate those tasks to a separate service 
-    (“Identity provIder”), either in-house (owned by the same company) or a third party 
-    (like “Login with Apple/Facebook/Google” buttons). 
-    
-    In this project, we do not have an external service like this. Instead, we decIded to 
-    provIde you with a specification for a login API so that you won't spend time dealing 
-    with the design of the endpoint. The provIded OpenAPI document is at the end of this PDF. 
-    
-    The login endpoint accepts a username - like “Maria” - without any password. If the 
-    username already exists, the user is logged in. If the username is new, the user is 
+    In real-world scenarios, new developments avoId implementing registration, login, and
+    password-lost flows as they are a security nightmare, cumbersome, error-prone, and
+    outsIde the project scope. So, why lose money and time on implementing those?
+    The best practice is now to delegate those tasks to a separate service
+    (“Identity provIder”), either in-house (owned by the same company) or a third party
+    (like “Login with Apple/Facebook/Google” buttons).
+
+    In this project, we do not have an external service like this. Instead, we decIded to
+    provIde you with a specification for a login API so that you won't spend time dealing
+    with the design of the endpoint. The provIded OpenAPI document is at the end of this PDF.
+
+    The login endpoint accepts a username - like “Maria” - without any password. If the
+    username already exists, the user is logged in. If the username is new, the user is
     registered and logged in. The API will return the user Identifier you need to pass i
-    nto the Authorization header in any other API. 
-    
-    This authentication method is named "Bearer Authentication" (however, in this 
+    nto the Authorization header in any other API.
+
+    This authentication method is named "Bearer Authentication" (however, in this
     project, you should use the user Identifier in place of the token):
       - https://swagger.io/docs/specification/authentication/bearer-authentication/
       - https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
       - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
-    
+
     There is no need either for HTTP sessions or session cookies.
 
     ## OpenAPI
@@ -67,10 +67,10 @@ info:
       - *commentPhoto*
       - *uncommentPhoto*
       - *deletePhoto*
-    
+
     ## CORS
     The backend must reply to CORS pre-flight requests with the appropriate setting.
-    
+
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
   version: 0.1.0
 tags:
@@ -108,7 +108,7 @@ components:
       name: followingId
       in: path
       required: true
-      description: User following ID  
+      description: User following ID
     photo_id:
       schema: {$ref: "#/components/schemas/Photo/properties/photoId"}
       name: photoId
@@ -211,7 +211,7 @@ components:
               description: A link to the image
               type: string
               format: url
-              maxLength: 2048 
+              maxLength: 2048
               example: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"
               readOnly: true
         uploadTime:
@@ -276,7 +276,7 @@ components:
           maxLength: 16
           example: Nice photo!
           readOnly: true
-        commentTime: 
+        commentTime:
           description: When the comment was made
           type: string
           format: date-time
@@ -341,7 +341,7 @@ paths:
       tags: [ "view" ]
       summary: Search user profile
       description: |-
-        This method is used to search for a user with a specific username. The username is in the 
+        This method is used to search for a user with a specific username. The username is in the
         query. Returns the profile of the user.
       parameters:
         - name: username
@@ -370,8 +370,8 @@ paths:
       tags: ["modifyProfile"]
       summary: Update username
       description: |-
-        This method sets a new username for the associated user. 
-        We replace the user with a username-changed user, present in the body of the request. 
+        This method sets a new username for the associated user.
+        We replace the user with a username-changed user, present in the body of the request.
         Returns the new user.
       requestBody:
         content:
@@ -433,7 +433,7 @@ paths:
       tags: ["modifyProfile"]
       summary: Upload a photo
       description: |-
-        This method adds a new photo to the associated user. The new photo is 
+        This method adds a new photo to the associated user. The new photo is
         contained in the body of the request. Returns the new photo.
       requestBody:
         content:
@@ -472,7 +472,7 @@ paths:
       tags: ["photoInteractions"]
       summary: Like a photo
       description: |-
-        This method adds a new like to the associated photo. The new like is contained in the body of the request. 
+        This method adds a new like to the associated photo. The new like is contained in the body of the request.
         Returns the like.
       requestBody:
         content:
@@ -512,7 +512,7 @@ paths:
       tags: ["photoInteractions"]
       summary: Comment a photo
       description: |-
-        This method adds a new comment to the associated photo. The new comment is contained in the body of the request. 
+        This method adds a new comment to the associated photo. The new comment is contained in the body of the request.
         Returns the comment.
       requestBody:
         content:
@@ -543,7 +543,7 @@ paths:
         "404": {$ref: "#/components/responses/404NotFound"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/following/:
+  /users/{username}/profile/following/:
     parameters:
       - $ref: "#/components/parameters/user_id"
     get:
@@ -551,7 +551,7 @@ paths:
       tags: ["view"]
       summary: Get user stream
       description: |-
-        This method is used to get the stream of a specified user. The following list is in the path. 
+        This method is used to get the stream of a specified user. The following list is in the path.
         Returns the photos of the users, in reverse chronological order.
       responses:
         "201":
@@ -559,7 +559,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array 
+                type: array
                 items: {$ref: "#/components/schemas/Photo"}
                 minItems: 0
                 maxItems: 999999999

@@ -14,11 +14,11 @@ export default {
 				this.errormsg="You must insert a username!"
 			} else {
 				try {
-					let response = await this.$axios.post("/session/", {username: this.username})
+					let response = await this.$axios.post("/session/?username=" + this.username)
 					this.id=response.data
 					localStorage.setItem("token", this.id)
 					localStorage.setItem("username", this.username)
-					this.$router.push({path:'/session'})
+					this.$router.push({path:"/session/"})
 				} catch (e) {
 					if (e.response && e.response.status === 400) {
 						this.errormsg = "Form error, please check all fields and try again. If you think that this is an error, write an e-mail to us.";

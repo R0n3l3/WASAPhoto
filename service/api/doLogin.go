@@ -9,10 +9,9 @@ import (
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	token := getToken(r.Header.Get("Authorization"))
 	name := r.URL.Query().Get("username")
 
-	userId, err := rt.db.DoLogin(name, token)
+	userId, err := rt.db.DoLogin(name)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
