@@ -1,9 +1,8 @@
 <script>
-import ErrorMsg from "../components/ErrorMsg.vue";
 
 export default {
-	components: {ErrorMsg},
-	data: function() {
+	components: {},
+	data: function () {
 		return {
 			errormsg: null,
 			detailedmsg: null,
@@ -29,49 +28,53 @@ export default {
 		}
 	},
 	methods: {
-		async getStream () {
+		async getStream() {
 			try {
-					let response = await this.$axios.get("/users/" + this.username + "/profile/following/", {
-						headers: {
-							Authorization: "Bearer " + this.token
-			}
-			})
-					this.photoStream=response.data
-
-				} catch (e) {
+				let response = await this.$axios.get("/users/" + this.username + "/profile/", {
+					headers: {
+						Authorization: "Bearer " + this.token
+					}
+				})
+				this.photoStream = response.data
+			} catch (e) {
 				if (e.response && e.response.status === 404) {
-					this.detailedmsg = "Your stream is empty";
-				}
-				if (e.response && e.response.status === 405) {
-					this.detailedmsg = "Error";
-
-
+					this.detailedmsg = "Your stream is empty"
+				} else {
+					this.detailedmsg = e.toString()
 				}
 			}
-			},
+		},
+
 		async getUser() {
-			if (this.search==="") {
-				this.errormsg="You must insert a username!"
-			}
-			else {
+			if (this.search === "") {
+				this.errormsg = "You must insert a username"
+			} else {
+				this.errormsg = null
 				try {
-					let response = await this.$axios.get("/users/" + this.username + "/profile/?username=" + this.search, {
+					let response = await this.$axios.get("/users/" + this.username, {
+						params: {
+							search: this.search
+						},
 						headers: {
 							Authorization: "Bearer " + this.token
 						}
 					})
 					this.profile = response.data
-					localStorage.setItem("profile", this.profile)
-					this.$router.push ({path:"/users/"+this.profile.profileId+"/profile/"})
+
+
 				} catch (e) {
-				if (e.response && e.response.status===404) {
-					this.errormsg= "Profile not found"
-				}}
-			}
+					if (e.response && e.response.status === 404) {
+						this.detailedmsg = "Your stream is empty"
+					} else {
+						this.detailedmsg = e.toString()
+					}
+
+				}
 			}
 		},
-	mounted() {
-		this.getStream()
+		mounted() {
+			this.getStream()
+		}
 	}
 }
 </script>

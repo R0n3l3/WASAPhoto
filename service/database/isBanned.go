@@ -23,6 +23,7 @@ func (db *appdbimpl) IsBanned(myName string, theirName string) (bool, error) {
 			log.Println(err.Error())
 			return false, err
 		}
+		log.Println(err.Error())
 		return false, nil
 	}
 	return true, nil

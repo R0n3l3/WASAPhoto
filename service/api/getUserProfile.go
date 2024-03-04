@@ -11,8 +11,8 @@ import (
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	myName := ps.ByName("userId")
-	name := r.URL.Query().Get("username")
+	myName := ps.ByName("username")
+	name := r.URL.Query().Get("search")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -23,7 +23,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	isBanned, err := rt.db.IsBanned(name, myName)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
@@ -31,6 +31,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	if isBanned {
+		w.WriteHeader(http.StatusConflict)
 		err := json.NewEncoder(w).Encode("Profile not found")
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)

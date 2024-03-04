@@ -1,5 +1,8 @@
 <script>
+import ErrorMsg from "../components/ErrorMsg.vue";
+
 export default {
+	components: {ErrorMsg},
 	data: function() {
 		return {
 			errormsg: null,
@@ -11,31 +14,23 @@ export default {
 	methods: {
 		async doLogin () {
 			if (this.username==="") {
-				this.errormsg="You must insert a username!"
-			} else {
+				this.errormsg="Username cannot be empty"
+			}
+			else {
+				this.errormsg=null
 				try {
-					let response = await this.$axios.post("/session/?username=" + this.username)
+					let response = await this.$axios.post("/session/?username="+this.username)
 					this.id=response.data
 					localStorage.setItem("token", this.id)
 					localStorage.setItem("username", this.username)
 					this.$router.push({path:"/session/"})
-				} catch (e) {
-					if (e.response && e.response.status === 400) {
-						this.errormsg = "Form error, please check all fields and try again. If you think that this is an error, write an e-mail to us.";
-						this.detailedmsg = null;
-					} else if (e.response && e.response.status === 500) {
-						this.errormsg = "An internal error occurred. We will be notified. Please try again later.";
-						this.detailedmsg = e.toString();
-					} else {
+				}
+				catch(e) {
 						this.errormsg = e.toString();
 						this.detailedmsg = null;
 					}
-				}
 			}
 		}
-
-	},
-	mounted() {
 	}
 }
 </script>
@@ -54,6 +49,7 @@ export default {
 		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>
 	</div>
 </template>
 

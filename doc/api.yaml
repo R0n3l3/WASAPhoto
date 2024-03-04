@@ -333,7 +333,7 @@ paths:
                   identifier:
                     type: integer
                     example: 1
-  /users/{userId}/profile/:
+  /users/{userId}/:
     parameters:
       - $ref: "#/components/parameters/user_id"
     get:
@@ -543,7 +543,7 @@ paths:
         "404": {$ref: "#/components/responses/404NotFound"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{username}/profile/following/:
+  /users/{username}/profile/:
     parameters:
       - $ref: "#/components/parameters/user_id"
     get:
