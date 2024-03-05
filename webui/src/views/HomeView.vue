@@ -32,10 +32,15 @@ export default {
 	methods: {
 		async getStream() {
 			try {
-				let response = await this.$axios.get("/users/" + this.username + "/profile/", {
-					headers: {
-						Authorization: "Bearer " + this.token
-					}
+				let response= await this.$axios.get("/users/"+this.username+"/profile", {
+					params:
+						{
+							search: this.search
+						},
+					headers:
+						{
+							Authorization: "Bearer "+ this.token
+						}
 				})
 				this.photoStream = response.data
 			} catch (e) {
@@ -61,22 +66,60 @@ export default {
 							Authorization: "Bearer " + this.token
 						}
 					})
-					this.profile = response.data
-
-
+					let decodedprofile = response.data
+					if (decodedprofile.ProfileName===this.username) {
+						this.errormsg="You cannot search yourself! Please use the 'My profile' button"
+					} else {
+						this.profile.profileName = decodedprofile.ProfileName
+						this.profile.profileId = decodedprofile.ProfileId
+						this.profile.photoNumber = decodedprofile.PhotoNumber
+						localStorage.setItem("searchName", this.profile.profileName)
+						localStorage.setItem("searchId", this.profile.profileName)
+						localStorage.setItem("searchPhoto", this.profile.photoNumber)
+						this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
+					}
 				} catch (e) {
 					if (e.response && e.response.status === 404) {
-						this.detailedmsg = "Your stream is empty"
+						this.errormsg = "User not found"
 					} else {
-						this.detailedmsg = e.toString()
+						this.errormsg = e.toString()
 					}
 
 				}
 			}
 		},
-		mounted() {
-			this.getStream()
+
+		async getMyProfile() {
+			try {
+				let response = await this.$axios.get("/users/" + this.username, {
+					params: {
+						search: this.username
+					},
+					headers: {
+						Authorization: "Bearer " + this.token
+					}
+				})
+				let decodedprofile = response.data
+				this.profile.profileName = decodedprofile.ProfileName
+				this.profile.profileId = decodedprofile.ProfileId
+				this.profile.photoNumber = decodedprofile.PhotoNumber
+				localStorage.setItem("searchName", this.profile.profileName)
+				localStorage.setItem("searchId", this.profile.profileName)
+				localStorage.setItem("searchPhoto", this.profile.photoNumber)
+				this.$router.push({path: "/users/" + this.profile.profileName + "/view/"})
+
+			} catch (e) {
+				if (e.response && e.response.status === 404) {
+					this.errormsg = "User not found"
+				} else {
+					this.errormsg = e.toString()
+				}
+
+			}
 		}
+	},
+	mounted() {
+		this.getStream()
 	}
 }
 </script>
@@ -92,7 +135,7 @@ export default {
 			<button @click="getUser">Search</button>
 		</div>
 		<div>
-
+			<button @click="getMyProfile">Your Profile</button>
 		</div>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>

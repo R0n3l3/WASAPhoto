@@ -23,7 +23,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	isBanned, err := rt.db.IsBanned(name, myName)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
@@ -31,12 +31,8 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	if isBanned {
-		w.WriteHeader(http.StatusConflict)
-		err := json.NewEncoder(w).Encode("Profile not found")
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	profile, err := rt.db.GetUserProfile(name)
