@@ -44,7 +44,7 @@ type AppDatabase interface {
 
 	DoLogin(u string) (uint64, error)
 	GetUserProfile(u string) (Profile, error)
-	SetMyUsername(u string, new string) (User, error)
+	SetMyUsername(u string, new string) error
 
 	BanUser(toBan string, banning string) (User, error)
 	UnbanUser(toUnban string, unbanning string) error
@@ -104,7 +104,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='users';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		usersDatabase := `CREATE TABLE users (
-    userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+    userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     userProfile INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY (userProfile) REFERENCES profiles(profileId));`

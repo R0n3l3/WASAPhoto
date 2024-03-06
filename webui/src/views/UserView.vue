@@ -10,6 +10,7 @@ export default {
 			detailedmsg: null,
 			loading: false,
 			username: localStorage.getItem("username"),
+			newName: "",
 			token: localStorage.getItem("token"),
 			profile: {
 				profileId: localStorage.getItem("searchId"),
@@ -29,6 +30,35 @@ export default {
 		handleFileChange(event) {
 			this.selectedFile=event.target.files[0]
 		},
+
+		async changeUsername() {
+			if (this.newName==="") {
+				this.errormsg="Please insert a name"
+			} else {
+				this.errormsg=null
+				try {
+					await this.$axios.put("/users/"+this.username, {
+						new: this.newName
+					}, {
+						headers: {
+							Authorization: "Bearer "+this.token
+						}
+					})
+					this.username=this.newName
+					this.profile.profileName=this.newName
+					localStorage.setItem("username", this.newName)
+					localStorage.setItem("searchName", this.newName)
+					this.$router.push({path: "/users/" + this.newName + "/view/"})
+				}
+				catch(e) {
+					this.errormsg = e.toString();
+					this.detailedmsg = null;
+				}
+			}
+				}
+
+		},
+
 		async upload() {
 			if (!this.selectedFile) {
 				this.errormsg="Please select a photo"
@@ -51,7 +81,7 @@ export default {
 				console.log("error")
 				this.errormsg=e.toString()
 			}
-		}
+
 	},
 	mounted() {
 	}
@@ -71,7 +101,11 @@ export default {
 			<p>Please select a photo to upload</p>
 			<input type="file" ref="fileInput" @change="handleFileChange">
 			<button @click="upload">Upload Photo</button>
-
+		</div>
+		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<p>Change your username</p>
+			<input type="text" v-model="newName">
+			<button @click="changeUsername">Update Name</button>
 		</div>
 		<button @click="goBack">Go to homepage</button>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>

@@ -11,8 +11,14 @@ import (
 func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	newName := r.URL.Query().Get("username")
-	oldName := ps.ByName("userId")
+	var requestData map[string]string
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	newName := requestData["new"]
+	oldName := ps.ByName("username")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -20,7 +26,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	user, err := rt.db.SetMyUsername(oldName, newName)
+	err = rt.db.SetMyUsername(oldName, newName)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
@@ -29,7 +35,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = json.NewEncoder(w).Encode(user)
+	err = json.NewEncoder(w).Encode("Update successful")
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
