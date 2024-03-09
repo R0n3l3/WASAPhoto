@@ -9,15 +9,16 @@ export default {
 			errormsg: null,
 			detailedmsg: null,
 			loading: false,
-			uploaded: null,
 			username: localStorage.getItem("username"),
 			newName: "",
 			token: localStorage.getItem("token"),
 			profile: {
 				profileId: localStorage.getItem("searchId"),
 				profileName: localStorage.getItem("searchName"),
-				photoNumber: localStorage.getItem("searchPhoto"),
+				photoNumber: parseInt(localStorage.getItem("searchPhoto")),
 			},
+			myphotos: [
+			],
 			photo : {
 				photoId: 0,
 				uploader: "",
@@ -30,6 +31,10 @@ export default {
 		}
 	},
 	methods: {
+		async getMyPhotos() {
+
+		},
+
 		async goBack() {
 			localStorage.removeItem("searchId")
 			localStorage.removeItem("searchName")
@@ -78,10 +83,12 @@ export default {
 						}
 					})
 					this.photo=response.data
-					this.uploaded='data:image/*; base64, '+this.photo.Image
-
+					this.myphotos.push(this.photo)
+					localStorage.setItem("searchPhoto", this.profile.photoNumber+1)
+					this.profile.photoNumber=this.profile.photoNumber+1
+					this.photo=null
 					this.image = null
-
+					this.$router.push({path: "/users/" + this.username + "/view/"})
 				} catch (e) {
 					console.log("error")
 					this.errormsg = e.toString()
@@ -90,9 +97,8 @@ export default {
 		},
 
 		},
-
-
 	mounted() {
+		this.getMyPhotos()
 	}
 }
 </script>
@@ -110,12 +116,19 @@ export default {
 			<p>Please select a photo to upload</p>
 			<input type="file" accept="image/*" @change="handleFileChange" ref="file">
 			<button @click="upload">Upload Photo</button>
-			<img v-if="uploaded" :src="uploaded" alt="Example"/>
 		</div>
 		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<p>Change your username</p>
 			<input type="text" v-model="newName">
 			<button @click="changeUsername">Update Name</button>
+		</div>
+		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<p> Your photos</p>
+			<ul>
+				<li v-for="item in myphotos" :key="item.photoId">
+					<img :src="'data:image/*; base64,' + item.Image" alt="Uploaded Photo" class="resizable-image" />
+				</li>
+			</ul>
 		</div>
 		<button @click="goBack">Go to homepage</button>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
@@ -124,4 +137,8 @@ export default {
 </template>
 
 <style>
+.resizable-image {
+	max-width: 100%;
+	max-height: 100px;
+}
 </style>
