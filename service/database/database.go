@@ -49,6 +49,7 @@ type AppDatabase interface {
 	BanUser(toBan string, banning string) (User, error)
 	UnbanUser(toUnban string, unbanning string) error
 
+	GetPhoto(id uint64) (Photo, error)
 	UploadPhoto(uploader string, image []byte) (Photo, error)
 	DeletePhoto(id uint64) error
 	GetMyStream(u string) ([]Photo, error)
