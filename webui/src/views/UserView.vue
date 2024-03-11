@@ -18,6 +18,7 @@ export default {
 				photoNumber: parseInt(localStorage.getItem("searchPhoto")),
 			},
 			myphotos: [
+
 			],
 			photo : {
 				photoId: 0,
@@ -32,8 +33,23 @@ export default {
 	},
 	methods: {
 		async getMyPhotos() {
-
-		},
+			try {
+				let response = await this.$axios.get("/users/"+this.username+"/profile/photos/", {
+				headers: {
+					Authorization: "Bearer " + this.token }
+				})
+				const photoArray=response.data
+				console.log(response.data)
+				if (photoArray===null) {
+					this.detailedmsg="You haven't uploaded pictures"
+				}else {
+					this.myphotos=photoArray
+					this.detailedmsg=null
+				}
+		}catch(e) {
+				this.errormsg = e.toString();
+				this.detailedmsg = null;
+			}},
 
 		async goBack() {
 			localStorage.removeItem("searchId")
@@ -83,6 +99,7 @@ export default {
 						}
 					})
 					this.photo=response.data
+					console.log(this.photo)
 					this.myphotos.push(this.photo)
 					localStorage.setItem("searchPhoto", this.profile.photoNumber+1)
 					this.profile.photoNumber=this.profile.photoNumber+1
