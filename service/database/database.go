@@ -58,6 +58,7 @@ type AppDatabase interface {
 	LikePhoto(photoId uint64, liker string) (Like, error)
 	UnlikePhoto(id uint64) error
 
+	GetComment(id uint64) (Comment, error)
 	CommentPhoto(photoId uint64, commenter string, content string) (Comment, error)
 	UncommentPhoto(commentId uint64) error
 

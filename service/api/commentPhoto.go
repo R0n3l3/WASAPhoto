@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -12,16 +13,15 @@ import (
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	uploaderName := ps.ByName("userId")
+	uploaderName := ps.ByName("username")
 	photo, err := strconv.Atoi(ps.ByName("photoId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	text := r.URL.Query().Get("content")
-	if text == "" {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+	text, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
@@ -30,7 +30,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
+	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, string(text))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
