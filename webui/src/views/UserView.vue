@@ -21,6 +21,14 @@ export default {
 			myphotos: [
 
 			],
+			myphotoscomments:[
+				{
+					photoId: 0,
+					comments: [
+
+					]
+				},
+			],
 			photo : {
 				photoId: 0,
 				uploader: "",
@@ -28,8 +36,16 @@ export default {
 				uploadTime: "",
 				likeNumber: 0,
 				commentNumber: 0,
+				comments: [],
 			},
-			image: null
+			image: null,
+			comment: {
+				commentId: 0,
+				commenter: 0,
+				commentTime: "",
+				content: "",
+				photoComment: 0,
+			}
 		}
 	},
 	methods: {
@@ -40,10 +56,10 @@ export default {
 					Authorization: "Bearer " + this.token }
 				})
 				const photoArray=response.data
-				console.log(response.data)
 				if (photoArray===null) {
 					this.detailedmsg="You haven't uploaded pictures"
 				}else {
+					this.detailedmsg=null
 					this.myphotos=photoArray
 					this.detailedmsg=null
 				}
@@ -100,10 +116,15 @@ export default {
 						}
 					})
 					this.photo=response.data
-					this.myphotos.push(this.photo)
+					this.myphotos.unshift(this.photo)
+					this.myphotoscomments.push({
+						photoId: this.photo.photoId,
+						comments: []
+					})
 					localStorage.setItem("searchPhoto", this.profile.photoNumber+1)
 					this.profile.photoNumber=this.profile.photoNumber+1
 					this.photo=null
+					this.$refs.file.value = ''
 					this.$router.push({path: "/users/" + this.username + "/view/"})
 				} catch (e) {
 					this.errormsg = e.toString()
@@ -137,13 +158,16 @@ export default {
 							Authorization: "Bearer " + this.token
 						}
 					})
-					console.log(response.data)
+					this.comment=response.data
 					item.CommentNumber = item.CommentNumber+=1
 					this.$router.push({path: "/users/" + this.username + "/view/"})
 				} catch (e) {
 					this.errormsg = e.toString()
 				}
 			}
+		},
+		async show(item) {
+
 		}
 
 		},
@@ -179,6 +203,11 @@ export default {
 					<img :src="'data:image/*; base64,' + item.Image" alt="Uploaded Photo" class="resizable-image" />
 					<p> Like Number: {{item.LikeNumber}}</p>
 					<p> Comment Number: {{item.CommentNumber}}</p>
+					<ul>
+						<li v-for="comment in myphotoscomments[index]" :key="comment.CommentId">
+							<p>{{comment.Commenter}}: {{comment.Content}}</p>
+						</li>
+					</ul>
 					<input type="text" v-model="commentContent">
 					<button @click="comment(item)">Add a comment</button>
 					<p> Date of Upload: {{item.UploadTime}}</p>
