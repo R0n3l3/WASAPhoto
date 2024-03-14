@@ -22,10 +22,13 @@ func (db *appdbimpl) DeletePhoto(id uint64) error {
 
 	}
 
-	_, err = db.c.Exec("UPDATE profiles SET photoNumber=profiles.photoNumber-1 WHERE profileId=?", profile.ProfileId)
+	res, err := db.c.Exec("UPDATE profiles SET photoNumber=profiles.photoNumber-1 WHERE profileId=?", profile.ProfileId)
 	if err != nil {
 		log.Println(err.Error())
 		return err
+	} else {
+		rowsAffected, _ := res.RowsAffected()
+		log.Println("Rows affected:", rowsAffected)
 	}
 
 	_, err = db.c.Exec("DELETE FROM photos WHERE photoId=?", id)

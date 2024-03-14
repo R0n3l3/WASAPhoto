@@ -9,7 +9,7 @@ import (
 )
 
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	comment, err := strconv.Atoi(r.URL.Query().Get("commentId"))
+	comment, err := strconv.Atoi(ps.ByName("commentId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

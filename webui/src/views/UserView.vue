@@ -97,7 +97,7 @@ export default {
 					this.profile.profileName = this.newName
 					localStorage.setItem("username", this.newName)
 					localStorage.setItem("searchName", this.newName)
-					this.$router.push({path: "/users/" + this.newName + "/view/"})
+					this.refresh()
 				} catch (e) {
 					this.errormsg = e.toString();
 					this.detailedmsg = null;
@@ -130,7 +130,7 @@ export default {
 					this.profile.photoNumber=this.profile.photoNumber+1
 					this.photo=null
 					this.$refs.file.value = ''
-					this.$router.push({path: "/users/" + this.username + "/view/"})
+					this.refresh()
 				} catch (e) {
 					this.errormsg = e.toString()
 				}
@@ -147,7 +147,8 @@ export default {
 				this.myphotos.splice(index, 1)
 				localStorage.setItem("searchPhoto", this.profile.photoNumber-1)
 				this.profile.photoNumber=this.profile.photoNumber-1
-				this.$router.push({path: "/users/" + this.username + "/view/"})
+				this.myphotoscomments=null
+				this.refresh()
 			}catch(e){
 				this.errormsg = e.toString()
 			}
@@ -170,30 +171,34 @@ export default {
 							photo.comments.push(this.comment);
 						}
 					});
-					this.commentContent=""
-					this.$router.push({path: "/users/" + this.username + "/view/"})
+					this.commentContent=null
+					await this.refresh()
 				} catch (e) {
 					this.errormsg = e.toString()
 				}
 			}
 		},
 
-		async deleteComment(id, index, photo) {
-			try {
-				await this.$axios.delete("/users/"+this.username+"/profile/photos/"+photo+"/comments/"+id, {
-					headers: {
-						Authorization: "Bearer " + this.token
-					}
-				})
-				photo.CommentNumber=photo.CommentNumber-=1
-				this.myphotoscomments.forEach(p=> {
-					if(p.photoId===photo.PhotoId) {
-						p.comments.splice(i, 1)
-					}
-				})
-				this.$router.push({path: "/users/" + this.username + "/view/"})
-			}catch(e){
-				this.errormsg = e.toString()
+		async deleteComment(comment, index, photo) {
+			if (this.username!==comment.Commenter) {
+				this.errormsg="You cannot delete this comment"
+			}else {
+				try {
+					await this.$axios.delete("/users/" + this.username + "/profile/photos/" + photo.PhotoId + "/comments/" + comment.CommentId, {
+						headers: {
+							Authorization: "Bearer " + this.token
+						}
+					})
+					photo.CommentNumber = photo.CommentNumber -= 1
+					this.myphotoscomments.forEach(p => {
+						if (p.photoId === photo.PhotoId) {
+							p.comments.splice(index, 1)
+						}
+					})
+					this.refresh()
+				} catch (e) {
+					this.errormsg = e.toString()
+				}
 			}
 		},
 		},
@@ -232,7 +237,7 @@ export default {
 					<ul>
 						<li v-if="myphotoscomments[index]" v-for="(comment, i) in myphotoscomments[index].comments" :key="comment.CommentId">
 							<p>{{comment.Commenter}}: {{comment.Content}}</p>
-							<button @click="deleteComment(commment.CommentId, i, item.PhotoId)">Delete comment</button>
+							<button @click="deleteComment(comment, i, item)">Delete comment</button>
 						</li>
 					</ul>
 					<input type="text" v-model="commentContent">
