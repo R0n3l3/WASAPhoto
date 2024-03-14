@@ -19,15 +19,8 @@ export default {
 				photoNumber: parseInt(localStorage.getItem("searchPhoto")),
 			},
 			myphotos: [
-
 			],
 			myphotoscomments:[
-				{
-					photoId: 0,
-					comments: [
-
-					]
-				},
 			],
 			photo : {
 				photoId: 0,
@@ -39,6 +32,7 @@ export default {
 				comments: [],
 			},
 			image: null,
+			comments: [],
 			comment: {
 				commentId: 0,
 				commenter: 0,
@@ -49,7 +43,7 @@ export default {
 		}
 	},
 	methods: {
-		async getMyPhotos() {
+		async refresh() {
 			try {
 				let response = await this.$axios.get("/users/"+this.username+"/profile/photos/", {
 				headers: {
@@ -61,6 +55,17 @@ export default {
 				}else {
 					this.detailedmsg=null
 					this.myphotos=photoArray
+					for (let i=0; i<this.myphotos.length; i++) {
+						let response = await this.$axios.get("/users/"+this.username+"/profile/photos/"+this.myphotos[i].PhotoId+"/comments/", {
+							headers: {
+								Authorization: "Bearer " + this.token }
+						})
+						this.comments=response.data
+						this.myphotoscomments.push({
+						photoId: this.myphotos[i].PhotoId,
+						comments: this.comments
+					})
+					}
 					this.detailedmsg=null
 				}
 		}catch(e) {
@@ -148,7 +153,7 @@ export default {
 			}
 		},
 
-		async comment(item) {
+		async commentPhoto(item) {
 			if (this.commentContent==="") {
 				this.errormsg = "Please type a comment"
 			}else {
@@ -160,19 +165,40 @@ export default {
 					})
 					this.comment=response.data
 					item.CommentNumber = item.CommentNumber+=1
+					this.myphotoscomments.forEach(photo => {
+						if (photo.photoId === item.PhotoId) {
+							photo.comments.push(this.comment);
+						}
+					});
+					this.commentContent=""
 					this.$router.push({path: "/users/" + this.username + "/view/"})
 				} catch (e) {
 					this.errormsg = e.toString()
 				}
 			}
 		},
-		async show(item) {
 
-		}
-
+		async deleteComment(id, index, photo) {
+			try {
+				await this.$axios.delete("/users/"+this.username+"/profile/photos/"+photo+"/comments/"+id, {
+					headers: {
+						Authorization: "Bearer " + this.token
+					}
+				})
+				photo.CommentNumber=photo.CommentNumber-=1
+				this.myphotoscomments.forEach(p=> {
+					if(p.photoId===photo.PhotoId) {
+						p.comments.splice(i, 1)
+					}
+				})
+				this.$router.push({path: "/users/" + this.username + "/view/"})
+			}catch(e){
+				this.errormsg = e.toString()
+			}
+		},
 		},
 	mounted() {
-		this.getMyPhotos()
+		this.refresh()
 	}
 }
 </script>
@@ -204,12 +230,13 @@ export default {
 					<p> Like Number: {{item.LikeNumber}}</p>
 					<p> Comment Number: {{item.CommentNumber}}</p>
 					<ul>
-						<li v-for="comment in myphotoscomments[index]" :key="comment.CommentId">
+						<li v-if="myphotoscomments[index]" v-for="(comment, i) in myphotoscomments[index].comments" :key="comment.CommentId">
 							<p>{{comment.Commenter}}: {{comment.Content}}</p>
+							<button @click="deleteComment(commment.CommentId, i, item.PhotoId)">Delete comment</button>
 						</li>
 					</ul>
 					<input type="text" v-model="commentContent">
-					<button @click="comment(item)">Add a comment</button>
+					<button @click="commentPhoto(item)">Add a comment</button>
 					<p> Date of Upload: {{item.UploadTime}}</p>
 					<button @click="deletePhoto(item.PhotoId, index)"> Remove Photo</button>
 				</li>

@@ -59,6 +59,7 @@ type AppDatabase interface {
 	UnlikePhoto(id uint64) error
 
 	GetComment(id uint64) (Comment, error)
+	GetComments(id uint64) ([]Comment, error)
 	CommentPhoto(photoId uint64, commenter string, content string) (Comment, error)
 	UncommentPhoto(commentId uint64) error
 
@@ -174,11 +175,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		commentsDatabase := `CREATE TABLE comments (
     commentId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    commenter INTEGER NOT NULL,
+    commenter TEXT NOT NULL,
     commentTime TIMESTAMP NOT NULL,
     content TEXT NOT NULL,
     photoComment INTEGER NOT NULL,
-	FOREIGN KEY (commenter) REFERENCES users(userId),
+	FOREIGN KEY (commenter) REFERENCES users(username),
 	FOREIGN KEY (photoComment) REFERENCES photos(photoId));`
 		_, err = db.Exec(commentsDatabase)
 		if err != nil {

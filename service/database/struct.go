@@ -39,7 +39,7 @@ type Like struct {
 
 type Comment struct {
 	CommentId    uint64 `json:"CommentId"`
-	Commenter    uint64 `json:"Commenter"`
+	Commenter    string `json:"Commenter"`
 	CommentTime  string `json:"CommentTime"`
 	Content      string `json:"Content"`
 	PhotoComment uint64 `json:"PhotoComment"`
