@@ -55,6 +55,8 @@ type AppDatabase interface {
 	DeletePhoto(id uint64) error
 	GetMyStream(u string) ([]Photo, error)
 
+	GetLike(id uint64) (Like, error)
+	GetLikes(photoId uint64) ([]Like, error)
 	LikePhoto(photoId uint64, liker string) (Like, error)
 	UnlikePhoto(id uint64) error
 
