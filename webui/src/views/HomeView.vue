@@ -85,7 +85,7 @@ export default {
 						this.profile.profileId = decodedprofile.ProfileId
 						this.profile.photoNumber = decodedprofile.PhotoNumber
 						localStorage.setItem("searchName", this.profile.profileName)
-						localStorage.setItem("searchId", this.profile.profileName)
+						localStorage.setItem("searchId", this.profile.profileId)
 						localStorage.setItem("searchPhoto", this.profile.photoNumber)
 						this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
 					}
@@ -115,7 +115,7 @@ export default {
 				this.profile.profileId = decodedprofile.ProfileId
 				this.profile.photoNumber = decodedprofile.PhotoNumber
 				localStorage.setItem("searchName", this.profile.profileName)
-				localStorage.setItem("searchId", this.profile.profileName)
+				localStorage.setItem("searchId", this.profile.profileId)
 				localStorage.setItem("searchPhoto", this.profile.photoNumber)
 				this.$router.push({path: "/users/" + this.profile.profileName + "/view/"})
 

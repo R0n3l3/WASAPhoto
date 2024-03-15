@@ -6,204 +6,203 @@ export default {
 	components: {ErrorMsg},
 	data: function () {
 		return {
-			commentContent: "",
-			errormsg: null,
-			detailedmsg: null,
-			loading: false,
-			username: localStorage.getItem("username"),
-			newName: "",
+			errormsg: "",
+			detailedmsg: "",
 			token: localStorage.getItem("token"),
-			profile: {
-				profileId: localStorage.getItem("searchId"),
-				profileName: localStorage.getItem("searchName"),
-				photoNumber: parseInt(localStorage.getItem("searchPhoto")),
+			username: localStorage.getItem("searchName"),
+			photoNumber: parseInt(localStorage.getItem("searchPhoto")),
+			myPhotos: [],
+			photoData: [
+			],
+			comment: {
+				commentId: 0,
+				commenter: "",
+				commentTime: "",
+				content : "",
+				photoComment: 0,
 			},
-			myphotos: [
-			],
-			myphotoscomments:[
-			],
-			photo : {
+			comments: [],
+			content: "",
+			likes: [],
+			upload:null,
+			photo: {
 				photoId: 0,
-				uploader: "",
-				image: "",
+				uploader: 0,
 				uploadTime: "",
 				likeNumber: 0,
 				commentNumber: 0,
-				comments: [],
+				image: [],
 			},
-			image: null,
-			comments: [],
-			comment: {
-				commentId: 0,
-				commenter: 0,
-				commentTime: "",
-				content: "",
-				photoComment: 0,
-			}
+			newName:"",
+
 		}
 	},
 	methods: {
-		async refresh() {
-			try {
-				let response = await this.$axios.get("/users/"+this.username+"/profile/photos/", {
-				headers: {
-					Authorization: "Bearer " + this.token }
-				})
-				const photoArray=response.data
-				if (photoArray===null) {
-					this.detailedmsg="You haven't uploaded pictures"
-				}else {
-					this.detailedmsg=null
-					this.myphotos=photoArray
-					for (let i=0; i<this.myphotos.length; i++) {
-						let response = await this.$axios.get("/users/"+this.username+"/profile/photos/"+this.myphotos[i].PhotoId+"/comments/", {
-							headers: {
-								Authorization: "Bearer " + this.token }
-						})
-						this.comments=response.data
-						this.myphotoscomments.push({
-						photoId: this.myphotos[i].PhotoId,
-						comments: this.comments
-					})
+		filteredPhotoData(photoId) {
+			// Filter photoData based on photoId
+			return this.photoData.filter(data => data.photoId === photoId);
+		},
+
+		async getData(photo) {
+			let response = await this.$axios.get("/users/"+this.username+"/profile/photos/"+photo.PhotoId+"/comments/", {
+				headers:
+					{
+						Authorization: "Bearer " + this.token
 					}
-					this.detailedmsg=null
-				}
-		}catch(e) {
-				this.errormsg = e.toString();
-				this.detailedmsg = null;
-			}},
-
-		async goBack() {
-			localStorage.removeItem("searchId")
-			localStorage.removeItem("searchName")
-			localStorage.removeItem("searchPhoto")
-			this.$router.push({path: "/session/"})
-		},
-
-		async changeUsername() {
-			if (this.newName === "") {
-				this.errormsg = "Please insert a name"
-			} else {
-				this.errormsg = null
-				try {
-					await this.$axios.put("/users/" + this.username, {
-						new: this.newName
-					}, {
-						headers: {
-							Authorization: "Bearer " + this.token
-						}
-					})
-					this.username = this.newName
-					this.profile.profileName = this.newName
-					localStorage.setItem("username", this.newName)
-					localStorage.setItem("searchName", this.newName)
-					this.refresh()
-				} catch (e) {
-					this.errormsg = e.toString();
-					this.detailedmsg = null;
-				}
-			}
-		},
-
-		async handleFileChange() {
-			this.image=this.$refs.file.files[0]
-		},
-
-		async upload() {
-			if (this.image===null) {
-				this.errormsg="Please select a photo"
+			})
+			if (response.data!==null) {
+				this.comments = response.data
 			}else {
-				this.errormsg=null
+				this.comments=[]
+			}
+			this.photoData.push({
+				photoId: photo.PhotoId,
+				photoComments: this.comments,
+				photoLikes: this.likes,
+			})
+		},
+
+		async refresh() {
+			//Get my photos
+			try {
+				let response = await this.$axios.get("/users/" + this.username + "/profile/photos/", {
+					headers:
+						{
+							Authorization: "Bearer " + this.token
+						}
+				})
+				if (response.data!==null) {
+					this.myPhotos=response.data
+				}else{
+					this.myPhotos=[]
+					this.detailedmsg="You haven't uploaded photos"
+				}
+				for (let i=0; i<this.myPhotos.length; i++) {
+					this.getData(this.myPhotos[i])
+				}
+			}catch(e){
+				this.errormsg = e.toString()
+			}
+
+		},
+
+		async changeUsername(){
+			if (this.newName==="") {
+				this.errormsg="You have to type a new name"
+			}else{
+				this.errormsg=""
 				try {
-					let response = await this.$axios.post("/users/" + this.username + "/profile/photos/", this.image, {
+					await this.$axios.put("/users/"+this.username, this.newName, {
 						headers: {
 							Authorization: "Bearer " + this.token
 						}
 					})
-					this.photo=response.data
-					this.myphotos.unshift(this.photo)
-					this.myphotoscomments.push({
-						photoId: this.photo.photoId,
-						comments: []
-					})
-					localStorage.setItem("searchPhoto", this.profile.photoNumber+1)
-					this.profile.photoNumber=this.profile.photoNumber+1
-					this.photo=null
-					this.$refs.file.value = ''
+					this.username=this.newName
+					this.newName=""
+					localStorage.setItem("searchName", this.username)
+					localStorage.setItem("username", this.username)
 					this.refresh()
-				} catch (e) {
+				}catch(e) {
 					this.errormsg = e.toString()
 				}
 			}
 		},
 
-		async deletePhoto(id, index) {
+		async handleFile() {
+			this.upload=this.$refs.file.files[0]
+		},
+
+		async uploadPhoto() {
+			this.detailedmsg=""
+			if (this.upload===null) {
+				this.errormsg="Select a photo"
+			}else {
+				this.errormsg=""
+				try {
+					let response = await this.$axios.post("/users/"+this.username+"/profile/photos/", this.upload, {
+						headers: {
+							Authorization: "Bearer " + this.token
+						}
+					})
+					if (response.data!==null) {
+					this.photo=response.data}
+					this.photoNumber=this.photoNumber+1
+					this.myPhotos.unshift(this.photo)
+					localStorage.setItem("searchPhoto", this.photoNumber)
+					this.getData(this.photo)
+				}catch(e) {
+					this.errormsg = e.toString()
+				}
+			}
+		},
+
+		async deletePhoto(id) {
 			try {
-				await this.$axios.delete("/users/"+this.username+"/profile/photos/"+id, {
-					headers: {
-						Authorization: "Bearer " + this.token
-					}
+				await this.$axios.delete("/users/" + this.username + "/profile/photos/" + id, {
+					headers:
+						{
+							Authorization: "Bearer " + this.token
+						}
 				})
-				this.myphotos.splice(index, 1)
-				localStorage.setItem("searchPhoto", this.profile.photoNumber-1)
-				this.profile.photoNumber=this.profile.photoNumber-1
-				this.myphotoscomments=null
+				this.photoNumber=this.photoNumber-1
+				localStorage.setItem("searchPhoto", this.photoNumber)
 				this.refresh()
-			}catch(e){
+			}catch(e) {
 				this.errormsg = e.toString()
 			}
 		},
 
-		async commentPhoto(item) {
-			if (this.commentContent==="") {
-				this.errormsg = "Please type a comment"
+		async commentPhoto(photo) {
+			if (this.content==="") {
+				this.errormsg="Please type a comment"
 			}else {
+				this.errormsg=""
 				try {
-					let response = await this.$axios.post("/users/" + this.username + "/profile/photos/" + item.PhotoId + "/comments/", this.commentContent, {
+					let response = await this.$axios.post("/users/"+this.username+"/profile/photos/"+photo.PhotoId+"/comments/", this.content, {
 						headers: {
 							Authorization: "Bearer " + this.token
 						}
 					})
 					this.comment=response.data
-					item.CommentNumber = item.CommentNumber+=1
-					this.myphotoscomments.forEach(photo => {
-						if (photo.photoId === item.PhotoId) {
-							photo.comments.push(this.comment);
+					this.photoData.forEach(p=>{
+						if (p.photoId===photo.PhotoId) {
+							p.photoComments.push(this.comment)
 						}
-					});
-					this.commentContent=null
-					await this.refresh()
-				} catch (e) {
+					})
+					photo.CommentNumber+=1
+					this.content=""
+				}catch(e){
 					this.errormsg = e.toString()
 				}
 			}
 		},
 
-		async deleteComment(comment, index, photo) {
-			if (this.username!==comment.Commenter) {
-				this.errormsg="You cannot delete this comment"
-			}else {
-				try {
-					await this.$axios.delete("/users/" + this.username + "/profile/photos/" + photo.PhotoId + "/comments/" + comment.CommentId, {
-						headers: {
+		async deleteComment(photo, comment) {
+			try {
+				await this.$axios.delete("/users/"+this.username+"/profile/photos/"+photo.PhotoId+"/comments/"+comment.CommentId, {
+					headers:
+						{
 							Authorization: "Bearer " + this.token
 						}
-					})
-					photo.CommentNumber = photo.CommentNumber -= 1
-					this.myphotoscomments.forEach(p => {
-						if (p.photoId === photo.PhotoId) {
-							p.comments.splice(index, 1)
-						}
-					})
-					this.refresh()
-				} catch (e) {
-					this.errormsg = e.toString()
-				}
+				})
+				photo.CommentNumber-=1
+				this.photoData=[]
+				this.refresh()
+			}catch(e) {
+				this.errormsg = e.toString()
 			}
 		},
+
+		async goBack() {
+			localStorage.setItem("searchName", "")
+			localStorage.setItem("searchId", "")
+			localStorage.setItem("searchPhoto", "")
+			this.$router.push({path: "/session/"})
 		},
-	mounted() {
-		this.refresh()
+	},
+		mounted() {
+			this.refresh()
+
 	}
 }
 </script>
@@ -212,42 +211,37 @@ export default {
 	<div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">{{this.profile.profileName}} Profile</h1>
+			<h1 class="h2">{{this.username}} Profile</h1>
+			You uploaded {{this.photoNumber}} photos
+		</div>
+		<div
+			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<input type="text" v-model="newName" placeholder="Write a new name">
+			<button @click="changeUsername">Change Username</button>
+		</div>
+		<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="photo in myPhotos" :key="photo.PhotoId">
+			<img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image">
+			<p> Comment number: {{photo.CommentNumber}}</p>
+			<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2" v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
+				<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="comment in data.photoComments" :key="comment.CommentId">
+					{{comment.Commenter}} --> {{comment.Content}}
+					<button @click="deleteComment(photo, comment)">Delete Comment</button>
+				</div>
+			</div>
+			<p>Like number: {{photo.LikeNumber}}</p>
+			<input type="text" v-model="content" placeholder="Type a comment">
+			<button @click="commentPhoto(photo)">Add a comment</button>
+			<button @click="deletePhoto(photo.PhotoId)">Delete this Photo</button>
 		</div>
 		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<p>This user has uploaded {{this.profile.photoNumber}} photos.</p>
+			<p>Select a photo to upload</p>
+			<input type="file" accept="image/*" @change="handleFile" ref="file">
+			<button @click="uploadPhoto">Upload Photo</button>
 		</div>
-		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<p>Please select a photo to upload</p>
-			<input type="file" accept="image/*" @change="handleFileChange" ref="file">
-			<button @click="upload">Upload Photo</button>
+		<div
+			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<button @click="goBack">Back to Homepage</button>
 		</div>
-		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<p>Change your username</p>
-			<input type="text" v-model="newName">
-			<button @click="changeUsername">Update Name</button>
-		</div>
-		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<p> Your photos</p>
-			<ul>
-				<li v-for="(item, index) in myphotos" :key="index">
-					<img :src="'data:image/*; base64,' + item.Image" alt="Uploaded Photo" class="resizable-image" />
-					<p> Like Number: {{item.LikeNumber}}</p>
-					<p> Comment Number: {{item.CommentNumber}}</p>
-					<ul>
-						<li v-if="myphotoscomments[index]" v-for="(comment, i) in myphotoscomments[index].comments" :key="comment.CommentId">
-							<p>{{comment.Commenter}}: {{comment.Content}}</p>
-							<button @click="deleteComment(comment, i, item)">Delete comment</button>
-						</li>
-					</ul>
-					<input type="text" v-model="commentContent">
-					<button @click="commentPhoto(item)">Add a comment</button>
-					<p> Date of Upload: {{item.UploadTime}}</p>
-					<button @click="deletePhoto(item.PhotoId, index)"> Remove Photo</button>
-				</li>
-			</ul>
-		</div>
-		<button @click="goBack">Go to homepage</button>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>
 	</div>
