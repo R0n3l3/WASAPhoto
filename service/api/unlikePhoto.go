@@ -9,7 +9,7 @@ import (
 )
 
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	like, err := strconv.Atoi(r.URL.Query().Get("likeId"))
+	like, err := strconv.Atoi(ps.ByName("likeId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

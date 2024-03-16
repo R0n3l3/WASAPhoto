@@ -146,6 +146,7 @@ export default {
 				})
 				this.photoNumber=this.photoNumber-1
 				localStorage.setItem("searchPhoto", this.photoNumber)
+				this.photoData=[]
 				this.refresh()
 			}catch(e) {
 				this.errormsg = e.toString()
@@ -158,7 +159,10 @@ export default {
 			}else {
 				this.errormsg=""
 				try {
-					let response = await this.$axios.post("/users/"+this.username+"/profile/photos/"+photo.PhotoId+"/comments/", this.content, {
+					let response = await this.$axios.post("/users/"+this.username+"/profile/photos/"+photo.PhotoId+"/comments/", {
+						content:this.content,
+						commenter: this.username,
+					}, {
 						headers: {
 							Authorization: "Bearer " + this.token
 						}
@@ -178,6 +182,9 @@ export default {
 		},
 
 		async deleteComment(photo, comment) {
+			if (comment.Commenter!==this.username) {
+				this.errormsg="You cannot delete this comment"
+			}else {
 			try {
 				await this.$axios.delete("/users/"+this.username+"/profile/photos/"+photo.PhotoId+"/comments/"+comment.CommentId, {
 					headers:
@@ -190,6 +197,7 @@ export default {
 				this.refresh()
 			}catch(e) {
 				this.errormsg = e.toString()
+			}
 			}
 		},
 
