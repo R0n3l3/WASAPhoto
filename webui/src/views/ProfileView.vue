@@ -285,6 +285,38 @@ export default {
         }
     },
 
+    async ban() {
+      try {
+        let response = await this.$axios.post("/users/"+this.username+"/banned/", this.profileName, {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data!==null) {
+          this.errormsg="Ban successful"
+          this.followers = []
+          this.following=[]
+          this.refresh()
+        }
+      }catch(e){
+        this.errormsg = e.toString()
+      }
+    },
+
+    async unban() {
+      try {
+        await this.$axios.delete("/users/"+this.username+"/banned/"+this.profileName, {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+      }catch(e){
+        this.errormsg = e.toString()
+      }
+    },
+
 		async goBack() {
 			localStorage.setItem("searchName", "")
 			localStorage.setItem("searchId", "")
@@ -337,7 +369,9 @@ export default {
     </div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<button @click="goBack">Back to Homepage</button>
+      <button @click="ban()">Ban this user</button>
+      <button @click="unban()">Unban this user</button>
+      <button @click="goBack">Back to Homepage</button>
 		</div>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>

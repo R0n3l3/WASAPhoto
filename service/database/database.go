@@ -47,7 +47,7 @@ type AppDatabase interface {
 	GetUserProfileId(id uint64) (Profile, error)
 	SetMyUsername(u string, new string) error
 
-	BanUser(toBan string, banning string) (User, error)
+	BanUser(toBan string, banning string) error
 	UnbanUser(toUnban string, unbanning string) error
 
 	GetMyPhotos(name string) ([]Photo, error)

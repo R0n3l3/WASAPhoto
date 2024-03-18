@@ -10,7 +10,7 @@ import (
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	myName := ps.ByName("userId")
+	myName := ps.ByName("username")
 	toUnban := ps.ByName("bannedId")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
