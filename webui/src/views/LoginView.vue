@@ -41,12 +41,17 @@ export default {
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<h1 class="h2">Welcome to WASAPhoto!</h1>
 		</div>
-		<div>
-			<p>Please insert your username to login or register:</p>
+		<div class="justify-content-between align-items-center flex-wrap flex-md-nowrap pt-3 pb-2 mb-3 border-bottom">
+      <p>Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your
+      photos directly from your PC, and they will be visible to everyone following you. </p>
+      <img src="../components/images/free-images-1570092541.jpg" alt="photo" class="resizable-image with-border">
+      <img src="../components/images/pexels-photo-236047-4170232318.jpeg" alt="photo" class="resizable-image with-border">
+      <img src="../components/images/royalty-free-images-167608859.jpg" alt="photo" class="resizable-image with-border">
+    </div>
+      <h6 class="h9">Please insert a username to login or register:</h6>
 		<input type="text" v-model="username"
 			placeholder="Username">
 			<button @click="doLogin">Login</button>
-		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>
@@ -54,4 +59,5 @@ export default {
 </template>
 
 <style>
+
 </style>

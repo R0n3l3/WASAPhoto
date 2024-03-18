@@ -297,6 +297,7 @@ export default {
           this.errormsg="Ban successful"
           this.followers = []
           this.following=[]
+          this.photoData=[]
           this.refresh()
         }
       }catch(e){
@@ -379,8 +380,4 @@ export default {
 </template>
 
 <style>
-.resizable-image {
-	max-width: 100%;
-	max-height: 100px;
-}
 </style>

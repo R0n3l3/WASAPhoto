@@ -1,5 +1,6 @@
 body {
 	font-size: 0.875rem;
+	background-color: #f1b9b9; /* Change the color value as desired */
 }
 
 .feather {
@@ -10,6 +11,16 @@ body {
 /*
  * Sidebar
  */
+
+.resizable-image {
+	max-width: 1000%;
+	max-height: 200px;
+}
+
+.with-border {
+	border: 2px solid #000000;
+	margin-right: 20px;
+}
 
 .sidebar {
 	position: fixed;
