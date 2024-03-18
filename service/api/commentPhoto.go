@@ -9,19 +9,23 @@ import (
 	"strconv"
 )
 
+type CommentRequest struct {
+	Content   string `json:"content"`
+	Commenter string `json:"commenter"`
+}
+
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	uploaderName := ps.ByName("userId")
 	photo, err := strconv.Atoi(ps.ByName("photoId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	text := r.URL.Query().Get("content")
-	if text == "" {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+	var request CommentRequest
+	err = json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
@@ -30,7 +34,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	comment, err := rt.db.CommentPhoto(uint64(photo), uploaderName, text)
+	comment, err := rt.db.CommentPhoto(uint64(photo), request.Commenter, request.Content)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)

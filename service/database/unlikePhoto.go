@@ -1,8 +1,6 @@
 package database
 
 import (
-	"database/sql"
-	"errors"
 	"log"
 )
 
@@ -20,11 +18,6 @@ func (db *appdbimpl) UnlikePhoto(id uint64) error {
 
 	_, err = db.c.Exec("DELETE FROM likes WHERE likeId=?", id)
 	if err != nil {
-		var like Like
-		if errors.Is(db.c.QueryRow("SELECT likeID from likes WHERE likeId=?", id).Scan(&like.LikeId), sql.ErrNoRows) {
-			log.Println(err.Error())
-			return err
-		}
 		log.Println(err.Error())
 		return err
 	}

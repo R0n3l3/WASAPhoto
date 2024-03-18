@@ -5,14 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"io"
 	"net/http"
 )
 
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	link := []byte(r.URL.Query().Get("link"))
-	uploaderUsername := ps.ByName("userId")
+	link, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	uploaderUsername := ps.ByName("username")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {

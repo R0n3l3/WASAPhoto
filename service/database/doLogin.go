@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func (db *appdbimpl) DoLogin(u string, token uint64) (uint64, error) {
+func (db *appdbimpl) DoLogin(u string) (uint64, error) {
 	id, err := db.GetUserId(u)
 
 	if err != nil {
@@ -21,12 +21,17 @@ func (db *appdbimpl) DoLogin(u string, token uint64) (uint64, error) {
 				log.Println(err.Error())
 				return id, err
 			}
-			res, err = db.c.Exec("INSERT INTO users(userId, username, userProfile) VALUES (?, ?, ?)", token, u, idProf)
+			res, err = db.c.Exec("INSERT INTO users(username, userProfile) VALUES (?, ?)", u, idProf)
 			if err != nil {
 				log.Println(err.Error())
 				return id, err
 			}
 			idUser, err := res.LastInsertId()
+			if err != nil {
+				log.Println(err.Error())
+				return id, err
+			}
+			res, err = db.c.Exec("INSERT INTO auth(token) VALUES (?)", uint64(idUser))
 			if err != nil {
 				log.Println(err.Error())
 				return id, err

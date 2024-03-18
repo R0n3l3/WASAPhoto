@@ -18,12 +18,12 @@ func (db *appdbimpl) IsBanned(myName string, theirName string) (bool, error) {
 		log.Println(err.Error())
 		return false, err
 	}
-
 	if err := db.c.QueryRow("SELECT * FROM ban WHERE banned=? AND banner=?", theirId, myId).Scan(); err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			log.Println(err.Error())
 			return false, err
 		}
+		log.Println(err.Error())
 		return false, nil
 	}
 	return true, nil

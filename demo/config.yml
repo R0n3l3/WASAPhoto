@@ -3,7 +3,7 @@
 
 log:
   level: debug
-#z  methodname: false
+#  methodname: false
 #  json: false
 #  destination: stderr
 #  file: /tmp/debug.log
@@ -15,4 +15,3 @@ log:
 #  writetimeout: 5s
 #  shutdowntimeout: 5s
 #  behindproxy: false
-

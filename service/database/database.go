@@ -42,20 +42,26 @@ type AppDatabase interface {
 	IsAuthorized(token uint64) bool
 	IsBanned(myName string, theirName string) (bool, error)
 
-	DoLogin(u string, token uint64) (uint64, error)
+	DoLogin(u string) (uint64, error)
 	GetUserProfile(u string) (Profile, error)
-	SetMyUsername(u string, new string) (User, error)
+	SetMyUsername(u string, new string) error
 
 	BanUser(toBan string, banning string) (User, error)
 	UnbanUser(toUnban string, unbanning string) error
 
+	GetMyPhotos(name string) ([]Photo, error)
+	GetPhoto(id uint64) (Photo, error)
 	UploadPhoto(uploader string, image []byte) (Photo, error)
 	DeletePhoto(id uint64) error
 	GetMyStream(u string) ([]Photo, error)
 
+	GetLike(id uint64) (Like, error)
+	GetLikes(photoId uint64) ([]Like, error)
 	LikePhoto(photoId uint64, liker string) (Like, error)
 	UnlikePhoto(id uint64) error
 
+	GetComment(id uint64) (Comment, error)
+	GetComments(id uint64) ([]Comment, error)
 	CommentPhoto(photoId uint64, commenter string, content string) (Comment, error)
 	UncommentPhoto(commentId uint64) error
 
@@ -104,8 +110,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='users';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		usersDatabase := `CREATE TABLE users (
-    userId INTEGER NOT NULL PRIMARY KEY, 
-    username TEXT NOT NULL UNIQUE, 
+    userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
     userProfile INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY (userProfile) REFERENCES profiles(profileId));`
 		_, err = db.Exec(usersDatabase)
@@ -116,10 +122,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='ban';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		banDatabase := `CREATE TABLE ban (
-    banner INTEGER NOT NULL, 
+    banner INTEGER NOT NULL,
     banned INTEGER NOT NULL,
     PRIMARY KEY (banner, banned),
-	FOREIGN KEY (banner) REFERENCES users(userId), 
+	FOREIGN KEY (banner) REFERENCES users(userId),
 	FOREIGN KEY (banned) REFERENCES users(userId));`
 		_, err = db.Exec(banDatabase)
 		if err != nil {
@@ -129,10 +135,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='follow';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		followDatabase := `CREATE TABLE follow (
-    follower INTEGER NOT NULL, 
+    follower INTEGER NOT NULL,
     following INTEGER NOT NULL,
     PRIMARY KEY (follower, following),
-	FOREIGN KEY (follower) REFERENCES users(userId), 
+	FOREIGN KEY (follower) REFERENCES users(userId),
 	FOREIGN KEY (following) REFERENCES users(userId));`
 		_, err = db.Exec(followDatabase)
 		if err != nil {
@@ -142,11 +148,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='photos';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		photosDatabase := `CREATE TABLE photos (
-    photoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-    uploader INTEGER NOT NULL, 
-    uploadTime TIMESTAMP NOT NULL, 
-    likeNumber INTEGER NOT NULL, 
-    commentNumber INTEGER NOT NULL, 
+    photoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    uploader INTEGER NOT NULL,
+    uploadTime TIMESTAMP NOT NULL,
+    likeNumber INTEGER NOT NULL,
+    commentNumber INTEGER NOT NULL,
     image BLOB NOT NULL,
 	FOREIGN KEY (uploader) REFERENCES users(userId));`
 		_, err = db.Exec(photosDatabase)
@@ -157,10 +163,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='likes';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		likesDatabase := `CREATE TABLE likes (
-    likeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-    liker INTEGER NOT NULL, 
+    likeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    liker INTEGER NOT NULL,
     photoLiked INTEGER NOT NULL,
-	FOREIGN KEY (liker) REFERENCES users(userId), 
+	FOREIGN KEY (liker) REFERENCES users(userId),
 	FOREIGN KEY(photoLiked) REFERENCES photos(photoId));`
 		_, err = db.Exec(likesDatabase)
 		if err != nil {
@@ -170,12 +176,12 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err = db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='comments';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		commentsDatabase := `CREATE TABLE comments (
-    commentId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-    commenter INTEGER NOT NULL, 
-    commentTime TIMESTAMP NOT NULL, 
-    content TEXT NOT NULL, 
-    photoComment INTEGER NOT NULL, 
-	FOREIGN KEY (commenter) REFERENCES users(userId), 
+    commentId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    commenter TEXT NOT NULL,
+    commentTime TIMESTAMP NOT NULL,
+    content TEXT NOT NULL,
+    photoComment INTEGER NOT NULL,
+	FOREIGN KEY (commenter) REFERENCES users(username),
 	FOREIGN KEY (photoComment) REFERENCES photos(photoId));`
 		_, err = db.Exec(commentsDatabase)
 		if err != nil {
