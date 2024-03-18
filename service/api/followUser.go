@@ -5,14 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"io"
 	"net/http"
 )
 
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	toFollow := r.URL.Query().Get("username")
-	me := ps.ByName("userId")
+	toFollow, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	me := ps.ByName("username")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -20,7 +25,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	isBanned, err := rt.db.IsBanned(toFollow, me)
+	isBanned, err := rt.db.IsBanned(string(toFollow), me)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
@@ -38,7 +43,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		}
 	}
 
-	user, err := rt.db.FollowUser(toFollow, me)
+	user, err := rt.db.FollowUser(string(toFollow), me)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

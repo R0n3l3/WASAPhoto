@@ -10,7 +10,7 @@ import (
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
-	me := ps.ByName("userId")
+	me := ps.ByName("username")
 	toUnfollow := ps.ByName("followingId")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))

@@ -15,6 +15,7 @@ func (db *appdbimpl) IsBanned(myName string, theirName string) (bool, error) {
 
 	theirId, err := db.GetUserId(theirName)
 	if err != nil {
+		log.Println("wow")
 		log.Println(err.Error())
 		return false, err
 	}

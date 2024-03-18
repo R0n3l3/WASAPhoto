@@ -23,7 +23,7 @@ func (db *appdbimpl) FollowUser(toFollow string, follower string) (Profile, erro
 		return profile, err
 	}
 
-	profile, err = db.GetUserProfile(toFollow)
+	profile, err = db.GetUserProfile(follower)
 	if err != nil {
 		log.Println(err.Error())
 		return profile, err

@@ -27,6 +27,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:username/profile/photos/:photoId/comments/", rt.commentPhoto)
 	rt.router.DELETE("/users/:username/profile/photos/:photoId/comments/:commentId", rt.uncommentPhoto)
 
+	rt.router.GET("/users/:username/profile/following/", rt.getFollowers)
 	rt.router.POST("/users/:username/profile/following/", rt.followUser)
 	rt.router.GET("/users/:username/profile/", rt.getMyStream)
 	rt.router.DELETE("/users/:username/profile/following/:followingId", rt.unfollowUser)

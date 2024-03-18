@@ -6,39 +6,36 @@ import (
 )
 
 func (db *appdbimpl) GetMyStream(u string) ([]Photo, error) {
-	var photos []Photo
+	var stream []Photo
 
 	userId, err := db.GetUserId(u)
 	if err != nil {
 		log.Println(err.Error())
-		return photos, err
+		return stream, err
 	}
 
-	res, err := db.c.Query("SELECT photoId FROM photos p WHERE EXISTS(SELECT * FROM follow WHERE follower=? AND following=p.uploader) ORDER BY uploadTime DESC", userId)
+	res, err := db.c.Query("SELECT p.photoId, p.uploader, p.uploadTime, p.likeNumber, p.commentNumber, p.image FROM photos p, follow f WHERE f.following=p.uploader AND f.follower= ? ORDER BY uploadTime DESC", userId)
 	if err != nil {
 		log.Println(err.Error())
-		return photos, err
+		return stream, err
 	}
-	func(res *sql.Rows) {
-		err = res.Close()
-		if err != nil {
-			log.Println(err.Error())
-			return
+	defer func(rows *sql.Rows) {
+		if closeErr := res.Close(); closeErr != nil {
+			log.Println(closeErr.Error())
 		}
 	}(res)
-	err = res.Err()
-	if err != nil {
+	for res.Next() {
+		var photo Photo
+		err = res.Scan(&photo.PhotoId, &photo.Uploader, &photo.UploadTime, &photo.LikeNumber, &photo.CommentNumber, &photo.Image)
+		if err != nil {
+			log.Println(err.Error())
+			return stream, err
+		}
+		stream = append(stream, photo)
+	}
+	if err = res.Err(); err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
-	for res.Next() {
-		var photo Photo
-		err = res.Scan(&photo)
-		if err != nil {
-			log.Println(err.Error())
-			return photos, err
-		}
-		photos = append(photos, photo)
-	}
-	return photos, nil
+	return stream, nil
 }

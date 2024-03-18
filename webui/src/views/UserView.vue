@@ -34,6 +34,13 @@ export default {
 				image: [],
 			},
 			newName:"",
+      profile: {
+        photoNumber: 0,
+        profileId: 0,
+        profileName: "",
+      },
+      followers: [],
+      following: [],
 
 		}
 	},
@@ -63,6 +70,43 @@ export default {
 		},
 
 		async refresh() {
+      try {
+        let response = await this.$axios.get("/users/"+this.username+"/profile/following/", {
+          params: {
+            followers: "true"
+          }, headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data!==null) {
+          this.followers=response.data
+        }else{
+          this.followers=[]
+          this.detailedmsg="You don't have followers"
+        }
+      }catch (e) {
+        this.errormsg = e.toString()
+      }
+      //Get following
+      try {
+        let response = await this.$axios.get("/users/"+this.username+"/profile/following/", {
+          params: {
+            followers: "false"
+          }, headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data!==null) {
+          this.following=response.data
+        }else{
+          this.following=[]
+          this.errormsg="You don't follow anyone"
+        }
+      }catch (e) {
+        this.errormsg = e.toString()
+      }
 			//Get my photos
 			try {
 				let response = await this.$axios.get("/users/" + this.username + "/profile/photos/", {
@@ -246,6 +290,18 @@ export default {
 			<input type="file" accept="image/*" @change="handleFile" ref="file">
 			<button @click="uploadPhoto">Upload Photo</button>
 		</div>
+    <div>
+      Your followers:
+      <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="user in followers" :key="user.ProfileId">
+        <p>{{user.ProfileName}}</p>
+      </div>
+    </div>
+    <div>
+      You follow:
+      <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="user in following" :key="user.ProfileId">
+        <p>{{user.ProfileName}}</p>
+      </div>
+    </div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<button @click="goBack">Back to Homepage</button>

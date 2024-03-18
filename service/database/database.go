@@ -44,6 +44,7 @@ type AppDatabase interface {
 
 	DoLogin(u string) (uint64, error)
 	GetUserProfile(u string) (Profile, error)
+	GetUserProfileId(id uint64) (Profile, error)
 	SetMyUsername(u string, new string) error
 
 	BanUser(toBan string, banning string) (User, error)
@@ -65,6 +66,8 @@ type AppDatabase interface {
 	CommentPhoto(photoId uint64, commenter string, content string) (Comment, error)
 	UncommentPhoto(commentId uint64) error
 
+	GetFollowers(me string) ([]Profile, error)
+	GetFollowing(me string) ([]Profile, error)
 	FollowUser(toFollow string, follower string) (Profile, error)
 	UnfollowUser(toUnfollow string, unfollower string) error
 

@@ -40,7 +40,13 @@ export default {
 				image: [],
 			},
 			newName:"",
-
+      profile: {
+        photoNumber: 0,
+        profileId: 0,
+        profileName: "",
+      },
+      followers: [],
+      following: [],
 		}
 	},
 	methods: {
@@ -80,7 +86,44 @@ export default {
 		},
 
 		async refresh() {
-			//Get my photos
+      //Get Followers
+      try {
+        let response = await this.$axios.get("/users/"+this.profileName+"/profile/following/", {
+          params: {
+            followers: "true"
+          }, headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data!==null) {
+          this.followers=response.data
+        }else{
+          this.followers=[]
+          this.detailedmsg="You don't have followers"
+        }
+      }catch (e) {
+        this.errormsg = e.toString()
+      }
+      //Get following
+      try {
+        let response = await this.$axios.get("/users/"+this.profileName+"/profile/following/", {
+          params: {
+            followers: "false"
+          }, headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data!==null) {
+          this.following=response.data
+        }else{
+          this.following=[]
+          this.errormsg="You don't follow anyone"
+        }
+      }catch (e) {
+        this.errormsg = e.toString()
+      }
 			try {
 				let response = await this.$axios.get("/users/" + this.profileName + "/profile/photos/", {
 					headers:
@@ -211,6 +254,37 @@ export default {
 			}
 		},
 
+    async follow() {
+      try {
+        let response = await this.$axios.post("/users/"+this.username+"/profile/following/", this.profileName, {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        this.profile = response.data
+        this.followers.push(this.profile)
+        this.profile=null
+      }catch(e) {
+        this.errormsg = e.toString()
+      }
+    },
+
+    async unfollow() {
+      try {
+          await this.$axios.delete("/users/"+this.username+"/profile/following/"+this.profileName, {
+            headers:
+                {
+                  Authorization: "Bearer " + this.token
+                }
+          })
+          this.followers = []
+          this.refresh()
+        } catch (e) {
+          this.errormsg = e.toString()
+        }
+    },
+
 		async goBack() {
 			localStorage.setItem("searchName", "")
 			localStorage.setItem("searchId", "")
@@ -230,7 +304,9 @@ export default {
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<h1 class="h2">{{this.profileName}} Profile</h1>
-			You uploaded {{this.photoNumber}} photos
+      <button @click="follow()">Follow this user</button>
+      <button @click="unfollow()">Unfollow this user</button>
+      You uploaded {{this.photoNumber}} photos
 		</div>
 		<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="photo in myPhotos" :key="photo.PhotoId">
 			<img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image">
@@ -247,6 +323,18 @@ export default {
 			<input type="text" v-model="content" placeholder="Type a comment">
 			<button @click="commentPhoto(photo)">Add a comment</button>
 		</div>
+    <div>
+      Your followers:
+    <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="user in followers" :key="user.ProfileId">
+      <p>{{user.ProfileName}}</p>
+    </div>
+    </div>
+    <div>
+      You follow:
+      <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="user in following" :key="user.ProfileId">
+        <p>{{user.ProfileName}}</p>
+      </div>
+    </div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 			<button @click="goBack">Back to Homepage</button>
