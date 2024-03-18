@@ -78,7 +78,7 @@ export default {
 					this.detailedmsg="You haven't uploaded photos"
 				}
 				for (let i=0; i<this.myPhotos.length; i++) {
-					this.getData(this.myPhotos[i])
+					await this.getData(this.myPhotos[i])
 				}
 			}catch(e){
 				this.errormsg = e.toString()

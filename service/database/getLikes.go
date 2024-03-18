@@ -8,7 +8,7 @@ import (
 func (db *appdbimpl) GetLikes(id uint64) ([]Like, error) {
 	var likes []Like
 
-	res, err := db.c.Query("SELECT likeId, liker, photoLiked FROM likes l WHERE l.likeId=?", id)
+	res, err := db.c.Query("SELECT likeId, liker, photoLiked FROM likes l WHERE l.photoLiked=?", id)
 	if err != nil {
 		log.Println(err.Error())
 		return likes, err

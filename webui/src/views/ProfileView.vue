@@ -45,7 +45,6 @@ export default {
 	},
 	methods: {
 		filteredPhotoData(photoId) {
-			// Filter photoData based on photoId
 			return this.photoData.filter(data => data.photoId === photoId);
 		},
 
@@ -91,12 +90,12 @@ export default {
 				})
 				if (response.data!==null) {
 					this.myPhotos=response.data
+          for (let i=0; i<this.myPhotos.length; i++) {
+            await this.getData(this.myPhotos[i])
+          }
 				}else{
 					this.myPhotos=[]
 					this.detailedmsg="You haven't uploaded photos"
-				}
-				for (let i=0; i<this.myPhotos.length; i++) {
-					this.getData(this.myPhotos[i])
 				}
 			}catch(e){
 				this.errormsg = e.toString()
@@ -130,13 +129,14 @@ export default {
 		},
 
 		async checkLikes(photo) {
-			this.photoData.forEach(p => {
-				if (p.photoId === photo.PhotoId) {
-					this.likes = p.photoLikes
-				}
-				if (this.likes === []) {
-					this.errormsg = "You haven't liked this photo"
-				} else {
+      this.errormsg=""
+      this.photoData.forEach(p => {
+        if (p.photoId === photo.PhotoId) {
+          this.likes = p.photoLikes
+        }
+        if (this.likes.length === 0) {
+          this.errormsg = "You haven't liked this photo"
+        } else {
 					this.likes.forEach(l => {
 						if (parseInt(l.Liker) === parseInt(this.token)) {
 							this.unlikePhoto(photo, l)
@@ -148,6 +148,7 @@ export default {
 			})
 		},
 		async unlikePhoto(photo, l) {
+      this.errormsg=""
 			try {
 				await this.$axios.delete("/users/" + this.profileName + "/profile/photos/"+photo.PhotoId+"/likes/"+l.LikeId, {
 					headers:
@@ -155,7 +156,6 @@ export default {
 							Authorization: "Bearer " + this.token
 						}
 				})
-				photo.LikeNumber -= 1
 				this.photoData = []
 				this.refresh()
 			} catch (e) {
@@ -203,7 +203,6 @@ export default {
 								Authorization: "Bearer " + this.token
 							}
 					})
-					photo.CommentNumber -= 1
 					this.photoData = []
 					this.refresh()
 				} catch (e) {
