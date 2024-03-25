@@ -372,7 +372,6 @@ export default {
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
       <button @click="ban()">Ban this user</button>
       <button @click="unban()">Unban this user</button>
-      <button @click="goBack">Back to Homepage</button>
 		</div>
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>

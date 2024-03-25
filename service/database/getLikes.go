@@ -2,16 +2,19 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 )
 
 func (db *appdbimpl) GetLikes(id uint64) ([]Like, error) {
 	var likes []Like
 
-	res, err := db.c.Query("SELECT likeId, liker, photoLiked FROM likes l WHERE l.photoLiked=?", id)
+	res, err := db.c.Query("SELECT likeId, liker, photoLiked FROM likes WHERE photoLiked=?", id)
 	if err != nil {
-		log.Println(err.Error())
-		return likes, err
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
+		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		if closeErr := res.Close(); closeErr != nil {
@@ -23,7 +26,7 @@ func (db *appdbimpl) GetLikes(id uint64) ([]Like, error) {
 		err = res.Scan(&like.LikeId, &like.Liker, &like.PhotoLiked)
 		if err != nil {
 			log.Println(err.Error())
-			return likes, err
+			return nil, err
 		}
 		likes = append(likes, like)
 	}

@@ -8,8 +8,8 @@ import (
 func (rt *_router) Handler() http.Handler {
 	//  Register routes
 	rt.router.POST("/session/", rt.doLogin)
-
 	rt.router.GET("/users/:username", rt.getUserProfile)
+
 	rt.router.PUT("/users/:username", rt.setMyUsername)
 
 	rt.router.POST("/users/:username/banned/", rt.banUser)

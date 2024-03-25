@@ -14,6 +14,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	myName := ps.ByName("username")
 	name := r.URL.Query().Get("search")
+
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -47,6 +48,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		w.WriteHeader(http.StatusFound)
 	} else {
 		profile, err := rt.db.GetUserProfileId(uint64(id))
 		if err != nil {
@@ -57,6 +59,8 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
+		} else {
+			w.WriteHeader(http.StatusFound)
 		}
 	}
 }

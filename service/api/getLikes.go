@@ -38,5 +38,6 @@ func (rt *_router) getLikes(w http.ResponseWriter, r *http.Request, ps httproute
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	w.WriteHeader(http.StatusFound)
 
 }

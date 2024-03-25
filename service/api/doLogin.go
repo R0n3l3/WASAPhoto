@@ -2,14 +2,18 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
-func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
-	name := r.URL.Query().Get("username")
+	var name string
+	err := json.NewDecoder(r.Body).Decode(&name)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	userId, err := rt.db.DoLogin(name)
 	if err != nil {
@@ -21,5 +25,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
+	} else {
+		w.WriteHeader(http.StatusCreated)
 	}
 }

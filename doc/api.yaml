@@ -91,210 +91,149 @@ components:
       scheme: bearer
       bearerFormat: JWT
   parameters:
-    user_id:
+    username:
       schema: {$ref: "#/components/schemas/User/properties/username"}
-      name: userId
+      name: username
       in: path
       required: true
       description: User ID
-    banned_id:
-      schema: {$ref: "#/components/schemas/User/properties/username"}
-      name: bannedId
-      in: path
-      required: true
-      description: User banned ID
-    following_id:
-      schema: {$ref: "#/components/schemas/User/properties/username"}
-      name: followingId
-      in: path
-      required: true
-      description: User following ID
     photo_id:
       schema: {$ref: "#/components/schemas/Photo/properties/photoId"}
       name: photoId
       in: path
       required: true
       description: Photo ID
+    comment_id:
+      schema: { $ref: "#/components/schemas/Comment/properties/commentId" }
+      name: commentId
+      in: path
+      required: true
+      description: Comment ID
     like_id:
       schema: {$ref: "#/components/schemas/Like/properties/likeId"}
       name: likeId
       in: path
       required: true
       description: Like ID
-    comment_id:
-      schema: {$ref: "#/components/schemas/Comment/properties/commentId"}
-      name: commentId
-      in: path
-      required: true
-      description: Comment ID
   schemas:
     User:
       title: User
       description: "This object represents a single user"
       type: object
       properties:
-        username:
+        userId:
           description: Unique user identifier
+          type: integer
+          readOnly: true
+        username:
+          description: Unique user name
           type: string
           pattern: ˆ.*?$
           minLength: 3
           maxLength: 16
           example: Maria
-          readOnly: false
-        banned:
-          description: List of banned users
-          type: array
-          minItems: 0
-          maxItems: 999999999
-          items: {$ref: "#/components/schemas/User/properties/username"}
-          example: ["Gino", "Gianni"]
           readOnly: false
         profile: {$ref: "#/components/schemas/Profile"}
     Profile:
       title: Profile
-      description: "This object represents the personal profile of a user"
+      description: "This object represents the profile of a single user"
       type: object
       properties:
         profileId:
           description: Unique profile identifier
+          type: integer
+          readOnly: true
+        profileName:
+          description: Unique profile name
           type: string
           pattern: ˆ.*?$
           minLength: 3
           maxLength: 16
           example: Maria
           readOnly: false
-        photos:
-          description: List of photos uploaded
-          type: array
-          minItems: 0
-          maxItems: 999999999
-          items: {$ref: "#/components/schemas/Photo/properties/photoId"}
-          readOnly: false
         photoNumber:
-          description: Number of photos uploaded
+          description: How many photos the profile has
           type: integer
-          example: 1
-          readOnly: false
-        followers:
-          description: A collection of users that follow User
-          type: array
-          minItems: 0
-          maxItems: 999999999
-          items: {$ref: "#/components/schemas/User"}
-          example: ["Giulia", "Francesco"]
-          readOnly: false
-        following:
-          description: A collection of users followed by User
-          type: array
-          minItems: 0
-          maxItems: 999999999
-          items: {$ref: "#/components/schemas/User"}
-          example: ["Paolo", "Gino"]
           readOnly: false
     Photo:
       title: Photo
-      description: "This object represents a photo uploaded by a user"
+      description: "This object represents a single photo object"
       type: object
       properties:
         photoId:
           description: Unique photo identifier
           type: integer
-          example: 1
           readOnly: true
         uploader: {$ref: "#/components/schemas/User"}
-        image:
-          title: Image
-          description: "This is the image contained in the photo"
-          type: object
-          properties:
-            link:
-              description: A link to the image
-              type: string
-              format: url
-              maxLength: 2048
-              example: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Unicode_0x0053.svg/800px-Unicode_0x0053.svg.png"
-              readOnly: true
         uploadTime:
           description: When the photo was uploaded
           type: string
           format: date-time
-          minLength: 1
-          maxLength: 20
-          example: 2020-11-10T17:05:50Z
+          example: "2024-03-20 18:06:50"
           readOnly: true
-        likes:
-          description: A collection of the likes the photo received
-          type: array
-          minItems: 0
-          maxItems: 999999999
-          items: {$ref: "#/components/schemas/Like/properties/likeId"}
-          readOnly: false
         likeNumber:
-          description: Number of likes of the photo
+          description: How many likes the photo has
           type: integer
-          example: 100
-          readOnly: false
-        comments:
-          description: A collection of the comments the photo received
-          type: array
-          minItems: 0
-          maxItems: 999999999
-          items: {$ref: "#/components/schemas/Comment/properties/commentId"}
           readOnly: false
         commentNumber:
-          description: Number of comments of the photo
+          description: How many comments the photo has
           type: integer
-          example: 50
           readOnly: false
-    Like:
-      title: Like
-      description: "This object represents a single like"
-      type: object
-      properties:
-        likeId:
-          description: Unique like identifier
-          type: integer
-          example: 1
+        image:
+          description: The image
+          type: string
+          format: link
+          example: "image.png"
           readOnly: true
-        liker: {$ref: "#/components/schemas/User"}
     Comment:
       title: Comment
-      description: "This object represents a single comment"
+      description: "This object represents a single comment object"
       type: object
       properties:
         commentId:
           description: Unique comment identifier
           type: integer
-          example: 1
           readOnly: true
         commenter: {$ref: "#/components/schemas/User"}
-        content:
-          description: The content of a comment
-          type: string
-          pattern: ˆ.*?$
-          minLength: 3
-          maxLength: 16
-          example: Nice photo!
-          readOnly: true
         commentTime:
-          description: When the comment was made
+          description: When the comment was uploaded
           type: string
           format: date-time
-          minLength: 1
-          maxLength: 20
-          example: 2020-11-10T17:05:50Z
+          example: "2024-03-20 18:06:50"
           readOnly: true
+        content:
+          description: The text of the comment
+          type: string
+          pattern: ˆ.*?$
+          minLength: 1
+          maxLength: 99999
+          example: Wow!
+          readOnly: true
+        photoComment: {$ref: "#/components/schemas/Photo"}
+    Like:
+      title: Like
+      description: "This object represents a single like object"
+      type: object
+      properties:
+        likeId:
+          description: Unique like identifier
+          type: integer
+          readOnly: true
+        liker: { $ref: "#/components/schemas/User" }
+        photoLiked: { $ref: "#/components/schemas/Photo" }
   responses:
-    404NotFound:
-      description: The resource was not found
-    500InternalServerError:
-      description: Internal Server Error
+    204NoContent:
+      description: The request was completed with no return value
     400BadRequest:
       description: Bad Request
-    204Successfull:
-      description: The operation was successfull
-    401StatusUnauthorized:
-      description: You are not authorized
+    401Unauthorized:
+      description: Operation not authorized
+    404NotFound:
+      description: Resource not found
+    409Conflict:
+      description: The response is conflicting with the state of the resource
+
+
 security:
   - bearerAuth: []
 paths:
@@ -333,9 +272,9 @@ paths:
                   identifier:
                     type: integer
                     example: 1
-  /users/{userId}/:
+  /users/{username}/:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
     get:
       operationId: getUserProfile
       tags: [ "view" ]
@@ -346,22 +285,28 @@ paths:
       parameters:
         - name: username
           in: query
-          required: true
+          required: false
           description: Username of the user searched
           schema:
             type: string
             pattern: 'ˆ.*?$'
             minLength: 3
             maxLength: 16
+        - name: id
+          in: query
+          required: false
+          description: Id of the user searched
+          schema:
+            type: integer
       responses:
-        "201":
+        "302":
           description: Profile found successfully
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Profile" }
-        "404": { $ref: "#/components/responses/404NotFound" }
         "400": { $ref: "#/components/responses/400BadRequest" }
-        "401": { $ref: "#/components/responses/401StatusUnauthorized" }
+        "401": { $ref: "#/components/responses/401Unauthorized" }
+        "404": { $ref: "#/components/responses/404NotFound" }
   /users/{userId}:
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -463,21 +408,45 @@ paths:
         "404": {$ref: "#/components/responses/404NotFound"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/photos/{photoId}/likes/:
+  /users/{username}/profile/photos/{photoId}/likes/:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
       - $ref: "#/components/parameters/photo_id"
+    get:
+      operationId: getLikes
+      tags: [ "view" ]
+      summary: Search likes
+      description: |-
+        This method is used to find the likes associated with a specific photo. The photo id is
+        in the path. Returns the likes.
+      responses:
+        "302":
+          description: Likes found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Like" }
+                minItems: 0
+                maxItems: 999999999
+        "400": { $ref: "#/components/responses/400BadRequest" }
+        "401": { $ref: "#/components/responses/401Unauthorized" }
+        "404": { $ref: "#/components/responses/404NotFound" }
     post:
       operationId: likePhoto
       tags: ["photoInteractions"]
       summary: Like a photo
       description: |-
-        This method adds a new like to the associated photo. The new like is contained in the body of the request.
-        Returns the like.
+        This method adds a new like to the associated photo. The liker is contained in the body of the request.
+        Returns the new like.
       requestBody:
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/Like"}
+            schema:
+              type: string
+              pattern: 'ˆ.*?$'
+              minLength: 3
+              maxLength: 16
       responses:
         "201":
           description: Like created successfully
@@ -485,11 +454,12 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Like" }
         "400": {$ref: "#/components/responses/400BadRequest"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/photos/{photoId}/likes/{likeId}:
+        "409": {$ref: "#/components/responses/409Conflict"}
+  /users/{username}/profile/photos/{photoId}/likes/{likeId}:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
       - $ref: "#/components/parameters/photo_id"
       - $ref: "#/components/parameters/like_id"
     delete:
@@ -499,20 +469,41 @@ paths:
       description: |-
         This method removes a like from the associated photo.
       responses:
-        "204": {$ref: "#/components/responses/204Successfull"}
-        "404": {$ref: "#/components/responses/404NotFound"}
+        "204": {$ref: "#/components/responses/204NoContent"}
         "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/photos/{photoId}/comments/:
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+  /users/{username}/profile/photos/{photoId}/comments/:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
       - $ref: "#/components/parameters/photo_id"
+    get:
+      operationId: getComments
+      tags: [ "view" ]
+      summary: Search comments
+      description: |-
+        This method is used to find the comments associated with a specific photo. The photo id is
+        in the path. Returns the comments.
+      responses:
+        "302":
+          description: Comments found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Comment" }
+                minItems: 0
+                maxItems: 999999999
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
     post:
       operationId: commentPhoto
       tags: ["photoInteractions"]
       summary: Comment a photo
       description: |-
-        This method adds a new comment to the associated photo. The new comment is contained in the body of the request.
+        This method adds a new comment to the associated photo. Content and commenter are contained in the body of the 
+        request.
         Returns the comment.
       requestBody:
         content:
@@ -520,16 +511,16 @@ paths:
             schema: {$ref: "#/components/schemas/Comment"}
       responses:
         "201":
-          description: User found successfully
+          description: Comment created successfully
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Comment" }
         "400": {$ref: "#/components/responses/400BadRequest"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/photos/{photoId}/comments/{commentId}:
+  /users/{username}/profile/photos/{photoId}/comments/{commentId}:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
       - $ref: "#/components/parameters/photo_id"
       - $ref: "#/components/parameters/comment_id"
     delete:
@@ -539,13 +530,13 @@ paths:
       description: |-
         This method removes a comment from the associated photo.
       responses:
-        "204": {$ref: "#/components/responses/204Successfull"}
-        "404": {$ref: "#/components/responses/404NotFound"}
+        "204": {$ref: "#/components/responses/204NoContent"}
         "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
   /users/{username}/profile/:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
     get:
       operationId: getMyStream
       tags: ["view"]
@@ -554,7 +545,7 @@ paths:
         This method is used to get the stream of a specified user. The following list is in the path.
         Returns the photos of the users, in reverse chronological order.
       responses:
-        "201":
+        "302":
           description: Photos found successfully
           content:
             application/json:
@@ -563,9 +554,9 @@ paths:
                 items: {$ref: "#/components/schemas/Photo"}
                 minItems: 0
                 maxItems: 999999999
-        "404": {$ref: "#/components/responses/404NotFound"}
         "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
     post:
       operationId: followUser
       tags: ["profileInteractions"]

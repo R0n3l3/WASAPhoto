@@ -1,6 +1,10 @@
 package database
 
-import "log"
+import (
+	"database/sql"
+	"errors"
+	"log"
+)
 
 func (db *appdbimpl) CommentPhoto(photoId uint64, commenter string, content string) (Comment, error) {
 	var comment Comment
@@ -15,21 +19,21 @@ func (db *appdbimpl) CommentPhoto(photoId uint64, commenter string, content stri
 		log.Println(err.Error())
 		return comment, err
 	}
-	comment.CommentId = uint64(commentId)
-	comment, err = db.GetComment(comment.CommentId)
+	comment, err = db.GetComment(uint64(commentId))
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return comment, err
 	}
 
-	result, err = db.c.Exec("UPDATE photos SET commentNumber=commentNumber+1 WHERE photoId=?", photoId)
+	_, err = db.c.Exec("UPDATE photos SET commentNumber=commentNumber+1 WHERE photoId=?", photoId)
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return comment, err
-	} else {
-		rowsAffected, _ := result.RowsAffected()
-		log.Println("Rows affected:", rowsAffected)
-	}
 
+	}
 	return comment, nil
 }

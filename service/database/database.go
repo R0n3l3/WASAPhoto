@@ -59,12 +59,12 @@ type AppDatabase interface {
 	GetLike(id uint64) (Like, error)
 	GetLikes(photoId uint64) ([]Like, error)
 	LikePhoto(photoId uint64, liker string) (Like, error)
-	UnlikePhoto(id uint64) error
+	UnlikePhoto(id uint64, photoId uint64) error
 
 	GetComment(id uint64) (Comment, error)
 	GetComments(id uint64) ([]Comment, error)
 	CommentPhoto(photoId uint64, commenter string, content string) (Comment, error)
-	UncommentPhoto(commentId uint64) error
+	UncommentPhoto(commentId uint64, photoId uint64) error
 
 	GetFollowers(me string) ([]Profile, error)
 	GetFollowing(me string) ([]Profile, error)

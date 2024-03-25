@@ -12,6 +12,7 @@ import (
 
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
+
 	myName, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -35,8 +36,13 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 			return
+		} else if errors.Is(err, errors.New("you already liked this photo")) {
+			w.WriteHeader(http.StatusConflict)
+			return
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
-		w.WriteHeader(http.StatusBadRequest)
 	}
 
 	err = json.NewEncoder(w).Encode(like)
@@ -44,4 +50,5 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 }
