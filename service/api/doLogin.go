@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
-func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request) {
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
 
 	var name string
