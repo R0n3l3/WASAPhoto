@@ -39,7 +39,7 @@ export default {
 	methods: {
     filteredPhotoData(photoId) {
       return this.photoData.filter(data => data.photoId === photoId);
-    },
+      },
 
     filteredLikes(userId) {
       return this.likes.filter(l => parseInt(l.Liker) === userId);
@@ -189,7 +189,7 @@ export default {
           })
           this.comment = response.data
           let p = this.filteredPhotoData(photo.PhotoId)
-          p.photoComments.push(this.comment)
+          p[0].photoComments.push(this.comment)
           photo.CommentNumber += 1
           this.commentContent = ""
         } catch (e) {
@@ -225,13 +225,13 @@ export default {
     async checkLikes(photo) {
       this.errormsg=""
       let p = this.filteredPhotoData(photo.PhotoId)
-      this.likes = p.photoLikes
+      this.likes = p[0].photoLikes
       if (this.likes.length === 0) {
         this.errormsg = "You haven't liked this photo"
       } else {
         let l = this.filteredLikes(parseInt(this.token))
         if (l!==null){
-          this.unlikePhoto(photo, l)
+          this.unlikePhoto(photo, l[0])
             } else{
               this.errormsg = "You haven't liked this photo"
             }
@@ -248,10 +248,14 @@ export default {
           })
           this.like=response.data
           let p = this.filteredPhotoData(photo.PhotoId)
-          p.photoLikes.push(this.like)
+          p[0].photoLikes.push(this.like)
           photo.LikeNumber+=1
         } catch (e) {
-          this.errormsg = e.toString()
+          if (e.response && e.response.status === 409) {
+            this.errormsg = "You already liked this photo"
+          }else {
+            this.errormsg = e.toString()
+          }
         }
     },
 
@@ -285,15 +289,16 @@ export default {
       <button class="btn btn-outline-dark" @click="getUser">Search</button>
       <h1 class="center-horizontal h2">{{this.username}}'s Homepage</h1>
     </div>
-		<div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-      <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2" v-for="photo in stream" :key="photo.PhotoId">
+		<div class="border-bottom pt-3 pb-2 mb-3" v-for="photo in stream" :key="photo.PhotoId">
         <img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image with-border">
         <button class="btn btn-outline-dark" @click="goToProfile(photo.Uploader)"> Go to uploader page</button>
+      <p>This photo was uploaded on {{photo.UploadTime}}.</p>
+      <div class="d-flex align-items-center">
         <p>This photo has {{photo.LikeNumber}} likes and {{photo.CommentNumber}} comments.</p>
-        <p>This photo was uploaded on {{photo.UploadTime}}.</p>
-        <div class="d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div>
         <button class="btn btn-outline-success" @click="likePhoto(photo)">Add a like</button>
         <button class="btn btn-outline-danger" @click="checkLikes(photo)">Remove a like</button>
+      </div>
         </div>
         <div v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
           <div v-for="comment in data.photoComments" :key="comment.CommentId">
@@ -303,8 +308,7 @@ export default {
         </div>
         <input type="text" v-model="commentContent" placeholder="Type a new comment" class="form-control-plaintext">
         <button class="btn btn-outline-success" @click="commentPhoto(photo)">Add a comment</button>
-      </div>
-		</div>
+    </div>
 		<ErrorMsg v-if="errormsg" :msg="errormsg" class="center-vertical center-horizontal"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
 	</div>

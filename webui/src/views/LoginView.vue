@@ -23,7 +23,6 @@ export default {
 					this.id=response.data
 					localStorage.setItem("token", this.id)
 					localStorage.setItem("username", this.username)
-          console.log(this.username)
 					this.$router.push({path:"/session/"})
 				}
 				catch(e) {

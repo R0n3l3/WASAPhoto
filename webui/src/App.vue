@@ -43,15 +43,12 @@ export default {
             Authorization: "Bearer " + this.token
           }
         })
-        let decodedprofile = response.data
-        this.profile.profileName = decodedprofile.ProfileName
-        this.profile.profileId = decodedprofile.ProfileId
-        this.profile.photoNumber = decodedprofile.PhotoNumber
+        this.profile.profileName = response.data.ProfileName
+        this.profile.profileId = response.data.ProfileId
+        this.profile.photoNumber = response.data.PhotoNumber
         localStorage.setItem("searchName", this.profile.profileName)
         localStorage.setItem("searchId", this.profile.profileId)
         localStorage.setItem("searchPhoto", this.profile.photoNumber)
-        console.log(this.profile.profileName)
-        console.log(localStorage.getItem("searchName"))
         this.$router.push({path: "/users/" + this.profile.profileName + "/view/"})
       } catch (e) {
         if (e.response && e.response.status === 404) {

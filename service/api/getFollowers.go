@@ -30,13 +30,13 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
 		err = json.NewEncoder(w).Encode(followers)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	} else {
+		w.WriteHeader(http.StatusFound)
+	} else if getFollowers == "false" {
 		following, err := rt.db.GetFollowing(me)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
@@ -46,11 +46,14 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
 		err = json.NewEncoder(w).Encode(following)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		w.WriteHeader(http.StatusFound)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 }

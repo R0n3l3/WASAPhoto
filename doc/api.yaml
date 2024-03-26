@@ -307,9 +307,6 @@ paths:
         "400": { $ref: "#/components/responses/400BadRequest" }
         "401": { $ref: "#/components/responses/401Unauthorized" }
         "404": { $ref: "#/components/responses/404NotFound" }
-  /users/{userId}:
-    parameters:
-      - $ref: "#/components/parameters/user_id"
     put:
       operationId: setMyUserName
       tags: ["modifyProfile"]
@@ -317,20 +314,20 @@ paths:
       description: |-
         This method sets a new username for the associated user.
         We replace the user with a username-changed user, present in the body of the request.
-        Returns the new user.
       requestBody:
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/User"}
+            schema:
+              type: string
+              pattern: ˆ.*?$
+              minLength: 3
+              maxLength: 16
+              example: Maria
       responses:
-        "201":
-          description: Username updated successfully
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/User"}
-        "404": {$ref: "#/components/responses/404NotFound"}
+        "204": {$ref: "#/components/responses/204NoContent"}
         "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
   /users/{userId}/banned/:
     parameters:
     - $ref: "#/components/parameters/user_id"
@@ -557,6 +554,34 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
+  /users/username/profile/following/:
+    get:
+      operationId: getFollowers
+      tags: ["view"]
+      summary: Get user followers or following
+      description: |-
+        This method is used to get the user's following or followers according to the parameter.
+        Return an array of profiles.
+      parameters:
+        - name: follow
+          in: query
+          required: true
+          description: Defines if we want followers or following
+          schema:
+            type: boolean
+      responses:
+        "302":
+          description: Followers\following found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Profile" }
+                minItems: 0
+                maxItems: 999999999
+        "400": { $ref: "#/components/responses/400BadRequest" }
+        "401": { $ref: "#/components/responses/401Unauthorized" }
+        "404": { $ref: "#/components/responses/404NotFound" }
     post:
       operationId: followUser
       tags: ["profileInteractions"]

@@ -17,7 +17,8 @@ func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
 		return like, err
 	}
 
-	_, err = db.c.Exec("SELECT likeId FROM likes WHERE photoLiked=? AND liker=?", photoId, id)
+	var exist uint64
+	err = db.c.QueryRow("SELECT likeId FROM likes WHERE photoLiked=? AND liker=?", photoId, id).Scan(&exist)
 	if errors.Is(err, sql.ErrNoRows) {
 		result, err := db.c.Exec("INSERT INTO likes(liker, photoLiked) VALUES (?, ?)", id, photoId)
 		if err != nil {
@@ -47,7 +48,8 @@ func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
 	} else if err != nil {
 		log.Println(err.Error())
 		return like, err
+	} else if err == nil {
+		return like, nil
 	}
-	err = errors.New("you already liked this photo")
 	return like, err
 }

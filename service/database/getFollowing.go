@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -10,7 +11,9 @@ func (db *appdbimpl) GetFollowing(me string) ([]Profile, error) {
 
 	res, err := db.c.Query("SELECT p.profileId, p.profileName, p.photoNumber FROM profiles p, profiles p1, follow f WHERE p.profileId=f.following AND f.follower=p1.profileId AND p1.profileName=?", me)
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return followers, err
 	}
 	defer func(rows *sql.Rows) {
