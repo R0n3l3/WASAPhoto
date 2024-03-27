@@ -290,23 +290,23 @@ export default {
       <h1 class="center-horizontal h2">{{this.username}}'s Homepage</h1>
     </div>
 		<div class="border-bottom pt-3 pb-2 mb-3" v-for="photo in stream" :key="photo.PhotoId">
-        <img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image with-border">
-        <button class="btn btn-outline-dark" @click="goToProfile(photo.Uploader)"> Go to uploader page</button>
-      <p>This photo was uploaded on {{photo.UploadTime}}.</p>
-      <div class="d-flex align-items-center">
-        <p>This photo has {{photo.LikeNumber}} likes and {{photo.CommentNumber}} comments.</p>
-        <div>
-        <button class="btn btn-outline-success" @click="likePhoto(photo)">Add a like</button>
-        <button class="btn btn-outline-danger" @click="checkLikes(photo)">Remove a like</button>
-      </div>
-        </div>
-        <div v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
-          <div v-for="comment in data.photoComments" :key="comment.CommentId">
+      <button class="btn btn-outline-dark" @click="goToProfile(photo.Uploader)"> Go to uploader page</button>
+      <div class="border-bottom pt-3 pb-2 mb-3 d-flex flex-wrap flex-md-nowrap align-items-center">
+      <img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image with-border">
+        <div class="scroll-container with-border-color" v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
+          <div v-for="comment in data.photoComments" :key="comment.CommentId" class="align-items-center justify-content-between flex-wrap" style="padding: 10px;">
             {{comment.Commenter}} commented: "{{comment.Content}}"
             <button class="btn btn-outline-danger" @click="deleteComment(photo, comment)">Delete Comment</button>
           </div>
         </div>
-        <input type="text" v-model="commentContent" placeholder="Type a new comment" class="form-control-plaintext">
+      </div>
+      <p>This photo was uploaded on {{photo.UploadTime}}.</p>
+      <p>This photo has {{photo.LikeNumber}} likes and {{photo.CommentNumber}} comments.</p>
+      <div>
+        <button class="btn btn-outline-success" @click="likePhoto(photo)">Add a like</button>
+        <button class="btn btn-outline-danger" @click="checkLikes(photo)">Remove a like</button>
+      </div>
+      <input type="text" v-model="commentContent" placeholder="Type a new comment" class="form-control-plaintext">
         <button class="btn btn-outline-success" @click="commentPhoto(photo)">Add a comment</button>
     </div>
 		<ErrorMsg v-if="errormsg" :msg="errormsg" class="center-vertical center-horizontal"></ErrorMsg>

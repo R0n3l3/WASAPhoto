@@ -173,11 +173,12 @@ methods: {
 						}
 					})
 					if (response.data!==null) {
-					this.photo=response.data}
-					this.photoNumber=this.photoNumber+1
-					this.myPhotos.unshift(this.photo)
-					localStorage.setItem("searchPhoto", this.photoNumber)
-					this.getData(this.photo)
+            this.photo=response.data
+            this.photoNumber=this.photoNumber+1
+            this.myPhotos.unshift(this.photo)
+            localStorage.setItem("searchPhoto", this.photoNumber)
+            this.getData(this.photo)
+          }
 				}catch(e) {
 					this.errormsg = e.toString()
 				}
@@ -270,7 +271,7 @@ methods: {
               }
         })
         this.photoData = []
-        this.getStream()
+        this.refresh()
       } catch (e) {
         this.errormsg = e.toString()
       }
@@ -290,46 +291,49 @@ methods: {
       <button class="btn btn-outline-dark" @click="changeUsername">Change</button>
       <h1 class="center-horizontal h2">{{this.username}}'s Profile</h1>
     </div>
-    <div class="p flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+    <div class="flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
       <div class="center-vertical d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
       <p class="center-horizontal">You have uploaded {{this.photoNumber}} photo. To upload a new photo, </p>
       <input type="file" accept="image/*" @change="handleFile" ref="file">
         <button class="btn btn-outline-dark" @click="uploadPhoto">Upload</button>
       </div>
     </div>
+    <ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
     <div class="border-bottom pt-3 pb-2 mb-3" v-for="photo in myPhotos" :key="photo.PhotoId">
+      <button class="btn btn-outline-danger" @click="deletePhoto(photo.PhotoId)">Delete Photo</button>
+      <div class="border-bottom pt-3 pb-2 mb-3 d-flex flex-wrap flex-md-nowrap align-items-center">
         <img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image with-border">
-      <button class="btn btn-outline-danger" @click="deletePhoto">Delete Photo</button>
+      <div class="scroll-container with-border-color" v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
+        <div v-for="comment in data.photoComments" :key="comment.CommentId" class="align-items-center justify-content-between flex-wrap" style="padding: 10px;">
+          {{comment.Commenter}} commented: "{{comment.Content}}"
+          <button class="btn btn-outline-danger" @click="deleteComment(photo, comment)">Delete Comment</button>
+        </div>
+        </div>
+      </div>
       <p>This photo was uploaded on {{photo.UploadTime}}.</p>
       <div class="d-flex justify-content-between align-items-center">
-      <p>This photo has {{photo.LikeNumber}} likes and {{photo.CommentNumber}} comments.</p>
+        <p>This photo has {{photo.LikeNumber}} likes and {{photo.CommentNumber}} comments.</p>
       </div>
-        <div v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
-          <div v-for="comment in data.photoComments" :key="comment.CommentId">
-            {{comment.Commenter}} commented: "{{comment.Content}}"
-            <button class="btn btn-outline-danger" @click="deleteComment(photo, comment)">Delete Comment</button>
-          </div>
-        </div>
         <input type="text" v-model="commentContent" placeholder="Type a new comment" class="form-control-plaintext">
         <button class="btn btn-outline-success" @click="commentPhoto(photo)">Add a comment</button>
     </div>
-    <div>
-      <p> Your followers: </p>
+
+    <p> Your followers: </p>
+    <div class="pb-2 mb-3 with-border-color scroll-container-follow">
       <ErrorMsg v-if="followmsg" :msg="followmsg" class="center-vertical center-horizontal"></ErrorMsg>
-      <div v-for="user in followers" :key="user.ProfileId">
-        <p> - {{user.ProfileName}}</p>
-        <button class="btn btn-outline-dark" @click="goToProfile(user.ProfileId)"> Profile</button>
+      <div class=" pb-2 mb-3 d-flex" v-for="user in followers" :key="user.ProfileId">
+        <button class="btn btn-outline-dark" style="margin-left: 10px" @click="goToProfile(user.ProfileId)"> {{user.ProfileName}}</button>
       </div>
-      <p>You follow: </p>
+      </div>
+    <p>You follow: </p>
+    <div class="pt-3 mb-3 with-border-color scroll-container-follow">
       <ErrorMsg v-if="followingmsg" :msg="followingmsg" class="center-vertical center-horizontal"></ErrorMsg>
-      <div v-for="user in following" :key="user.ProfileId">
-        <p> - {{user.ProfileName}}</p>
-        <button class="btn btn-outline-dark" @click="goToProfile(user.ProfileId)"> Profile</button>
+      <div class="pt-3 mb-3 d-flex" v-for="user in following" :key="user.ProfileId">
+        <button class="btn btn-outline-dark" style="margin-left: 10px" @click="goToProfile(user.ProfileId)"> {{user.ProfileName}}</button>
       </div>
     </div>
     <div>
     <ErrorMsg v-if="errormsg" :msg="errormsg" class="center-vertical center-horizontal"></ErrorMsg>
-    <ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
   </div>
   </div>
 </template>

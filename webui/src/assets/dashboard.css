@@ -17,9 +17,27 @@ body {
 	max-height: 300px;
 }
 
+.scroll-container {
+	max-height: 200px; /* Adjust the height according to your need */
+	width: 800px;
+	overflow-y: auto;
+}
+
+.scroll-container-follow {
+	max-height: 200px; /* Adjust the height according to your need */
+	width: 200px;
+	overflow-y: auto;
+}
+
 .with-border {
 	border: 2px solid #000000;
 	margin-right: 20px;
+}
+
+.with-border-color {
+	border: 2px solid #fccfcf;
+	margin-right: 20px;
+
 }
 
 .sidebar {

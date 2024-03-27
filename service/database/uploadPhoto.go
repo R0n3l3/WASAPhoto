@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -9,7 +11,9 @@ func (db *appdbimpl) UploadPhoto(uploader string, image []byte) (Photo, error) {
 
 	id, err := db.GetUserId(uploader)
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return photo, err
 	}
 
@@ -23,23 +27,24 @@ func (db *appdbimpl) UploadPhoto(uploader string, image []byte) (Photo, error) {
 		log.Println(err.Error())
 		return photo, err
 	}
-	photo.PhotoId = uint64(photoId)
-	photo, err = db.GetPhoto(photo.PhotoId)
+	photo, err = db.GetPhoto(uint64(photoId))
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return photo, err
 	}
 
 	profile, err := db.GetUserProfile(uploader)
 	if err != nil {
-		log.Println("non ho trovato il profilo")
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return photo, err
 	}
 
 	_, err = db.c.Exec("UPDATE profiles SET photoNumber=profiles.photoNumber+1 WHERE profileId=?", profile.ProfileId)
 	if err != nil {
-		log.Println("non ho aggiornato il profilo")
 		log.Println(err.Error())
 		return photo, err
 	}

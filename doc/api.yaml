@@ -367,32 +367,54 @@ paths:
         "404": {$ref: "#/components/responses/404NotFound"}
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/photos/:
+  /users/{username}/profile/photos/:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
+    get:
+      operationId: getMyPhotos
+      tags: ["view"]
+      summary: Get photos
+      description: |-
+        This methods gets the photos uploaded by a specific user.
+        Returns an array of photos.
+      responses:
+        "302":
+          description: Photos found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Photo" }
+                minItems: 0
+                maxItems: 999999999
+        "400": { $ref: "#/components/responses/400BadRequest" }
+        "401": { $ref: "#/components/responses/401Unauthorized" }
+        "404": { $ref: "#/components/responses/404NotFound" }
     post:
       operationId: uploadPhoto
       tags: ["modifyProfile"]
       summary: Upload a photo
       description: |-
-        This method adds a new photo to the associated user. The new photo is
+        This method adds a new photo to the associated user. The photo link is
         contained in the body of the request. Returns the new photo.
       requestBody:
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/Photo"}
+            schema:
+              type: string
+              format: link
       responses:
         "201":
-          description: User found successfully
+          description: Photo uploaded successfully
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Photo" }
         "400": {$ref: "#/components/responses/400BadRequest"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/photos/{photoId}:
+  /users/{username}/profile/photos/{photoId}:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
       - $ref: "#/components/parameters/photo_id"
     delete:
       operationId: deletePhoto
@@ -401,10 +423,10 @@ paths:
       description: |-
         This method removes a photo from the associated user.
       responses:
-        "204": {$ref: "#/components/responses/204Successfull"}
-        "404": {$ref: "#/components/responses/404NotFound"}
+        "204": {$ref: "#/components/responses/204NoContent"}
         "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
   /users/{username}/profile/photos/{photoId}/likes/:
     parameters:
       - $ref: "#/components/parameters/username"
