@@ -8,85 +8,91 @@ export default {
 		return {
 			errormsg: "",
 			detailedmsg: "",
-			token: localStorage.getItem("token"),
-			username: localStorage.getItem("username"),
-			profileName: localStorage.getItem("searchName"),
-			photoNumber: parseInt(localStorage.getItem("searchPhoto")),
-			myPhotos: [],
-			photoData: [
-			],
-			comment: {
-				commentId: 0,
-				commenter: "",
-				commentTime: "",
-				content : "",
-				photoComment: 0,
-			},
-			comments: [],
-			content: "",
-			like: {
-				likeId: 0,
-				liker: 0,
-				photoLiked: 0,
-			},
-			likes: [],
-			upload:null,
-			photo: {
-				photoId: 0,
-				uploader: 0,
-				uploadTime: "",
-				likeNumber: 0,
-				commentNumber: 0,
-				image: [],
-			},
-			newName:"",
-      profile: {
-        photoNumber: 0,
-        profileId: 0,
-        profileName: "",
+      followmsg: "",
+      followingmsg:"",
+      commentContent: "",
+      token: localStorage.getItem("token"),
+      username: localStorage.getItem("username"),
+      profileName: localStorage.getItem("searchName"),
+      photoNumber: parseInt(localStorage.getItem("searchPhoto")),
+      profileId: localStorage.getItem("searchId"),
+      photo: {
+        photoId: 0,
+        uploader: 0,
+        uploadTime: "",
+        likeNumber: 0,
+        commentNumber: 0,
+        image: [],
       },
+      comment: {
+        commentId: 0,
+        commenter: "",
+        commentTime: "",
+        content : "",
+        photoComment: 0,
+      },
+      like: {
+        likeId: 0,
+        liker: 0,
+        photoLiked: 0,
+      },
+      photos: [],
+      photoData: [],
+      comments: [],
+      likes: [],
       followers: [],
       following: [],
-		}
+      upload:null,
+    }
 	},
 	methods: {
 		filteredPhotoData(photoId) {
 			return this.photoData.filter(data => data.photoId === photoId);
 		},
 
-		async getData(photo) {
-			let response = await this.$axios.get("/users/"+this.profileName+"/profile/photos/"+photo.PhotoId+"/comments/", {
-				headers:
-					{
-						Authorization: "Bearer " + this.token
-					}
-			})
-			if (response.data!==null) {
-				this.comments = response.data
-			}else {
-				this.comments=[]
-			}
+    async getData(photo) {
+      try {
+        let response = await this.$axios.get("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/comments/", {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data !== null) {
+          this.comments = response.data
+        } else {
+          this.comments = []
+        }
+      }catch (e) {
+        if (e.response && e.response.status !== 404) {
+          this.errormsg = e.toString()
+        }
+      }
+      try {
+        let response = await this.$axios.get("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/likes/", {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data !== null) {
+          this.likes = response.data
+        } else {
+          this.likes = []
+        }
+      }catch(e) {
+        if (e.response && e.response.status !== 404) {
+          this.errormsg = e.toString()
+        }
+      }
+      this.photoData.push({
+        photoId: photo.PhotoId,
+        photoComments: this.comments,
+        photoLikes: this.likes,
+      })
+    },
 
-			response = await this.$axios.get("/users/"+this.profileName+"/profile/photos/"+photo.PhotoId+"/likes/", {
-				headers:
-					{
-						Authorization: "Bearer " + this.token
-					}
-			})
-			if (response.data!==null) {
-				this.likes=response.data
-			}else {
-				this.likes=[]
-			}
-			this.photoData.push({
-				photoId: photo.PhotoId,
-				photoComments: this.comments,
-				photoLikes: this.likes,
-			})
-		},
-
-		async refresh() {
-      //Get Followers
+    async getFollow() {
       try {
         let response = await this.$axios.get("/users/"+this.profileName+"/profile/following/", {
           params: {
@@ -100,12 +106,11 @@ export default {
           this.followers=response.data
         }else{
           this.followers=[]
-          this.detailedmsg="You don't have followers"
+          this.followmsg="The user doesn't have followers"
         }
       }catch (e) {
         this.errormsg = e.toString()
       }
-      //Get following
       try {
         let response = await this.$axios.get("/users/"+this.profileName+"/profile/following/", {
           params: {
@@ -119,32 +124,78 @@ export default {
           this.following=response.data
         }else{
           this.following=[]
-          this.errormsg="You don't follow anyone"
+          this.followingmsg="The user doesn't follow anyone"
         }
       }catch (e) {
         this.errormsg = e.toString()
       }
-			try {
-				let response = await this.$axios.get("/users/" + this.profileName + "/profile/photos/", {
-					headers:
-						{
-							Authorization: "Bearer " + this.token
-						}
-				})
-				if (response.data!==null) {
-					this.myPhotos=response.data
-          for (let i=0; i<this.myPhotos.length; i++) {
-            await this.getData(this.myPhotos[i])
-          }
-				}else{
-					this.myPhotos=[]
-					this.detailedmsg="You haven't uploaded photos"
-				}
-			}catch(e){
-				this.errormsg = e.toString()
-			}
 
-		},
+    },
+
+    async refresh() {
+      await this.getFollow()
+      try {
+        let response = await this.$axios.get("/users/" + this.profileName + "/profile/photos/", {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data!==null) {
+          this.photos=response.data
+        }else{
+          this.photos=[]
+          this.detailedmsg="The user hasn't uploaded photos"
+        }
+        for (let i=0; i<this.photos.length; i++) {
+          await this.getData(this.photos[i])
+        }
+      }catch(e){
+        this.errormsg = e.toString()
+      }
+
+    },
+
+    async follow() {
+      this.followmsg=""
+      try {
+        let response = await this.$axios.post("/users/"+this.username+"/profile/following/", this.profileName, {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        let profile = {
+          photoNumber: response.data.PhotoNumber,
+          profileId: response.data.ProfileId,
+          profileName: response.data.ProfileName,
+        }
+        this.followers.push(profile)
+        this.getFollow()
+      }catch(e) {
+        if (e.response && e.response.status === 409) {
+          this.errormsg = "You already follow this user"
+        }else {
+          this.errormsg = e.toString()
+        }
+      }
+    },
+
+    async unfollow() {
+      this.errormsg=""
+      try {
+        await this.$axios.delete("/users/"+this.username+"/profile/following/"+this.profileName, {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        this.followers = []
+        this.refresh()
+      } catch (e) {
+        this.errormsg = e.toString()
+      }
+    },
 
 		async likePhoto(photo) {
 			if (photo.Uploader===this.username) {
@@ -190,6 +241,7 @@ export default {
 				}
 			})
 		},
+
 		async unlikePhoto(photo, l) {
       this.errormsg=""
 			try {
@@ -254,37 +306,6 @@ export default {
 			}
 		},
 
-    async follow() {
-      try {
-        let response = await this.$axios.post("/users/"+this.username+"/profile/following/", this.profileName, {
-          headers:
-              {
-                Authorization: "Bearer " + this.token
-              }
-        })
-        this.profile = response.data
-        this.followers.push(this.profile)
-        this.profile=null
-      }catch(e) {
-        this.errormsg = e.toString()
-      }
-    },
-
-    async unfollow() {
-      try {
-          await this.$axios.delete("/users/"+this.username+"/profile/following/"+this.profileName, {
-            headers:
-                {
-                  Authorization: "Bearer " + this.token
-                }
-          })
-          this.followers = []
-          this.refresh()
-        } catch (e) {
-          this.errormsg = e.toString()
-        }
-    },
-
     async ban() {
       try {
         let response = await this.$axios.post("/users/"+this.username+"/banned/", this.profileName, {
@@ -317,13 +338,6 @@ export default {
         this.errormsg = e.toString()
       }
     },
-
-		async goBack() {
-			localStorage.setItem("searchName", "")
-			localStorage.setItem("searchId", "")
-			localStorage.setItem("searchPhoto", "")
-			this.$router.push({path: "/session/"})
-		},
 	},
 	mounted() {
 		this.refresh()
@@ -333,49 +347,53 @@ export default {
 </script>
 
 <template>
-	<div>
-		<div
-			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">{{this.profileName}} Profile</h1>
-      <button @click="follow()">Follow this user</button>
-      <button @click="unfollow()">Unfollow this user</button>
-      You uploaded {{this.photoNumber}} photos
-		</div>
-		<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="photo in myPhotos" :key="photo.PhotoId">
-			<img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image">
-			<p> Comment number: {{photo.CommentNumber}}</p>
-			<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2" v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
-				<div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="comment in data.photoComments" :key="comment.CommentId">
-					{{comment.Commenter}} --> {{comment.Content}}
-					<button @click="deleteComment(photo, comment)">Delete Comment</button>
-				</div>
-			</div>
-			<p>Like number: {{photo.LikeNumber}}</p>
-			<button @click="likePhoto(photo)">Add a like</button>
-			<button @click="checkLikes(photo)">Remove a like</button>
-			<input type="text" v-model="content" placeholder="Type a comment">
-			<button @click="commentPhoto(photo)">Add a comment</button>
-		</div>
-    <div>
-      Your followers:
-    <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="user in followers" :key="user.ProfileId">
-      <p>{{user.ProfileName}}</p>
+  <div>
+    <div class="center-vertical d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <button class="btn btn-outline-success" @click="follow">Follow User</button>
+      <button class="btn btn-outline-danger" @click="unfollow">Unfollow User</button>
+      <h1 class="center-horizontal h2">{{this.profileName}}'s Profile</h1>
+      <button class="btn btn-outline-success" @click="ban">Ban User</button>
+      <button class="btn btn-outline-danger" @click="unban">Unban User</button>
     </div>
+    <ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
+    <div class="border-bottom pt-3 pb-2 mb-3" v-for="photo in photos" :key="photo.PhotoId">
+      <p class="center-horizontal">This user uploaded {{this.photoNumber}} photos. </p>
+      <div class="border-bottom pt-3 pb-2 mb-3 d-flex flex-wrap flex-md-nowrap align-items-center">
+        <img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image with-border">
+        <div class="scroll-container with-border-color" v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">
+          <div v-for="comment in data.photoComments" :key="comment.CommentId" class="align-items-center justify-content-between flex-wrap" style="padding: 10px;">
+            {{comment.Commenter}} commented: "{{comment.Content}}"
+            <button class="btn btn-outline-danger" @click="deleteComment(photo, comment)">Delete Comment</button>
+          </div>
+        </div>
+      </div>
+      <p>This photo was uploaded on {{photo.UploadTime}}.</p>
+      <p>This photo has {{photo.LikeNumber}} likes and {{photo.CommentNumber}} comments.</p>
+      <div>
+        <button class="btn btn-outline-success" @click="likePhoto(photo)">Add a like</button>
+        <button class="btn btn-outline-danger" @click="checkLikes(photo)">Remove a like</button>
+      </div>
+      <input type="text" v-model="commentContent" placeholder="Type a new comment" class="form-control-plaintext">
+      <button class="btn btn-outline-success" @click="commentPhoto(photo)">Add a comment</button>
     </div>
-    <div>
-      You follow:
-      <div class="col-md-3 justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom" v-for="user in following" :key="user.ProfileId">
-        <p>{{user.ProfileName}}</p>
+    <p> Followers: </p>
+    <div class="pb-2 mb-3 with-border-color scroll-container-follow">
+      <ErrorMsg v-if="followmsg" :msg="followmsg" class="center-vertical center-horizontal"></ErrorMsg>
+      <div class=" pb-2 mb-3 d-flex" v-for="user in followers" :key="user.ProfileId">
+        <button class="btn btn-outline-dark" style="margin-left: 10px" @click="goToProfile(user.ProfileId)"> {{user.ProfileName}}</button>
       </div>
     </div>
-		<div
-			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <button @click="ban()">Ban this user</button>
-      <button @click="unban()">Unban this user</button>
-		</div>
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg"></ErrorMsg>
-	</div>
+    <p>Following: </p>
+    <div class="pt-3 mb-3 with-border-color scroll-container-follow">
+      <ErrorMsg v-if="followingmsg" :msg="followingmsg" class="center-vertical center-horizontal"></ErrorMsg>
+      <div class="pt-3 mb-3 d-flex" v-for="user in following" :key="user.ProfileId">
+        <button class="btn btn-outline-dark" style="margin-left: 10px" @click="goToProfile(user.ProfileId)"> {{user.ProfileName}}</button>
+      </div>
+    </div>
+    <div>
+      <ErrorMsg v-if="errormsg" :msg="errormsg" class="center-vertical center-horizontal"></ErrorMsg>
+    </div>
+  </div>
 </template>
 
 <style>

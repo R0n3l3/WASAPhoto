@@ -36,21 +36,28 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	if isBanned {
-		err := json.NewEncoder(w).Encode("Profile not found")
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	user, err := rt.db.FollowUser(string(toFollow), me)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	} else if user.ProfileId == 0 {
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
+
 	err = json.NewEncoder(w).Encode(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 }

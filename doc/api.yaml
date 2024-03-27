@@ -97,6 +97,12 @@ components:
       in: path
       required: true
       description: User ID
+    following_id:
+      schema: { $ref: "#/components/schemas/User/properties/username" }
+      name: following id
+      in: path
+      required: true
+      description: Following ID
     photo_id:
       schema: {$ref: "#/components/schemas/Photo/properties/photoId"}
       name: photoId
@@ -576,7 +582,7 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
-  /users/username/profile/following/:
+  /users/{username}/profile/following/:
     get:
       operationId: getFollowers
       tags: ["view"]
@@ -610,23 +616,28 @@ paths:
       summary: Follow a user
       description: |-
          This method is used to add an existing user to the 'following' collection.
-         The user id is in the body of the request. Return the profile followed
+         The username is in the body of the request. Return the profile followed.
       requestBody:
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/User"}
+            schema:
+              type: string
+              pattern: 'ˆ.*?$'
+              minLength: 3
+              maxLength: 16
       responses:
         "201":
-          description: User found successfully
+          description: User followed successfully
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Profile" }
         "400": {$ref: "#/components/responses/400BadRequest"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
-  /users/{userId}/profile/following/{followingId}:
+        "409": {$ref: "#/components/responses/409Conflict"}
+  /users/{username}/profile/following/{followingId}:
     parameters:
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/username"
       - $ref: "#/components/parameters/following_id"
     delete:
       operationId: unfollowUser
@@ -635,7 +646,7 @@ paths:
       description: |-
         This method is used to remove an existing user to the 'following' collection.
       responses:
-        "204": {$ref: "#/components/responses/204Successfull"}
-        "404": {$ref: "#/components/responses/404NotFound"}
+        "204": {$ref: "#/components/responses/204NoContent"}
         "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401StatusUnauthorized"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
