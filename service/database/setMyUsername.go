@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strings"
 )
 
 func (db *appdbimpl) SetMyUsername(u string, new string) error {
@@ -18,7 +19,7 @@ func (db *appdbimpl) SetMyUsername(u string, new string) error {
 
 	_, err = db.c.Exec("UPDATE users SET username=? WHERE userId=?", new, id)
 	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
+		if !errors.Is(err, sql.ErrNoRows) && !strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			log.Println(err.Error())
 		}
 		return err

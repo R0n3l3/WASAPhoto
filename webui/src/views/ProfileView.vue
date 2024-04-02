@@ -191,7 +191,7 @@ export default {
               }
         })
         this.followers = []
-        this.refresh()
+        this.getFollow()
       } catch (e) {
         this.errormsg = e.toString()
       }
@@ -308,21 +308,23 @@ export default {
 
     async ban() {
       try {
-        let response = await this.$axios.post("/users/"+this.username+"/banned/", this.profileName, {
+        await this.$axios.post("/users/"+this.username+"/banned/", this.profileName, {
           headers:
               {
                 Authorization: "Bearer " + this.token
               }
         })
-        if (response.data!==null) {
-          this.errormsg="Ban successful"
-          this.followers = []
-          this.following=[]
-          this.photoData=[]
-          this.refresh()
+        this.errormsg="Ban successful"
+        this.followers = []
+        this.following=[]
+        this.photoData=[]
+        this.refresh()
+      }catch(e) {
+        if (e.response && e.response.status === 409) {
+          this.errormsg = "You already banned this person"
+        } else {
+          this.errormsg = e.toString()
         }
-      }catch(e){
-        this.errormsg = e.toString()
       }
     },
 

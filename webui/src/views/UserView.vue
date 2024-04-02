@@ -151,7 +151,11 @@ methods: {
           localStorage.setItem("searchName", this.username)
 					this.refresh()
 				}catch(e) {
-					this.errormsg = e.toString()
+          if (e.response && e.response.status === 409) {
+            this.errormsg = "Username already taken"
+          }else {
+            this.errormsg = e.toString()
+          }
 				}
 			}
 		},

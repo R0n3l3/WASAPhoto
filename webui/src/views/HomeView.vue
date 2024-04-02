@@ -239,6 +239,7 @@ export default {
         },
 
     async likePhoto(photo) {
+      this.errormsg=""
         try {
           let response = await this.$axios.post("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/likes/", this.username, {
             headers:

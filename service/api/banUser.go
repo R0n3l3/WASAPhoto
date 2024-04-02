@@ -2,11 +2,11 @@ package api
 
 import (
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -31,25 +31,25 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 			return
+		} else if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			w.WriteHeader(http.StatusConflict)
+			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode("Ban successful")
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-
-	}
 	err = rt.db.UnfollowUser(string(toBan), myName)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	err = rt.db.UnfollowUser(myName, string(toBan))
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
+	return
 }

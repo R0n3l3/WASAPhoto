@@ -28,4 +28,5 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	w.WriteHeader(http.StatusNoContent)
 }
