@@ -86,7 +86,9 @@ export default {
 
 	<div class="container-fluid">
 				<RouterView />
+    <ErrorMsg v-if="errormsg" :msg="errormsg" class="center-vertical center-horizontal"></ErrorMsg>
 		</div>
+
 </template>
 
 <style>

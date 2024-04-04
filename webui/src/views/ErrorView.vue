@@ -1,6 +1,6 @@
 <template>
-  <div class="hello">
-    <h1>(404) Ciao Page NotFound</h1>  </div>
+  <div>
+    <h1>(404) Page NotFound</h1>  </div>
 </template>
 
 <script>

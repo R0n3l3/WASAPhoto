@@ -37,6 +37,31 @@ export default {
 		}
 	},
 	methods: {
+    async getMyProfile() {
+      try {
+        let response = await this.$axios.get("/users/" + this.username, {
+          params: {
+            search: this.username
+          },
+          headers: {
+            Authorization: "Bearer " + this.token
+          }
+        })
+        this.profile.profileName = response.data.ProfileName
+        this.profile.profileId = response.data.ProfileId
+        this.profile.photoNumber = response.data.PhotoNumber
+        localStorage.setItem("searchName", this.profile.profileName)
+        localStorage.setItem("searchId", this.profile.profileId)
+        localStorage.setItem("searchPhoto", this.profile.photoNumber)
+        this.$router.push({path: "/users/" + this.profile.profileName + "/view/"})
+      } catch (e) {
+        if (e.response && e.response.status === 404) {
+          this.errormsg = "User not found"
+        } else {
+          this.errormsg = e.toString()
+        }
+      }
+    },
     filteredPhotoData(photoId) {
       return this.photoData.filter(data => data.photoId === photoId);
       },
@@ -286,6 +311,7 @@ export default {
 	<div>
 		<div
 			class="center-vertical d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <button class="btn btn-outline-dark" @click="getMyProfile">Go to Your Profile</button>
       <input type="text" v-model="search" placeholder="Insert a user to search" class="form-control-sm">
       <button class="btn btn-outline-dark" @click="getUser">Search</button>
       <h1 class="center-horizontal h2">{{this.username}}'s Homepage</h1>
