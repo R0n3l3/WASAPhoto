@@ -53,7 +53,7 @@ type AppDatabase interface {
 	GetMyPhotos(name string) ([]Photo, error)
 	GetPhoto(id uint64) (Photo, error)
 	UploadPhoto(uploader string, image []byte) (Photo, error)
-	DeletePhoto(id uint64) error
+	DeletePhoto(id uint64, username string) error
 	GetMyStream(u string) ([]Photo, error)
 
 	GetLike(id uint64) (Like, error)

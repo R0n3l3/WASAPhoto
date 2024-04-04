@@ -35,7 +35,7 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusFound)
+		w.WriteHeader(http.StatusOK)
 	} else if getFollowers == "false" {
 		following, err := rt.db.GetFollowing(me)
 		if err != nil {
@@ -51,7 +51,7 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusFound)
+		w.WriteHeader(http.StatusOK)
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 		return

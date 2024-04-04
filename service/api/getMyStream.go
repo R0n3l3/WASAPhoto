@@ -34,5 +34,5 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusFound)
+	w.WriteHeader(http.StatusOK)
 }

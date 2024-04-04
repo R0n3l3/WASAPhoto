@@ -33,8 +33,5 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:username/profile/following/", rt.followUser)
 	rt.router.DELETE("/users/:username/profile/following/:followingId", rt.unfollowUser)
 
-	// Special routes
-	rt.router.GET("/liveness", rt.liveness)
-
 	return rt.router
 }

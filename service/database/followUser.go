@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strings"
 )
 
 func (db *appdbimpl) FollowUser(toFollow string, follower string) (Profile, error) {
@@ -25,28 +26,19 @@ func (db *appdbimpl) FollowUser(toFollow string, follower string) (Profile, erro
 		return profile, err
 	}
 
-	var exist int
-	err = db.c.QueryRow("SELECT 1 FROM follow WHERE follower=? AND following=?", idFollower, idToFollow).Scan(&exist)
-	if errors.Is(err, sql.ErrNoRows) {
-		_, err = db.c.Exec("INSERT INTO follow(follower, following) VALUES (?, ?)", idFollower, idToFollow)
-		if err != nil {
+	_, err = db.c.Exec("INSERT INTO follow(follower, following) VALUES (?, ?)", idFollower, idToFollow)
+	if err != nil {
+		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			log.Println(err.Error())
-			return profile, err
 		}
-
-		profile, err = db.GetUserProfile(follower)
-		if err != nil {
-			if !errors.Is(err, sql.ErrNoRows) {
-				log.Println(err.Error())
-			}
-			return profile, err
-		}
-		return profile, nil
-	} else if err != nil {
-		log.Println(err.Error())
 		return profile, err
-	} else if err == nil {
-		return profile, nil
 	}
-	return profile, err
+	profile, err = db.GetUserProfile(follower)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
+		return profile, err
+	}
+	return profile, nil
 }

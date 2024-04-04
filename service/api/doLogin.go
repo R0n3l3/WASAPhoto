@@ -26,7 +26,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else {
-		w.WriteHeader(http.StatusCreated)
 	}
+	w.WriteHeader(http.StatusCreated)
+
 }

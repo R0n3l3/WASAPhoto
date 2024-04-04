@@ -9,13 +9,17 @@ import (
 func (db *appdbimpl) IsBanned(myName string, theirName string) (bool, error) {
 	myId, err := db.GetUserId(myName)
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return false, err
 	}
 
 	theirId, err := db.GetUserId(theirName)
 	if err != nil {
-		log.Println(err.Error())
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Println(err.Error())
+		}
 		return false, err
 	}
 

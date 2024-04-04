@@ -7,6 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -45,13 +46,13 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 			return
+		} else if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			w.WriteHeader(http.StatusConflict)
+			return
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	} else if user.ProfileId == 0 {
-		w.WriteHeader(http.StatusConflict)
-		return
 	}
 
 	err = json.NewEncoder(w).Encode(user)

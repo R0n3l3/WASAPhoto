@@ -99,7 +99,7 @@ components:
       description: User ID
     following_id:
       schema: { $ref: "#/components/schemas/User/properties/username" }
-      name: following id
+      name: followingId
       in: path
       required: true
       description: Following ID
@@ -311,7 +311,7 @@ paths:
           schema:
             type: integer
       responses:
-        "302":
+        "200":
           description: Profile found successfully
           content:
             application/json:
@@ -393,7 +393,7 @@ paths:
         This methods gets the photos uploaded by a specific user.
         Returns an array of photos.
       responses:
-        "302":
+        "200":
           description: Photos found successfully
           content:
             application/json:
@@ -454,7 +454,7 @@ paths:
         This method is used to find the likes associated with a specific photo. The photo id is
         in the path. Returns the likes.
       responses:
-        "302":
+        "200":
           description: Likes found successfully
           content:
             application/json:
@@ -519,7 +519,7 @@ paths:
         This method is used to find the comments associated with a specific photo. The photo id is
         in the path. Returns the comments.
       responses:
-        "302":
+        "200":
           description: Comments found successfully
           content:
             application/json:
@@ -579,7 +579,7 @@ paths:
         This method is used to get the stream of a specified user. The following list is in the path.
         Returns the photos of the users, in reverse chronological order.
       responses:
-        "302":
+        "200":
           description: Photos found successfully
           content:
             application/json:
@@ -592,6 +592,8 @@ paths:
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
   /users/{username}/profile/following/:
+    parameters:
+      - $ref: "#/components/parameters/username"
     get:
       operationId: getFollowers
       tags: ["view"]
@@ -607,7 +609,7 @@ paths:
           schema:
             type: boolean
       responses:
-        "302":
+        "200":
           description: Followers\following found successfully
           content:
             application/json:

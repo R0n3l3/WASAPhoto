@@ -27,7 +27,7 @@ func (db *appdbimpl) BanUser(toBan string, banning string) error {
 
 	_, err = db.c.Exec("INSERT INTO ban(banner, banned) VALUES (?, ?)", idBanning, idToBan)
 	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) && !strings.Contains(err.Error(), "UNIQUE constraint failed") {
+		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			log.Println(err.Error())
 		}
 		return err

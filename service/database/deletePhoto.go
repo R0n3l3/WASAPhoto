@@ -6,16 +6,7 @@ import (
 	"log"
 )
 
-func (db *appdbimpl) DeletePhoto(id uint64) error {
-	var uploaderId uint64
-	var username string
-	if err := db.c.QueryRow("SELECT uploader, username FROM photos, users WHERE photoId=? AND userId=uploader", id).Scan(&uploaderId, &username); err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			log.Println(err.Error())
-		}
-		return err
-
-	}
+func (db *appdbimpl) DeletePhoto(id uint64, username string) error {
 	profile, err := db.GetUserProfile(username)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
@@ -24,6 +15,7 @@ func (db *appdbimpl) DeletePhoto(id uint64) error {
 		return err
 
 	}
+
 	if _, err = db.c.Exec("DELETE FROM likes WHERE photoLiked=?", id); err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			log.Println(err.Error())

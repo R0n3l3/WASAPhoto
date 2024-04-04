@@ -16,6 +16,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	uploader := ps.ByName("username")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
@@ -23,7 +24,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	err = rt.db.DeletePhoto(uint64(id))
+	err = rt.db.DeletePhoto(uint64(id), uploader)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)

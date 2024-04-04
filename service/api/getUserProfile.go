@@ -48,7 +48,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusFound)
+		w.WriteHeader(http.StatusOK)
 	} else {
 		profile, err := rt.db.GetUserProfileId(uint64(id))
 		if err != nil {
@@ -59,8 +59,8 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
-		} else {
-			w.WriteHeader(http.StatusFound)
 		}
+		w.WriteHeader(http.StatusOK)
+
 	}
 }
