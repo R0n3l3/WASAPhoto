@@ -73,6 +73,7 @@ info:
 
     To avoId problems during the homework grading, you should allow all origins and you should set the "Max-Age" attribute to 1 second. See the examples code in the Fantastic Coffee decaffeinated repository.
   version: 0.1.0
+
 tags:
   - name: login
     description: Login operations
@@ -84,12 +85,14 @@ tags:
     description: Operations to interact with other users
   - name: photoInteractions
     description: Operations to interact with photos
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   parameters:
     username:
       schema: {$ref: "#/components/schemas/User/properties/username"}
@@ -127,6 +130,7 @@ components:
       in: path
       required: true
       description: Banned ID
+
   schemas:
     User:
       title: User
@@ -233,6 +237,7 @@ components:
           readOnly: true
         liker: { $ref: "#/components/schemas/User" }
         photoLiked: { $ref: "#/components/schemas/Photo" }
+
   responses:
     204NoContent:
       description: The request was completed with no return value
@@ -245,9 +250,9 @@ components:
     409Conflict:
       description: The response is conflicting with the state of the resource
 
-
 security:
   - bearerAuth: []
+
 paths:
   /session/:
     post:
@@ -284,6 +289,7 @@ paths:
                   identifier:
                     type: integer
                     example: 1
+
   /users/{username}/:
     parameters:
       - $ref: "#/components/parameters/username"
@@ -341,9 +347,31 @@ paths:
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "409": {$ref: "#/components/responses/409Conflict"}
+
   /users/{username}/banned/:
     parameters:
     - $ref: "#/components/parameters/username"
+    get:
+      operationId: getBan
+      tags: ["view"]
+      summary: See if a user is banned
+      description: |-
+        This method is used to see if a user was banned by another user. 
+        The username is in the body of the request.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              pattern: ˆ.*?$
+              minLength: 3
+              maxLength: 16
+              example: Maria
+      responses:
+        "204": { $ref: "#/components/responses/204NoContent"}
+        "400": { $ref: "#/components/responses/400BadRequest"}
+        "401": { $ref: "#/components/responses/401Unauthorized"}
+        "404": { $ref: "#/components/responses/404NotFound"}
     post:
       operationId: banUser
       tags: ["profileInteractions"]
@@ -366,7 +394,6 @@ paths:
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
         "409": {$ref: "#/components/responses/409Conflict"}
-
   /users/{username}/banned/{bannedId}:
     parameters:
       - $ref: "#/components/parameters/username"
@@ -382,6 +409,31 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
+
+  /users/{username}/profile/:
+    parameters:
+      - $ref: "#/components/parameters/username"
+    get:
+      operationId: getMyStream
+      tags: ["view"]
+      summary: Get user stream
+      description: |-
+        This method is used to get the stream of a specified user. The following list is in the path.
+        Returns the photos of the users, in reverse chronological order.
+      responses:
+        "200":
+          description: Photos found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Photo"}
+                minItems: 0
+                maxItems: 999999999
+        "400": {$ref: "#/components/responses/400BadRequest"}
+        "401": {$ref: "#/components/responses/401Unauthorized"}
+        "404": {$ref: "#/components/responses/404NotFound"}
+
   /users/{username}/profile/photos/:
     parameters:
       - $ref: "#/components/parameters/username"
@@ -442,6 +494,7 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
+
   /users/{username}/profile/photos/{photoId}/likes/:
     parameters:
       - $ref: "#/components/parameters/username"
@@ -507,6 +560,7 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
+
   /users/{username}/profile/photos/{photoId}/comments/:
     parameters:
       - $ref: "#/components/parameters/username"
@@ -568,29 +622,7 @@ paths:
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
-  /users/{username}/profile/:
-    parameters:
-      - $ref: "#/components/parameters/username"
-    get:
-      operationId: getMyStream
-      tags: ["view"]
-      summary: Get user stream
-      description: |-
-        This method is used to get the stream of a specified user. The following list is in the path.
-        Returns the photos of the users, in reverse chronological order.
-      responses:
-        "200":
-          description: Photos found successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {$ref: "#/components/schemas/Photo"}
-                minItems: 0
-                maxItems: 999999999
-        "400": {$ref: "#/components/responses/400BadRequest"}
-        "401": {$ref: "#/components/responses/401Unauthorized"}
-        "404": {$ref: "#/components/responses/404NotFound"}
+
   /users/{username}/profile/following/:
     parameters:
       - $ref: "#/components/parameters/username"

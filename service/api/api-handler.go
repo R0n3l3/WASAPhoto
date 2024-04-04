@@ -9,13 +9,14 @@ func (rt *_router) Handler() http.Handler {
 	//  Register routes
 	rt.router.POST("/session/", rt.doLogin)
 
-	rt.router.GET("/users/:username/profile/", rt.getMyStream)
-
 	rt.router.GET("/users/:username", rt.getUserProfile)
 	rt.router.PUT("/users/:username", rt.setMyUsername)
 
+	rt.router.GET("/users/:username/banned/", rt.getBan)
 	rt.router.POST("/users/:username/banned/", rt.banUser)
 	rt.router.DELETE("/users/:username/banned/:bannedId", rt.unbanUser)
+
+	rt.router.GET("/users/:username/profile/", rt.getMyStream)
 
 	rt.router.GET("/users/:username/profile/photos/", rt.getMyPhotos)
 	rt.router.POST("/users/:username/profile/photos/", rt.uploadPhoto)

@@ -133,6 +133,19 @@ export default {
     },
 
     async refresh() {
+      try {
+        await this.$axios.get("/users/" + this.profileName + "/banned/", {
+          params: {
+            banned: this.username
+          }, headers: {
+            Authorization: "Bearer " + this.token
+          }
+        })
+      }catch(e){
+        if (e.response && e.response.status !== 404) {
+          this.errormsg = e.toString()
+        }
+      }
       await this.getFollow()
       try {
         let response = await this.$axios.get("/users/" + this.profileName + "/profile/photos/", {
