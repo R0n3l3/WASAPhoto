@@ -144,7 +144,7 @@ components:
         username:
           description: Unique user name
           type: string
-          pattern: ˆ.*?$
+          pattern: '^.*?$'
           minLength: 3
           maxLength: 16
           example: Maria
@@ -162,7 +162,7 @@ components:
         profileName:
           description: Unique profile name
           type: string
-          pattern: ˆ.*?$
+          pattern: '^.*?$'
           minLength: 3
           maxLength: 16
           example: Maria
@@ -186,6 +186,8 @@ components:
           type: string
           format: date-time
           example: "2024-03-20 18:06:50"
+          minLength: 19
+          maxLength: 19
           readOnly: true
         likeNumber:
           description: How many likes the photo has
@@ -200,6 +202,8 @@ components:
           type: string
           format: link
           example: "image.png"
+          minLength: 5
+          maxLength: 9999999
           readOnly: true
     Comment:
       title: Comment
@@ -216,13 +220,15 @@ components:
           type: string
           format: date-time
           example: "2024-03-20 18:06:50"
+          minLength: 19
+          maxLength: 19
           readOnly: true
         content:
           description: The text of the comment
           type: string
-          pattern: ˆ.*?$
+          pattern: '^.*?$'
           minLength: 1
-          maxLength: 99999
+          maxLength: 9999999
           example: Wow!
           readOnly: true
         photoComment: {$ref: "#/components/schemas/Photo"}
@@ -274,7 +280,7 @@ paths:
                 name:
                   type: string
                   example: Maria
-                  pattern: ˆ.*?$
+                  pattern: '^.*?$'
                   minLength: 3
                   maxLength: 16
         required: true
@@ -290,7 +296,7 @@ paths:
                     type: integer
                     example: 1
 
-  /users/{username}/:
+  /users/{username}:
     parameters:
       - $ref: "#/components/parameters/username"
     get:
@@ -301,13 +307,13 @@ paths:
         This method is used to search for a user with a specific username. The username is in the
         query. Returns the profile of the user.
       parameters:
-        - name: username
+        - name: searchUsername
           in: query
           required: false
           description: Username of the user searched
           schema:
             type: string
-            pattern: 'ˆ.*?$'
+            pattern: '^.*?$'
             minLength: 3
             maxLength: 16
         - name: id
@@ -337,7 +343,7 @@ paths:
           application/json:
             schema:
               type: string
-              pattern: ˆ.*?$
+              pattern: '^.*?$'
               minLength: 3
               maxLength: 16
               example: Maria
@@ -363,7 +369,7 @@ paths:
           application/json:
             schema:
               type: string
-              pattern: ˆ.*?$
+              pattern: '^.*?$'
               minLength: 3
               maxLength: 16
               example: Maria
@@ -384,7 +390,7 @@ paths:
           application/json:
             schema:
               type: string
-              pattern: ˆ.*?$
+              pattern: '^.*?$'
               minLength: 3
               maxLength: 16
               example: Maria
@@ -429,7 +435,7 @@ paths:
                 type: array
                 items: {$ref: "#/components/schemas/Photo"}
                 minItems: 0
-                maxItems: 999999999
+                maxItems: 9999999
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
@@ -453,7 +459,7 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Photo" }
                 minItems: 0
-                maxItems: 999999999
+                maxItems: 9999999
         "400": { $ref: "#/components/responses/400BadRequest" }
         "401": { $ref: "#/components/responses/401Unauthorized" }
         "404": { $ref: "#/components/responses/404NotFound" }
@@ -470,6 +476,8 @@ paths:
             schema:
               type: string
               format: link
+              minLength: 5
+              maxLength: 9999999
       responses:
         "201":
           description: Photo uploaded successfully
@@ -515,7 +523,7 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Like" }
                 minItems: 0
-                maxItems: 999999999
+                maxItems: 9999999
         "400": { $ref: "#/components/responses/400BadRequest" }
         "401": { $ref: "#/components/responses/401Unauthorized" }
         "404": { $ref: "#/components/responses/404NotFound" }
@@ -531,7 +539,7 @@ paths:
           application/json:
             schema:
               type: string
-              pattern: 'ˆ.*?$'
+              pattern: '^.*?$'
               minLength: 3
               maxLength: 16
       responses:
@@ -581,7 +589,7 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Comment" }
                 minItems: 0
-                maxItems: 999999999
+                maxItems: 9999999
         "400": {$ref: "#/components/responses/400BadRequest"}
         "401": {$ref: "#/components/responses/401Unauthorized"}
         "404": {$ref: "#/components/responses/404NotFound"}
@@ -649,7 +657,7 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Profile" }
                 minItems: 0
-                maxItems: 999999999
+                maxItems: 9999999
         "400": { $ref: "#/components/responses/400BadRequest" }
         "401": { $ref: "#/components/responses/401Unauthorized" }
         "404": { $ref: "#/components/responses/404NotFound" }
@@ -665,7 +673,7 @@ paths:
           application/json:
             schema:
               type: string
-              pattern: 'ˆ.*?$'
+              pattern: '^.*?$'
               minLength: 3
               maxLength: 16
       responses:

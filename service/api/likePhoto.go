@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -37,11 +36,11 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 			return
-		} else if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			w.WriteHeader(http.StatusConflict)
-			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	} else if like.LikeId == 0 {
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 

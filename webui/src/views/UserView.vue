@@ -63,7 +63,7 @@ methods: {
       } else {
         this.comments = []
       }
-    }catch (e) {
+    } catch (e) {
       if (e.response && e.response.status !== 404) {
         this.errormsg = e.toString()
       }
@@ -75,136 +75,136 @@ methods: {
   },
 
   async refresh() {
-  try {
-        let response = await this.$axios.get("/users/"+this.username+"/profile/following/", {
-          params: {
-            followers: "true"
-          }, headers:
-              {
-                Authorization: "Bearer " + this.token
-              }
-        })
-        if (response.data!==null) {
-          this.followers=response.data
-        }else{
-          this.followers=[]
-          this.followmsg="You don't have followers"
-        }
-      }catch (e) {
-        this.errormsg = e.toString()
+    try {
+      let response = await this.$axios.get("/users/" + this.username + "/profile/following/", {
+        params: {
+          followers: "true"
+        }, headers:
+            {
+              Authorization: "Bearer " + this.token
+            }
+      })
+      if (response.data !== null) {
+        this.followers = response.data
+      } else {
+        this.followers = []
+        this.followmsg = "You don't have followers"
       }
+    } catch (e) {
+      this.errormsg = e.toString()
+    }
+    try {
+      let response = await this.$axios.get("/users/" + this.username + "/profile/following/", {
+        params: {
+          followers: "false"
+        }, headers:
+            {
+              Authorization: "Bearer " + this.token
+            }
+      })
+      if (response.data !== null) {
+        this.following = response.data
+      } else {
+        this.following = []
+        this.followingmsg = "You don't follow anyone"
+      }
+    } catch (e) {
+      this.errormsg = e.toString()
+    }
+
+    try {
+      let response = await this.$axios.get("/users/" + this.username + "/profile/photos/", {
+        headers:
+            {
+              Authorization: "Bearer " + this.token
+            }
+      })
+      if (response.data !== null) {
+        this.myPhotos = response.data
+      } else {
+        this.myPhotos = []
+        this.detailedmsg = "You haven't uploaded photos"
+      }
+      for (let i = 0; i < this.myPhotos.length; i++) {
+        await this.getData(this.myPhotos[i])
+      }
+    } catch (e) {
+      this.errormsg = e.toString()
+    }
+
+  },
+
+  async changeUsername() {
+    if (this.newName === "") {
+      this.errormsg = "You have to type a new name"
+    } else {
+      this.errormsg = ""
       try {
-        let response = await this.$axios.get("/users/"+this.username+"/profile/following/", {
-          params: {
-            followers: "false"
-          }, headers:
-              {
-                Authorization: "Bearer " + this.token
-              }
-        })
-        if (response.data!==null) {
-          this.following=response.data
-        }else{
-          this.following=[]
-          this.followingmsg="You don't follow anyone"
-        }
-      }catch (e) {
-        this.errormsg = e.toString()
-      }
-
-			try {
-				let response = await this.$axios.get("/users/" + this.username + "/profile/photos/", {
-					headers:
-						{
-							Authorization: "Bearer " + this.token
-						}
-				})
-				if (response.data!==null) {
-					this.myPhotos=response.data
-				}else{
-					this.myPhotos=[]
-					this.detailedmsg="You haven't uploaded photos"
-				}
-				for (let i=0; i<this.myPhotos.length; i++) {
-					await this.getData(this.myPhotos[i])
-				}
-			}catch(e){
-				this.errormsg = e.toString()
-			}
-
-		},
-
-  async changeUsername(){
-			if (this.newName==="") {
-				this.errormsg="You have to type a new name"
-			}else{
-				this.errormsg=""
-				try {
-					await this.$axios.put("/users/"+this.username, this.newName, {
-						headers: {
-							Authorization: "Bearer " + this.token
-						}
-					})
-					this.username=this.newName
-          localStorage.setItem("username", this.username)
-          this.newName=""
-          localStorage.setItem("searchName", this.username)
-					this.refresh()
-				}catch(e) {
-          if (e.response && e.response.status === 409) {
-            this.errormsg = "Username already taken"
-          }else {
-            this.errormsg = e.toString()
+        await this.$axios.put("/users/" + this.username, this.newName, {
+          headers: {
+            Authorization: "Bearer " + this.token
           }
-				}
-			}
-		},
+        })
+        this.username = this.newName
+        localStorage.setItem("username", this.username)
+        this.newName = ""
+        localStorage.setItem("searchName", this.username)
+        this.refresh()
+      } catch (e) {
+        if (e.response && e.response.status === 409) {
+          this.errormsg = "Username already taken"
+        } else {
+          this.errormsg = e.toString()
+        }
+      }
+    }
+  },
 
   async handleFile() {
-			this.upload=this.$refs.file.files[0]
-		},
+    this.upload = this.$refs.file.files[0]
+  },
 
   async uploadPhoto() {
-			this.detailedmsg=""
-			if (this.upload===null) {
-				this.errormsg="Select a photo"
-			}else {
-				this.errormsg=""
-				try {
-					let response = await this.$axios.post("/users/"+this.username+"/profile/photos/", this.upload, {
-						headers: {
-							Authorization: "Bearer " + this.token
-						}
-					})
-					if (response.data!==null) {
-            this.photo=response.data
-            this.photoNumber=this.photoNumber+1
-            this.myPhotos.unshift(this.photo)
-            localStorage.setItem("searchPhoto", this.photoNumber)
-            this.getData(this.photo)
+    this.detailedmsg = ""
+    if (this.upload === null) {
+      this.errormsg = "Select a photo"
+    } else {
+      this.errormsg = ""
+      try {
+        let response = await this.$axios.post("/users/" + this.username + "/profile/photos/", this.upload, {
+          headers: {
+            Authorization: "Bearer " + this.token
           }
-				}catch(e) {
-					this.errormsg = e.toString()
-				}
-			}
-		},
+        })
+        if (response.data !== null) {
+          this.photo = response.data
+          this.photoNumber = this.photoNumber + 1
+          this.myPhotos.unshift(this.photo)
+          localStorage.setItem("searchPhoto", this.photoNumber)
+          this.getData(this.photo)
+        }
+      } catch (e) {
+        this.errormsg = e.toString()
+      }
+    }
+  },
 
   async deletePhoto(id) {
-			try {
-				await this.$axios.delete("/users/" + this.username + "/profile/photos/" + id, {
-					headers:
-						{
-							Authorization: "Bearer " + this.token
-						}
-				})
-				this.photoNumber=this.photoNumber-1
-				localStorage.setItem("searchPhoto", this.photoNumber)
-				this.photoData=[]
-				this.refresh()
-			}catch(e) {
-				this.errormsg = e.toString()
-			}
-		},
+    try {
+      await this.$axios.delete("/users/" + this.username + "/profile/photos/" + id, {
+        headers:
+            {
+              Authorization: "Bearer " + this.token
+            }
+      })
+      this.photoNumber = this.photoNumber - 1
+      localStorage.setItem("searchPhoto", this.photoNumber)
+      this.photoData = []
+      this.refresh()
+    } catch (e) {
+      this.errormsg = e.toString()
+    }
+  },
 
   async goToProfile(id) {
     try {
@@ -234,9 +234,9 @@ methods: {
   },
 
   async commentPhoto(photo) {
-    if (this.commentContent==="") {
-      this.errormsg="Please type a comment"
-    }else {
+    if (this.commentContent === "") {
+      this.errormsg = "Please type a comment"
+    } else {
       this.errormsg = ""
       try {
         let response = await this.$axios.post("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/comments/", {
@@ -263,10 +263,10 @@ methods: {
   },
 
   async deleteComment(photo, comment) {
-    if (comment.Commenter!==this.username) {
-      this.errormsg="You cannot delete this comment"
-    }else {
-      this.errormsg=""
+    if (comment.Commenter !== this.username) {
+      this.errormsg = "You cannot delete this comment"
+    } else {
+      this.errormsg = ""
       try {
         await this.$axios.delete("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/comments/" + comment.CommentId, {
           headers:
@@ -281,7 +281,13 @@ methods: {
       }
     }
   },
-	},
+  async homepage() {
+    localStorage.setItem("searchName", "")
+    localStorage.setItem("searchId", "")
+    localStorage.setItem("searchPhoto", "")
+    this.$router.push({path: "/session/"})
+  }
+},
   mounted() {
   this.refresh()
 	}
@@ -294,6 +300,7 @@ methods: {
       <input type="text" v-model="newName" placeholder="Insert new username" class="form-control-sm">
       <button class="btn btn-outline-dark" @click="changeUsername">Change</button>
       <h1 class="center-horizontal h2">{{this.username}}'s Profile</h1>
+      <button class="btn btn-outline-dark" @click="homepage">Homepage</button>
     </div>
     <div class="flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
       <div class="center-vertical d-flex flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -345,3 +352,4 @@ methods: {
 <style>
 
 </style>
+

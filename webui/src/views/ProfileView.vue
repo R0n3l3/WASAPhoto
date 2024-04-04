@@ -65,6 +65,8 @@ export default {
         }
       }catch (e) {
         if (e.response && e.response.status !== 404) {
+          this.errormsg = "Data not found"
+        }else{
           this.errormsg = e.toString()
         }
       }
@@ -82,6 +84,8 @@ export default {
         }
       }catch(e) {
         if (e.response && e.response.status !== 404) {
+          this.errormsg = "Data not found"
+        }else{
           this.errormsg = e.toString()
         }
       }
@@ -142,10 +146,8 @@ export default {
           }
         })
       }catch(e){
-        if (e.response && e.response.status !== 404) {
-          this.errormsg = e.toString()
+        this.$router.push({path: "/err"})
         }
-      }
       await this.getFollow()
       try {
         let response = await this.$axios.get("/users/" + this.profileName + "/profile/photos/", {
@@ -164,7 +166,7 @@ export default {
           await this.getData(this.photos[i])
         }
       }catch(e){
-        this.errormsg = e.toString()
+        this.$router.push({path: "/err"})
       }
 
     },
@@ -230,8 +232,11 @@ export default {
 					})
 					photo.LikeNumber+=1
 				} catch (e) {
-					this.errormsg = e.toString()
-				}
+          if (e.response && e.response.status === 409) {
+            this.errormsg = "You already liked this photo"
+				}else{
+          this.errormsg=e.toString()}
+        }
 			}
 		},
 
@@ -272,13 +277,13 @@ export default {
 		},
 
 		async commentPhoto(photo) {
-			if (this.content==="") {
+			if (this.commentContent==="") {
 				this.errormsg="Please type a comment"
 			}else {
 				this.errormsg=""
 				try {
 					let response = await this.$axios.post("/users/"+this.profileName+"/profile/photos/"+photo.PhotoId+"/comments/", {
-						content: this.content,
+						content: this.commentContent,
 						commenter: this.username
 					}, {
 						headers: {
@@ -353,6 +358,12 @@ export default {
         this.errormsg = e.toString()
       }
     },
+    async homepage() {
+      localStorage.setItem("searchName", "")
+      localStorage.setItem("searchId", "")
+      localStorage.setItem("searchPhoto", "")
+      this.$router.push({path: "/session/"})
+    }
 	},
 	mounted() {
 		this.refresh()
@@ -364,15 +375,18 @@ export default {
 <template>
   <div>
     <div class="center-vertical d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h1 class="center-horizontal h2">{{this.profileName}}'s Profile</h1>
+      <button class="btn btn-outline-dark" @click="homepage">Homepage</button>
+    </div>
+    <div class="center-vertical d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
       <button class="btn btn-outline-success" @click="follow">Follow User</button>
       <button class="btn btn-outline-danger" @click="unfollow">Unfollow User</button>
-      <h1 class="center-horizontal h2">{{this.profileName}}'s Profile</h1>
+      <p class="center-horizontal">This user uploaded {{this.photoNumber}} photos. </p>
       <button class="btn btn-outline-success" @click="ban">Ban User</button>
       <button class="btn btn-outline-danger" @click="unban">Unban User</button>
     </div>
-    <ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
-    <div class="border-bottom pt-3 pb-2 mb-3" v-for="photo in photos" :key="photo.PhotoId">
-      <p class="center-horizontal">This user uploaded {{this.photoNumber}} photos. </p>
+      <div class="border-bottom pt-3 pb-2 mb-3" v-for="photo in photos" :key="photo.PhotoId">
       <div class="border-bottom pt-3 pb-2 mb-3 d-flex flex-wrap flex-md-nowrap align-items-center">
         <img :src="'data:image/*; base64,' + photo.Image" alt="photo" class="resizable-image with-border">
         <div class="scroll-container with-border-color" v-for="data in filteredPhotoData(photo.PhotoId)" :key="data.PhotoId">

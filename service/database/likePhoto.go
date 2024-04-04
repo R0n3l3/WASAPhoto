@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"strings"
 )
 
 func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
@@ -18,31 +17,39 @@ func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
 		return like, err
 	}
 
-	result, err := db.c.Exec("INSERT INTO likes(liker, photoLiked) VALUES (?, ?)", id, photoId)
+	var exist bool
+	err = db.c.QueryRow("SELECT 1 FROM likes WHERE liker=? AND photoLiked=?", id, photoId).Scan(&exist)
 	if err != nil {
-		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			log.Println(err.Error())
+		if errors.Is(err, sql.ErrNoRows) {
+			result, err := db.c.Exec("INSERT INTO likes(liker, photoLiked) VALUES (?, ?)", id, photoId)
+			if err != nil {
+				log.Println(err.Error())
+				return like, err
+			}
+			likeId, err := result.LastInsertId()
+			if err != nil {
+				log.Println(err.Error())
+				return like, err
+			}
+			like, err = db.GetLike(uint64(likeId))
+			if err != nil {
+				if !errors.Is(err, sql.ErrNoRows) {
+					log.Println(err.Error())
+				}
+				return like, err
+			}
+			_, err = db.c.Exec("UPDATE photos SET likeNumber=likeNumber+1 WHERE photoId=?", photoId)
+			if err != nil {
+				if !errors.Is(err, sql.ErrNoRows) {
+					log.Println(err.Error())
+				}
+				return like, err
+			}
+			return like, nil
+		} else {
+			log.Println(err)
+			return like, err
 		}
-		return like, err
-	}
-	likeId, err := result.LastInsertId()
-	if err != nil {
-		log.Println(err.Error())
-		return like, err
-	}
-	like, err = db.GetLike(uint64(likeId))
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			log.Println(err.Error())
-		}
-		return like, err
-	}
-	_, err = db.c.Exec("UPDATE photos SET likeNumber=likeNumber+1 WHERE photoId=?", photoId)
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			log.Println(err.Error())
-		}
-		return like, err
 	}
 	return like, nil
 }

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/julienschmidt/httprouter"
-	"io"
 	"net/http"
 )
 
@@ -18,12 +17,9 @@ func (rt *_router) getBan(w http.ResponseWriter, r *http.Request, ps httprouter.
 	}
 
 	banner := ps.ByName("username")
-	banned, err := io.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	isBanned, err := rt.db.IsBanned(banner, string(banned))
+	banned := r.URL.Query().Get("banned")
+
+	isBanned, err := rt.db.IsBanned(banner, banned)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
@@ -32,7 +28,7 @@ func (rt *_router) getBan(w http.ResponseWriter, r *http.Request, ps httprouter.
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	if isBanned {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
