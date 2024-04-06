@@ -200,6 +200,7 @@ components:
         image:
           description: The image
           type: string
+          pattern: '^.*?$'
           format: link
           example: "image.png"
           minLength: 5
@@ -271,13 +272,14 @@ paths:
         If the user exists, the user identifier is returned.
       operationId: doLogin
       requestBody:
-        description: User details
         content:
           application/json:
             schema:
+              description: User details
               type: object
               properties:
                 name:
+                  description: Username
                   type: string
                   example: Maria
                   pattern: '^.*?$'
@@ -290,9 +292,11 @@ paths:
           content:
             application/json:
               schema:
+                description: User created\found
                 type: object
                 properties:
                   identifier:
+                    description: ID
                     type: integer
                     example: 1
 
@@ -342,6 +346,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Username
               type: string
               pattern: '^.*?$'
               minLength: 3
@@ -368,6 +373,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Username
               type: string
               pattern: '^.*?$'
               minLength: 3
@@ -389,6 +395,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Username
               type: string
               pattern: '^.*?$'
               minLength: 3
@@ -432,6 +439,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Stream found
                 type: array
                 items: {$ref: "#/components/schemas/Photo"}
                 minItems: 0
@@ -456,6 +464,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Photos found
                 type: array
                 items: { $ref: "#/components/schemas/Photo" }
                 minItems: 0
@@ -474,8 +483,10 @@ paths:
         content:
           application/json:
             schema:
+              description: Link of the photo
               type: string
               format: link
+              pattern: '^.*?$'
               minLength: 5
               maxLength: 9999999
       responses:
@@ -520,6 +531,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Likes found
                 type: array
                 items: { $ref: "#/components/schemas/Like" }
                 minItems: 0
@@ -538,6 +550,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Liker
               type: string
               pattern: '^.*?$'
               minLength: 3
@@ -586,6 +599,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Comments found
                 type: array
                 items: { $ref: "#/components/schemas/Comment" }
                 minItems: 0
@@ -654,6 +668,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Profiles of following\followers
                 type: array
                 items: { $ref: "#/components/schemas/Profile" }
                 minItems: 0
@@ -672,6 +687,7 @@ paths:
         content:
           application/json:
             schema:
+              description: Username
               type: string
               pattern: '^.*?$'
               minLength: 3
