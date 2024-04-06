@@ -1,17 +1,19 @@
 <script>
-
 import ErrorMsg from "../components/ErrorMsg.vue";
 
 export default {
 	components: {ErrorMsg},
+
 	data: function () {
 		return {
 			errormsg: "",
       detailedmsg: "",
       search: "",
       commentContent: "",
+
       username: localStorage.getItem("username"),
       token: localStorage.getItem("token"),
+
       profile: {
         profileId: 0,
         profileName: "",
@@ -29,6 +31,7 @@ export default {
         liker: 0,
         photoLiked: 0,
       },
+
       stream: [],
       comments: [],
       photosComments: [],
@@ -36,8 +39,17 @@ export default {
       likes: [],
 		}
 	},
+
 	methods: {
-    async getMyProfile() {
+    filteredPhotoData(photoId) {
+      return this.photoData.filter(data => data.photoId === photoId);
+    },
+
+    filteredLikes(userId) {
+      return this.likes.filter(l => parseInt(l.Liker) === userId);
+    },
+
+    async getProfile() {
       try {
         let response = await this.$axios.get("/users/" + this.username, {
           params: {
@@ -50,10 +62,6 @@ export default {
         this.profile.profileName = response.data.ProfileName
         this.profile.profileId = response.data.ProfileId
         this.profile.photoNumber = response.data.PhotoNumber
-        localStorage.setItem("searchName", this.profile.profileName)
-        localStorage.setItem("searchId", this.profile.profileId)
-        localStorage.setItem("searchPhoto", this.profile.photoNumber)
-        this.$router.push({path: "/users/" + this.profile.profileName + "/view/"})
       } catch (e) {
         if (e.response && e.response.status === 404) {
           this.errormsg = "User not found"
@@ -62,12 +70,56 @@ export default {
         }
       }
     },
-    filteredPhotoData(photoId) {
-      return this.photoData.filter(data => data.photoId === photoId);
-      },
 
-    filteredLikes(userId) {
-      return this.likes.filter(l => parseInt(l.Liker) === userId);
+    async getMyProfile() {
+      await this.getProfile()
+      localStorage.setItem("searchName", this.profile.profileName)
+      localStorage.setItem("searchId", this.profile.profileId)
+      localStorage.setItem("searchPhoto", this.profile.photoNumber)
+      this.$router.push({path: "/users/" + this.profile.profileName + "/view/"})
+    },
+
+    async getUser() {
+      if (this.search === "") {
+        this.errormsg = "You must insert a username"
+      } else {
+        this.errormsg = ""
+        await this.getProfile()
+        if (this.profile.profileName === this.username) {
+          this.errormsg = "You cannot search yourself! Please use the 'My profile' button in the nav bar"
+        } else {
+          localStorage.setItem("searchName", this.profile.profileName)
+          localStorage.setItem("searchId", this.profile.profileId)
+          localStorage.setItem("searchPhoto", this.profile.photoNumber)
+          this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
+        }
+      }
+    },
+
+    async goToProfile(id) {
+      try {
+        let response = await this.$axios.get("/users/" + this.username, {
+          params: {
+            search: id
+          },
+          headers: {
+            Authorization: "Bearer " + this.token
+          }
+        })
+        this.profile.profileName = response.data.ProfileName
+        this.profile.profileId = response.data.ProfileId
+        this.profile.photoNumber = response.data.PhotoNumber
+        localStorage.setItem("searchName", this.profile.profileName)
+        localStorage.setItem("searchId", this.profile.profileId)
+        localStorage.setItem("searchPhoto", this.profile.photoNumber)
+        this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
+      } catch (e) {
+        if (e.response && e.response.status === 404) {
+          this.errormsg = "User not found"
+        } else {
+          this.errormsg = e.toString()
+        }
+      }
     },
 
     async getData(photo) {
@@ -83,7 +135,7 @@ export default {
         } else {
           this.comments = []
         }
-      }catch (e) {
+      } catch (e) {
         if (e.response && e.response.status !== 404) {
           this.errormsg = e.toString()
         }
@@ -132,70 +184,6 @@ export default {
       } catch (e) {
         this.errormsg = e.toString()
       }
-
-    },
-
-    async getUser() {
-      if (this.search === "") {
-        this.errormsg = "You must insert a username"
-      } else {
-        this.errormsg = ""
-        try {
-          let response = await this.$axios.get("/users/" + this.username, {
-            params: {
-              search: this.search
-            },
-            headers: {
-              Authorization: "Bearer " + this.token
-            }
-          })
-          this.profile.profileName = response.data.ProfileName
-          this.profile.profileId = response.data.ProfileId
-          this.profile.photoNumber = response.data.PhotoNumber
-          if (this.profile.profileName === this.username) {
-            this.errormsg = "You cannot search yourself! Please use the 'My profile' button in the nav bar"
-          } else {
-            localStorage.setItem("searchName", this.profile.profileName)
-            localStorage.setItem("searchId", this.profile.profileId)
-            localStorage.setItem("searchPhoto", this.profile.photoNumber)
-            this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
-          }
-        } catch (e) {
-          if (e.response && e.response.status === 404) {
-            this.errormsg = "User not found"
-          } else {
-            this.errormsg = e.toString()
-          }
-
-        }
-      }
-    },
-
-    async goToProfile(id) {
-      try {
-        let response = await this.$axios.get("/users/" + this.username, {
-          params: {
-            search: id
-          },
-          headers: {
-            Authorization: "Bearer " + this.token
-          }
-        })
-        this.profile.profileName = response.data.ProfileName
-        this.profile.profileId = response.data.ProfileId
-        this.profile.photoNumber = response.data.PhotoNumber
-        localStorage.setItem("searchName", this.profile.profileName)
-        localStorage.setItem("searchId", this.profile.profileId)
-        localStorage.setItem("searchPhoto", this.profile.photoNumber)
-        this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
-      } catch (e) {
-        if (e.response && e.response.status === 404) {
-          this.errormsg = "User not found"
-        } else {
-          this.errormsg = e.toString()
-        }
-      }
-
     },
 
     async commentPhoto(photo) {
@@ -340,6 +328,3 @@ export default {
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
 	</div>
 </template>
-
-<style>
-</style>

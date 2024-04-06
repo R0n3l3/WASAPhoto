@@ -24,11 +24,13 @@ func (db *appdbimpl) GetMyPhotos(name string) ([]Photo, error) {
 		}
 		return nil, err
 	}
+
 	defer func(rows *sql.Rows) {
 		if closeErr := res.Close(); closeErr != nil {
 			log.Println(closeErr.Error())
 		}
 	}(res)
+
 	for res.Next() {
 		var photo Photo
 		err = res.Scan(&photo.PhotoId, &photo.Uploader, &photo.UploadTime, &photo.LikeNumber, &photo.CommentNumber, &photo.Image)

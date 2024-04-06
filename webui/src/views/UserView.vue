@@ -1,78 +1,115 @@
-
 <script>
-
 import ErrorMsg from "../components/ErrorMsg.vue";
 
 export default {
-components: {ErrorMsg},
-data: function () {
-  return {
-    errormsg: "",
-    detailedmsg: "",
-    followmsg: "",
-    followingmsg:"",
-    commentContent: "",
-    newName:"",
-    username: localStorage.getItem("searchName"),
-    token: localStorage.getItem("token"),
-    photoNumber: parseInt(localStorage.getItem("searchPhoto")),
-    profile: {
-      photoNumber: 0,
-      profileId: 0,
-      profileName: "",
-    },
-    comment: {
-      commentId: 0,
-      commenter: "",
-      commentTime: "",
-      content : "",
-      photoComment: 0,
-    },
-    photo: {
-      photoId: 0,
-      uploader: 0,
-      uploadTime: "",
-      likeNumber: 0,
-      commentNumber: 0,
-      image: [],
-    },
-    myPhotos: [],
-    photoData: [],
-    comments: [],
-    likes: [],
-    followers: [],
-    following: [],
-    upload: null,
-		}
-},
-methods: {
-  filteredPhotoData(photoId) {
-    return this.photoData.filter(data => data.photoId === photoId);
+  components: {ErrorMsg},
+
+  data: function () {
+    return {
+      errormsg: "",
+      detailedmsg: "",
+      followmsg: "",
+      followingmsg:"",
+      commentContent: "",
+      newName:"",
+
+      username: localStorage.getItem("searchName"),
+      token: localStorage.getItem("token"),
+      photoNumber: parseInt(localStorage.getItem("searchPhoto")),
+
+      profile: {
+        photoNumber: 0,
+        profileId: 0,
+        profileName: "",
+      },
+      comment: {
+        commentId: 0,
+        commenter: "",
+        commentTime: "",
+        content : "",
+        photoComment: 0,
+      },
+      photo: {
+        photoId: 0,
+        uploader: 0,
+        uploadTime: "",
+        likeNumber: 0,
+        commentNumber: 0,
+        image: [],
+      },
+
+      myPhotos: [],
+      photoData: [],
+      comments: [],
+      likes: [],
+      followers: [],
+      following: [],
+
+      upload: null,
+    }
   },
 
-  async getData(photo) {
-    try {
-      let response = await this.$axios.get("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/comments/", {
-        headers:
-            {
-              Authorization: "Bearer " + this.token
-            }
+  methods: {
+    filteredPhotoData(photoId) {
+      return this.photoData.filter(data => data.photoId === photoId);
+      },
+
+    async homepage() {
+      localStorage.setItem("searchName", "")
+      localStorage.setItem("searchId", "")
+      localStorage.setItem("searchPhoto", "")
+      this.$router.push({path: "/session/"})
+    },
+
+    async goToProfile(id) {
+      try {
+        let response = await this.$axios.get("/users/" + this.username, {
+          params: {
+            search: id
+          },
+          headers: {
+            Authorization: "Bearer " + this.token
+          }
+        })
+        this.profile.profileName = response.data.ProfileName
+        this.profile.profileId = response.data.ProfileId
+        this.profile.photoNumber = response.data.PhotoNumber
+        localStorage.setItem("searchName", this.profile.profileName)
+        localStorage.setItem("searchId", this.profile.profileId)
+        localStorage.setItem("searchPhoto", this.profile.photoNumber)
+        this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
+      } catch (e) {
+        if (e.response && e.response.status === 404) {
+          this.errormsg = "User not found"
+        } else {
+          this.errormsg = e.toString()
+        }
+      }
+    },
+
+    async getData(photo) {
+      try {
+        let response = await this.$axios.get("/users/" + photo.Uploader + "/profile/photos/" + photo.PhotoId + "/comments/", {
+          headers:
+              {
+                Authorization: "Bearer " + this.token
+              }
+        })
+        if (response.data !== null) {
+          this.comments = response.data
+        } else {
+          this.comments = []
+        }
+      } catch (e) {
+        if (e.response && e.response.status !== 404) {
+          this.errormsg = e.toString()
+        }
+      }
+      this.photoData.push({
+        photoId: photo.PhotoId,
+        photoComments: this.comments,
       })
-      if (response.data !== null) {
-        this.comments = response.data
-      } else {
-        this.comments = []
-      }
-    } catch (e) {
-      if (e.response && e.response.status !== 404) {
-        this.errormsg = e.toString()
-      }
-    }
-    this.photoData.push({
-      photoId: photo.PhotoId,
-      photoComments: this.comments,
-    })
-  },
+    },
 
   async refresh() {
     try {
@@ -111,7 +148,6 @@ methods: {
     } catch (e) {
       this.errormsg = e.toString()
     }
-
     try {
       let response = await this.$axios.get("/users/" + this.username + "/profile/photos/", {
         headers:
@@ -206,33 +242,6 @@ methods: {
     }
   },
 
-  async goToProfile(id) {
-    try {
-      let response = await this.$axios.get("/users/" + this.username, {
-        params: {
-          search: id
-        },
-        headers: {
-          Authorization: "Bearer " + this.token
-        }
-      })
-      this.profile.profileName = response.data.ProfileName
-      this.profile.profileId = response.data.ProfileId
-      this.profile.photoNumber = response.data.PhotoNumber
-      localStorage.setItem("searchName", this.profile.profileName)
-      localStorage.setItem("searchId", this.profile.profileId)
-      localStorage.setItem("searchPhoto", this.profile.photoNumber)
-      this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
-    } catch (e) {
-      if (e.response && e.response.status === 404) {
-        this.errormsg = "User not found"
-      } else {
-        this.errormsg = e.toString()
-      }
-    }
-
-  },
-
   async commentPhoto(photo) {
     if (this.commentContent === "") {
       this.errormsg = "Please type a comment"
@@ -280,12 +289,6 @@ methods: {
         this.errormsg = e.toString()
       }
     }
-  },
-  async homepage() {
-    localStorage.setItem("searchName", "")
-    localStorage.setItem("searchId", "")
-    localStorage.setItem("searchPhoto", "")
-    this.$router.push({path: "/session/"})
   }
 },
   mounted() {
@@ -328,7 +331,6 @@ methods: {
         <input type="text" v-model="commentContent" placeholder="Type a new comment" class="form-control-plaintext">
         <button class="btn btn-outline-success" @click="commentPhoto(photo)">Add a comment</button>
     </div>
-
     <p> Your followers: </p>
     <div class="pb-2 mb-3 with-border-color scroll-container-follow">
       <ErrorMsg v-if="followmsg" :msg="followmsg" class="center-vertical center-horizontal"></ErrorMsg>
@@ -348,8 +350,3 @@ methods: {
   </div>
   </div>
 </template>
-
-<style>
-
-</style>
-

@@ -3,14 +3,17 @@ import ErrorMsg from "../components/ErrorMsg.vue";
 
 export default {
 	components: {ErrorMsg},
+
 	data: function() {
 		return {
 			errormsg: "",
       detailedmsg: "",
       username: "",
+
       id: 0,
 		}
 	},
+
 	methods: {
 		async doLogin () {
 			if (this.username==="") {
@@ -58,12 +61,7 @@ export default {
         <button class="center-horizontal btn btn-outline-dark mb-3" @click="doLogin">Login</button>
       </div>
     </div>
-
 		<ErrorMsg v-if="errormsg" :msg="errormsg" class="center-vertical center-horizontal"></ErrorMsg>
 		<ErrorMsg v-if="detailedmsg" :msg="detailedmsg" class="center-vertical center-horizontal"></ErrorMsg>
 	</div>
 </template>
-
-<style>
-
-</style>

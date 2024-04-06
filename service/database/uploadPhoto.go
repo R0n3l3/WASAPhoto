@@ -22,11 +22,13 @@ func (db *appdbimpl) UploadPhoto(uploader string, image []byte) (Photo, error) {
 		log.Println(err.Error())
 		return photo, err
 	}
+
 	photoId, err := result.LastInsertId()
 	if err != nil {
 		log.Println(err.Error())
 		return photo, err
 	}
+
 	photo, err = db.GetPhoto(uint64(photoId))
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {

@@ -8,7 +8,6 @@ import (
 )
 
 func (db *appdbimpl) SetMyUsername(u string, new string) error {
-
 	id, err := db.GetUserId(u)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {

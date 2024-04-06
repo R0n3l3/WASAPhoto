@@ -8,7 +8,6 @@ import (
 )
 
 func (db *appdbimpl) BanUser(toBan string, banning string) error {
-
 	idToBan, err := db.GetUserId(toBan)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
@@ -32,6 +31,5 @@ func (db *appdbimpl) BanUser(toBan string, banning string) error {
 		}
 		return err
 	}
-
 	return nil
 }

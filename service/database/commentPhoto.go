@@ -14,11 +14,13 @@ func (db *appdbimpl) CommentPhoto(photoId uint64, commenter string, content stri
 		log.Println(err.Error())
 		return comment, err
 	}
+
 	commentId, err := result.LastInsertId()
 	if err != nil {
 		log.Println(err.Error())
 		return comment, err
 	}
+
 	comment, err = db.GetComment(uint64(commentId))
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {

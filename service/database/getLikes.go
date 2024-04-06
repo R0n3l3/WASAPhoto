@@ -16,11 +16,13 @@ func (db *appdbimpl) GetLikes(id uint64) ([]Like, error) {
 		}
 		return nil, err
 	}
+
 	defer func(rows *sql.Rows) {
 		if closeErr := res.Close(); closeErr != nil {
 			log.Println(closeErr.Error())
 		}
 	}(res)
+
 	for res.Next() {
 		var like Like
 		err = res.Scan(&like.LikeId, &like.Liker, &like.PhotoLiked)

@@ -8,7 +8,6 @@ import (
 
 func (db *appdbimpl) DoLogin(u string) (uint64, error) {
 	id, err := db.GetUserId(u)
-
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			res, err := db.c.Exec("INSERT INTO profiles(profileName, photoNumber) VALUES (?, 0)", u)

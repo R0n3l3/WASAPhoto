@@ -16,11 +16,13 @@ func (db *appdbimpl) GetFollowers(me string) ([]Profile, error) {
 		}
 		return followers, err
 	}
+
 	defer func(rows *sql.Rows) {
 		if closeErr := res.Close(); closeErr != nil {
 			log.Println(closeErr.Error())
 		}
 	}(res)
+
 	for res.Next() {
 		var profile Profile
 		err = res.Scan(&profile.ProfileId, &profile.ProfileName, &profile.PhotoNumber)

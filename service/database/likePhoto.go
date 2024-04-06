@@ -8,6 +8,7 @@ import (
 
 func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
 	var like Like
+	var exist bool
 
 	id, err := db.GetUserId(liker)
 	if err != nil {
@@ -17,7 +18,6 @@ func (db *appdbimpl) LikePhoto(photoId uint64, liker string) (Like, error) {
 		return like, err
 	}
 
-	var exist bool
 	err = db.c.QueryRow("SELECT 1 FROM likes WHERE liker=? AND photoLiked=?", id, photoId).Scan(&exist)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

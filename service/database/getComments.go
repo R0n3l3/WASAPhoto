@@ -16,6 +16,7 @@ func (db *appdbimpl) GetComments(id uint64) ([]Comment, error) {
 		}
 		return nil, err
 	}
+
 	defer func(rows *sql.Rows) {
 		if closeErr := res.Close(); closeErr != nil {
 			log.Println(closeErr.Error())

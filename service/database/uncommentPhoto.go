@@ -21,6 +21,5 @@ func (db *appdbimpl) UncommentPhoto(commentId uint64, photoId uint64) error {
 		}
 		return err
 	}
-
 	return nil
 }
