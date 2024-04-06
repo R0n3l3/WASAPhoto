@@ -10,14 +10,13 @@ import (
 )
 
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
-	w.Header().Set("content-type", "application/json")
 
 	myName := ps.ByName("username")
 
@@ -30,6 +29,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	err = json.NewEncoder(w).Encode(stream)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

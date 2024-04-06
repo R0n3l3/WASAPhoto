@@ -13,18 +13,19 @@ import (
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	link, err := io.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	uploaderUsername := ps.ByName("username")
-
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
+	link, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	uploaderUsername := ps.ByName("username")
 
 	photo, err := rt.db.UploadPhoto(uploaderUsername, link)
 	if err != nil {

@@ -10,6 +10,14 @@ import (
 )
 
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
+
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	like, err := strconv.Atoi(ps.ByName("likeId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -19,12 +27,6 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	photo, err := strconv.Atoi(ps.ByName("photoId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
-	if !isAuth {
-		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 

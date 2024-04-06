@@ -10,8 +10,8 @@ import (
 )
 
 func (rt *_router) getMyPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
 	w.Header().Set("content-type", "application/json")
+
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -29,11 +29,11 @@ func (rt *_router) getMyPhotos(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	err = json.NewEncoder(w).Encode(myPhotos)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-
 }

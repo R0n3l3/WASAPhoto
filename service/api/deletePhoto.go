@@ -12,18 +12,19 @@ import (
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	id, err := strconv.Atoi(ps.ByName("photoId"))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	uploader := ps.ByName("username")
-
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
+	id, err := strconv.Atoi(ps.ByName("photoId"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	uploader := ps.ByName("username")
 
 	err = rt.db.DeletePhoto(uint64(id), uploader)
 	if err != nil {

@@ -10,8 +10,8 @@ import (
 )
 
 func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
 	w.Header().Set("content-type", "application/json")
+
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -19,8 +19,8 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	me := ps.ByName("username")
-	getFollowers := r.URL.Query().Get("followers")
 
+	getFollowers := r.URL.Query().Get("followers")
 	if getFollowers == "true" {
 		followers, err := rt.db.GetFollowers(me)
 		if err != nil {

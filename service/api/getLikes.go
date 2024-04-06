@@ -11,8 +11,8 @@ import (
 )
 
 func (rt *_router) getLikes(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
 	w.Header().Set("content-type", "application/json")
+
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -34,11 +34,11 @@ func (rt *_router) getLikes(w http.ResponseWriter, r *http.Request, ps httproute
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	err = json.NewEncoder(w).Encode(likes)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-
 }

@@ -14,18 +14,19 @@ import (
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	toFollow, err := io.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	me := ps.ByName("username")
-
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
+	toFollow, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	me := ps.ByName("username")
 
 	isBanned, err := rt.db.IsBanned(string(toFollow), me)
 	if err != nil {
@@ -36,7 +37,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	if isBanned {
 		w.WriteHeader(http.StatusNotFound)
 		return

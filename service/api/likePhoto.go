@@ -14,6 +14,12 @@ import (
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
+	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	myName, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -23,12 +29,6 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	id, err := strconv.Atoi(ps.ByName("photoId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
-	if !isAuth {
-		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 

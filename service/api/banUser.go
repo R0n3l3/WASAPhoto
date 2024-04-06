@@ -13,17 +13,17 @@ import (
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	myName := ps.ByName("username")
-	toBan, err := io.ReadAll(r.Body)
-
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	myName := ps.ByName("username")
+
+	toBan, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -45,11 +45,11 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	err = rt.db.UnfollowUser(myName, string(toBan))
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	w.WriteHeader(http.StatusNoContent)
 }

@@ -11,17 +11,16 @@ import (
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	me := ps.ByName("username")
-	toUnfollow := ps.ByName("followingId")
-
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	err := rt.db.UnfollowUser(toUnfollow, me)
+	me := ps.ByName("username")
+	toUnfollow := ps.ByName("followingId")
 
+	err := rt.db.UnfollowUser(toUnfollow, me)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
@@ -31,5 +30,4 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
-
 }
