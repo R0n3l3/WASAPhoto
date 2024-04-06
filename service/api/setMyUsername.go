@@ -3,13 +3,14 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"github.com/R0n3l3/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
 	"strings"
 )
 
-func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	newName, err := io.ReadAll(r.Body)

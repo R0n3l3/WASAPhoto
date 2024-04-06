@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"github.com/R0n3l3/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -14,7 +15,7 @@ type CommentRequest struct {
 	Commenter string `json:"commenter"`
 }
 
-func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
 	photo, err := strconv.Atoi(ps.ByName("photoId"))

@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"github.com/R0n3l3/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
 	"strconv"
 )
 
-func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	myName, err := io.ReadAll(r.Body)

@@ -3,12 +3,13 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"github.com/R0n3l3/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
-func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	like, err := strconv.Atoi(ps.ByName("likeId"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

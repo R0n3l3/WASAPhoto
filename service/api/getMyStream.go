@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"github.com/R0n3l3/WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
-func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	isAuth := rt.db.IsAuthorized(getToken(r.Header.Get("Authorization")))
 	if !isAuth {
