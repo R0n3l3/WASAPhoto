@@ -184,7 +184,6 @@ func New(db *sql.DB) (AppDatabase, error) {
     commentTime TIMESTAMP NOT NULL,
     content TEXT NOT NULL,
     photoComment INTEGER NOT NULL,
-	FOREIGN KEY (commenter) REFERENCES users(username),
 	FOREIGN KEY (photoComment) REFERENCES photos(photoId));`
 		_, err = db.Exec(commentsDatabase)
 		if err != nil {

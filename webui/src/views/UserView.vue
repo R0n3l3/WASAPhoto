@@ -185,6 +185,7 @@ export default {
         localStorage.setItem("username", this.username)
         this.newName = ""
         localStorage.setItem("searchName", this.username)
+        this.photoData=[]
         this.refresh()
       } catch (e) {
         if (e.response && e.response.status === 409) {
