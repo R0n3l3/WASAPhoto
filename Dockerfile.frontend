@@ -4,7 +4,7 @@ WORKDIR /app
 COPY webui webui
 
 WORKDIR /app/webui
-RUN npm run build-prod
+RUN npm config set update-notifier false && npm install && npm install cors && npm run build-prod
 
 FROM nginx:stable
 

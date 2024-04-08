@@ -22,21 +22,22 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	myName := ps.ByName("username")
 	name := r.URL.Query().Get("search")
 
-	id, err := strconv.ParseInt(name, 10, 64)
+	isBanned, err := rt.db.IsBanned(name, myName)
 	if err != nil {
-		isBanned, err := rt.db.IsBanned(name, myName)
-		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if isBanned {
+		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if isBanned {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	id, err := strconv.ParseInt(name, 10, 64)
+	if err != nil {
 		profile, err := rt.db.GetUserProfile(name)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)

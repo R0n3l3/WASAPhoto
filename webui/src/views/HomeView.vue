@@ -49,11 +49,11 @@ export default {
       return this.likes.filter(l => parseInt(l.Liker) === userId);
     },
 
-    async getProfile() {
+    async getProfile(name) {
       try {
         let response = await this.$axios.get("/users/" + this.username, {
           params: {
-            search: this.username
+            search: name
           },
           headers: {
             Authorization: "Bearer " + this.token
@@ -72,7 +72,7 @@ export default {
     },
 
     async getMyProfile() {
-      await this.getProfile()
+      await this.getProfile(this.username)
       localStorage.setItem("searchName", this.profile.profileName)
       localStorage.setItem("searchId", this.profile.profileId)
       localStorage.setItem("searchPhoto", this.profile.photoNumber)
@@ -83,15 +83,17 @@ export default {
       if (this.search === "") {
         this.errormsg = "You must insert a username"
       } else {
-        this.errormsg = ""
-        await this.getProfile()
-        if (this.profile.profileName === this.username) {
-          this.errormsg = "You cannot search yourself! Please use the 'My profile' button in the nav bar"
+        if (this.search === this.username) {
+          this.errormsg = "You cannot search yourself! Please use the 'Go to my profile' button"
         } else {
-          localStorage.setItem("searchName", this.profile.profileName)
-          localStorage.setItem("searchId", this.profile.profileId)
-          localStorage.setItem("searchPhoto", this.profile.photoNumber)
-          this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
+          this.errormsg = ""
+          await this.getProfile(this.search)
+          if (this.errormsg === "") {
+            localStorage.setItem("searchName", this.profile.profileName)
+            localStorage.setItem("searchId", this.profile.profileId)
+            localStorage.setItem("searchPhoto", this.profile.photoNumber)
+            this.$router.push({path: "/users/" + this.profile.profileName + "/profile"})
+          }
         }
       }
     },
