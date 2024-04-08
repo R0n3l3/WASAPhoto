@@ -398,7 +398,9 @@ export default {
               {
                 Authorization: "Bearer " + this.token
               }
+
         })
+        this.errormsg = "Unban successful"
       } catch (e) {
         this.errormsg = e.toString()
       }
