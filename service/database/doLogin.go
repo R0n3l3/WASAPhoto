@@ -10,17 +10,20 @@ func (db *appdbimpl) DoLogin(u string) (uint64, error) {
 	id, err := db.GetUserId(u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			res, err := db.c.Exec("INSERT INTO profiles(profileName, photoNumber) VALUES (?, 0)", u)
+			statement := "INSERT INTO profiles(profileName, photoNumber) VALUES ('" + u + "', 0)"
+			res, err := db.c.Exec(statement)
 			if err != nil {
 				log.Println(err.Error())
 				return id, err
 			}
+
 			idProf, err := res.LastInsertId()
 			if err != nil {
 				log.Println(err.Error())
 				return id, err
 			}
-			res, err = db.c.Exec("INSERT INTO users(username, userProfile) VALUES (?, ?)", u, idProf)
+			prof, _ := db.GetUserProfileId(uint64(idProf))
+			res, err = db.c.Exec("INSERT INTO users(username, userProfile) VALUES (?, ?)", prof.ProfileName, uint64(idProf))
 			if err != nil {
 				log.Println(err.Error())
 				return id, err
