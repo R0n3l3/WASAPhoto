@@ -42,8 +42,9 @@ type AppDatabase interface {
 	IsAuthorized(token uint64) bool
 	IsBanned(myName string, theirName string) (bool, error)
 
-	DoLogin(u string) (uint64, error)
+	DoLogin(u string) ([]Profile, error)
 	GetUserProfile(u string) (Profile, error)
+	GetUserProfiles(u string) ([]Profile, error)
 	GetUserProfileId(id uint64) (Profile, error)
 	SetMyUsername(u string, new string) error
 

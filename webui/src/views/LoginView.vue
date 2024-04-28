@@ -9,8 +9,8 @@ export default {
 			errormsg: "",
       detailedmsg: "",
       username: "",
-
       id: 0,
+      profiles: []
 		}
 	},
 
@@ -23,10 +23,21 @@ export default {
 				this.errormsg=""
 				try {
 					let response = await this.$axios.post("/session/", this.username)
-					this.id=response.data
-					localStorage.setItem("token", this.id)
-					localStorage.setItem("username", this.username)
-					this.$router.push({path:"/session/"})
+					this.profiles=response.data
+          let count = 0
+          for (let i=0; i<this.profiles.length; i++) {
+            this.id=this.profiles[i].ProfileId
+            console.log(this.profiles[i].ProfileName)
+            console.log(this.profiles[i].ProfileId)
+            count++
+          }
+          if (count>1) {
+            console.log("Error retrieving id")
+          }else {
+            localStorage.setItem("token", this.id)
+            localStorage.setItem("username", this.username)
+            this.$router.push({path: "/session/"})
+          }
 				}
 				catch(e) {
 						this.detailedmsg = e.toString();
