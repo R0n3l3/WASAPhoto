@@ -11,7 +11,7 @@ func (db *appdbimpl) DoLogin(u string) ([]Profile, error) {
 	users, err := db.GetUserProfiles(u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			statement := "INSERT INTO profiles(profileName, photoNumber) VALUES ('" + u + "', 0)"
+			statement := `INSERT INTO profiles(profileName, photoNumber) VALUES ("` + u + `", 0)`
 			res, err := db.c.Exec(statement)
 			if err != nil {
 				log.Println(err.Error())
